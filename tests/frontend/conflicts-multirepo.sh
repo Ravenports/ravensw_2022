@@ -87,51 +87,51 @@ EOF
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M manifest
+		ravensw register -M manifest
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M manifest2
+		ravensw register -M manifest2
 
 	mkdir repo1
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M manifest -o repo1/
+		ravensw create -M manifest -o repo1/
 
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M manifest2 -o repo1/
+		ravensw create -M manifest2 -o repo1/
 
 	mkdir repo2
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M manifest3 -o repo2/
+		ravensw create -M manifest3 -o repo2/
 
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M manifest4 -o repo2/
+		ravensw create -M manifest4 -o repo2/
 
 	atf_check \
 		-o inline:"Creating repository in repo1:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo repo1
+		ravensw repo repo1
 
 	atf_check \
 		-o inline:"Creating repository in repo2:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo repo2
+		ravensw repo repo2
 
 	cat << EOF >> repo.conf
 local1: {
@@ -179,5 +179,5 @@ ${JAILED}[2/2] Extracting test-1.1:  done
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-s exit:0 \
-		pkg -o CONSERVATIVE_UPGRADE=no -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
+		ravensw -o CONSERVATIVE_UPGRADE=no -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
 }

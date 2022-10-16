@@ -10,29 +10,29 @@ package_merge_body() {
 	touch file2
 	touch file3
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg1 test-file1 1
-	cat << EOF >> pkg1.ucl
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 test-file1 1
+	cat << EOF >> ravensw1.ucl
 files: {
 	${TMPDIR}/file1: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg2 test-file2 1
-	cat << EOF >> pkg2.ucl
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 test-file2 1
+	cat << EOF >> ravensw2.ucl
 files: {
 	${TMPDIR}/file2: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg3 test-file3 1
-	cat << EOF >> pkg3.ucl
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw3 test-file3 1
+	cat << EOF >> ravensw3.ucl
 files: {
 	${TMPDIR}/file3: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg4 test 1
-	cat << EOF >> pkg4.ucl
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw4 test 1
+	cat << EOF >> ravensw4.ucl
 deps: {
 	test-file1: {
 		origin: test
@@ -49,7 +49,7 @@ deps: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg dep1 test1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw dep1 test1 1
 	cat << EOF >> dep1.ucl
 deps: {
 	test-file1: {
@@ -59,16 +59,16 @@ deps: {
 }
 EOF
 
-	for p in pkg1 pkg2 pkg3 pkg4 dep1; do
+	for p in ravensw1 ravensw2 ravensw3 ravensw4 dep1; do
 		atf_check \
 			-o match:".*Installing.*\.\.\.$" \
 			-e empty \
 			-s exit:0 \
-			pkg register -M ${p}.ucl
+			ravensw register -M ${p}.ucl
 	done
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg5 test 1.1
-	cat << EOF >> pkg5.ucl
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw5 test 1.1
+	cat << EOF >> ravensw5.ucl
 files: {
 	${TMPDIR}/file1: "",
 	${TMPDIR}/file2: "",
@@ -76,7 +76,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg dep2 test1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw dep2 test1 1
 	cat << EOF >> dep2.ucl
 deps: {
 	test: {
@@ -85,19 +85,19 @@ deps: {
 	},
 }
 EOF
-	for p in pkg5 dep2; do
+	for p in ravensw5 dep2; do
 		atf_check \
 			-o ignore \
 			-e empty \
 			-s exit:0 \
-			 pkg create -M ./${p}.ucl
+			 ravensw create -M ./${p}.ucl
 	done
 
 	atf_check \
 		-o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo .
+		ravensw repo .
 
 	cat << EOF > repo.conf
 local: {
@@ -109,7 +109,7 @@ EOF
 	atf_check \
 		-o ignore \
 		-s exit:0 \
-		pkg -o REPOS_DIR="$TMPDIR" -o RAVENSW_CACHEDIR="$TMPDIR" upgrade -y
+		ravensw -o REPOS_DIR="$TMPDIR" -o RAVENSW_CACHEDIR="$TMPDIR" upgrade -y
 
 	test -f file1 || atf_fail "file1 is not present"
 	test -f file2 || atf_fail "file2 is not present"

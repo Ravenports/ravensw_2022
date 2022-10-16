@@ -7,5 +7,5 @@ tests_init \
 
 search_body() {
 	export REPOS_DIR=/nonexistent
-	atf_check -e inline:"No active remote repositories configured.\n" -o empty -s exit:3 pkg -C '' -R '' search -e -Q comment -S name pkg
+	atf_check -e inline:"No active remote repositories configured.\n" -o empty -s exit:3 ravensw -C '' -R '' search -e -Q comment -S name ravensw
 }

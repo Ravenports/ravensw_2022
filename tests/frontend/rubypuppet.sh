@@ -1,21 +1,21 @@
 #! /usr/bin/env atf-sh
 
-# If you remove rubygem-ruby-augeas from puppet as deps pkg will not remove puppet
+# If you remove rubygem-ruby-augeas from puppet as deps ravensw will not remove puppet
 # but also don't reinstall it which is also wrong.
 
 . $(atf_get_srcdir)/test_environment.sh
 
 tests_init \
-	pkg_puppet
+	ravensw_puppet
 
-pkg_puppet_body() {
+ravensw_puppet_body() {
 	touch puppet.file
 	touch ruby.file
 	touch rubygemrubyaugeas.file
 	touch rubygemhiera.file
 	touch rubygems.file
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg rubygemrubyaugeas rubygem-ruby-augeas 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw rubygemrubyaugeas rubygem-ruby-augeas 1.0
 	cat << EOF >> rubygemrubyaugeas.ucl
 deps: {
 	ruby: {
@@ -32,7 +32,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg puppet puppet 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw puppet puppet 1.0
 	cat << EOF >> puppet.ucl
 deps: {
 	ruby: {
@@ -53,7 +53,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ruby ruby 2.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ruby ruby 2.0
 	cat << EOF >> ruby.ucl
 shlibs_provided [
 	"libruby20.so.20",
@@ -63,7 +63,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg rubygem-hiera rubygem-hiera 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw rubygem-hiera rubygem-hiera 1.0
 	cat << EOF >> rubygem-hiera.ucl
 deps: {
 	ruby: {
@@ -80,7 +80,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ruby-gems20 ruby20-gems 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ruby-gems20 ruby20-gems 1.0
 	cat << EOF >> ruby-gems20.ucl
 deps: {
 	ruby {
@@ -105,26 +105,26 @@ EOF
 		    -o ignore \
 		    -e empty \
 		    -s exit:0 \
-		    pkg create -M ./${p}.ucl
+		    ravensw create -M ./${p}.ucl
 	done
 
 	atf_check \
 	    -o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg repo .
+	    ravensw repo .
 
 	atf_check \
 	    -o ignore \
 	    -s exit:0 \
-	    pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y puppet
+	    ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y puppet
 
 #### NEW
 	rm repo1.conf
 	rm -f *.ucl
 	rm *.tzst
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg rubygemrubyaugeas.new rubygem-ruby-augeas 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw rubygemrubyaugeas.new rubygem-ruby-augeas 1.0
 	cat << EOF >> rubygemrubyaugeas.new.ucl
 deps: {
 	ruby: {
@@ -141,7 +141,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg puppet.new puppet 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw puppet.new puppet 1.0
 	cat << EOF >> puppet.new.ucl
 deps: {
 	ruby: {
@@ -162,7 +162,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ruby.new ruby 2.1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ruby.new ruby 2.1
 	cat << EOF >> ruby.new.ucl
 shlibs_provided [
 	"libruby21.so.21",
@@ -172,7 +172,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg rubygem-hiera.new rubygem-hiera 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw rubygem-hiera.new rubygem-hiera 1.0
 	cat << EOF >> rubygem-hiera.new.ucl
 deps: {
 	ruby: {
@@ -189,7 +189,7 @@ files: {
 	}
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ruby-gems21.new ruby21-gems 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ruby-gems21.new ruby21-gems 1.0
 	cat << EOF >> ruby-gems21.new.ucl
 deps: {
 	ruby {
@@ -207,14 +207,14 @@ EOF
 		    -o ignore \
 		    -e empty \
 		    -s exit:0 \
-		    pkg create -M ./${p}.new.ucl
+		    ravensw create -M ./${p}.new.ucl
 	done
 
 	atf_check \
 	    -o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg repo .
+	    ravensw repo .
 
 	cat << EOF > repo.conf
 local: {
@@ -259,5 +259,5 @@ Number of packages to be reinstalled: 3
 	atf_check \
 	    -o inline:"${OUTPUT}" \
 	    -s exit:1 \
-	    pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -yn
+	    ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -yn
 }

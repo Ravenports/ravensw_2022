@@ -3,9 +3,9 @@
 . $(atf_get_srcdir)/test_environment.sh
 
 tests_init \
-	pkg_phpextensions
+	ravensw_phpextensions
 
-pkg_phpextensions_body() {
+ravensw_phpextensions_body() {
 	touch php53.file
 	touch php53extension.file
 	touch php53gd.file
@@ -93,19 +93,19 @@ EOF
 			-o ignore \
 			-e empty \
 			-s exit:0 \
-			pkg create -M ./${p}.ucl
+			ravensw create -M ./${p}.ucl
 	done
 
 	atf_check \
 		-o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo .
+		ravensw repo .
 
 	atf_check \
 		-o ignore \
 		-s exit:0 \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y php53-extensions
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y php53-extensions
 
 #### NEW
 
@@ -215,14 +215,14 @@ EOF
 			-o ignore \
 			-e empty \
 			-s exit:0 \
-			pkg create -M ./${p}.new.ucl
+			ravensw create -M ./${p}.new.ucl
 	done
 
 	atf_check \
 		-o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo .
+		ravensw repo .
 
 	cat << EOF >> repo.conf
 local: {
@@ -264,7 +264,7 @@ Number of packages to be reinstalled: 1
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-s exit:1 \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -n php53-fileinfo
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -n php53-fileinfo
 
 
 OUTPUT="Updating local repository catalog...
@@ -289,5 +289,5 @@ Number of packages to be reinstalled: 1
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:1 \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -n
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -n
 }

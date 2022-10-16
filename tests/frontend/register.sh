@@ -11,7 +11,7 @@ register_conflicts_body() {
 	mkdir -p teststage/${TMPDIR}
 	echo a > teststage/${TMPDIR}/plop
 	sum=$(openssl dgst -sha256 -binary teststage/${TMPDIR}/plop | hexdump -v -e '/1 "%x"')
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test 1
 	cat >> test.ucl << EOF
 files: {
 	"${TMPDIR}/plop" : "$sum"
@@ -21,12 +21,12 @@ EOF
 	    -o match:".*Installing.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg register -i teststage -M test.ucl
+	    ravensw register -i teststage -M test.ucl
 	nsum=$(openssl dgst -sha256 -binary plop | hexdump -v -e '/1 "%x"')
 	atf_check_equal ${sum} ${nsum}
 	rm -f test.ucl
 	echo b > teststage/${TMPDIR}/plop
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test2 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test2 1
 	cat >> test.ucl << EOF
 files: {
 	"${TMPDIR}/plop" : "$sum2"
@@ -36,7 +36,7 @@ EOF
 	    -o match:".*Installing.*" \
 	    -e match:".*conflicts.*" \
 	    -s exit:70 \
-	    pkg register -i teststage -M test.ucl
+	    ravensw register -i teststage -M test.ucl
 	nsum=$(openssl dgst -sha256 -binary plop | hexdump -v -e '/1 "%x"')
 	atf_check_equal ${sum} ${nsum}
 }
@@ -52,8 +52,8 @@ Always:
 message
 
 '
-	atf_check -o match:"message" pkg register -m .
-	atf_check -o inline:"${OUTPUT}" pkg info -D test1
+	atf_check -o match:"message" ravensw register -m .
+	atf_check -o inline:"${OUTPUT}" ravensw info -D test1
 
 	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test2 1 "${TMPDIR}"
 	cat << EOF > +DISPLAY
@@ -74,14 +74,14 @@ On remove:
 remove
 
 '
-	atf_check -o match:"hey" -o match:"install" -o not-match:"remove" pkg register -m .
-	atf_check -o inline:"${OUTPUT}" pkg info -D test2
+	atf_check -o match:"hey" -o match:"install" -o not-match:"remove" ravensw register -m .
+	atf_check -o inline:"${OUTPUT}" ravensw info -D test2
 
 }
 
 prefix_is_a_symlink_body()
 {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	mkdir -p ${TMPDIR}/${TMPDIR}/plop/bla
 	echo "something" > ${TMPDIR}/${TMPDIR}/plop/bla/a
 	ln ${TMPDIR}/${TMPDIR}/plop/bla/a ${TMPDIR}/${TMPDIR}/plop/bla/b
@@ -101,7 +101,7 @@ prefix_is_a_symlink_body()
 	ln -sf ${TMPDIR}/target/hey ${TMPDIR}/target/${TMPDIR}
 	atf_check \
 		-o ignore \
-		pkg -r ${TMPDIR}/target register -M ${TMPDIR}/test2.ucl -f ${TMPDIR}/plist -i ${TMPDIR}
+		ravensw -r ${TMPDIR}/target register -M ${TMPDIR}/test2.ucl -f ${TMPDIR}/plist -i ${TMPDIR}
 	test -f ${TMPDIR}/target/${TMPDIR}/plop/bla/a || atf_fail "hardlinks failed"
 	test -f ${TMPDIR}/target/${TMPDIR}/plop/bla/b || atf_fail "hardlinks failed2"
 	inode1=$(ls -i ${TMPDIR}/target/${TMPDIR}/plop/bla/a | awk '{ print $1 }')

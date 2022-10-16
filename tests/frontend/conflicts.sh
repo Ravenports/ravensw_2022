@@ -12,7 +12,7 @@ tests_init \
 # bar1 and bar conflict with each other
 complex_conflicts_body() {
 	echo "bar-1.0" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg bar bar 1.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar bar 1.0 "${TMPDIR}"
 	cat << EOF >> bar.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -23,9 +23,9 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./bar.ucl -o ./repo/
+		ravensw create -M ./bar.ucl -o ./repo/
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg foo foo 1.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw foo foo 1.0 "${TMPDIR}"
 	cat << EOF >> foo.ucl
 deps: {
 	bar: {
@@ -39,7 +39,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./foo.ucl -o ./repo/
+		ravensw create -M ./foo.ucl -o ./repo/
 
 	cat << EOF > ravensw.conf
 RAVENSW_DBDIR=${TMPDIR}
@@ -53,22 +53,22 @@ EOF
 		-o inline:"Creating repository in ./repo:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg -C ./ravensw.conf repo ./repo
+		ravensw -C ./ravensw.conf repo ./repo
 
 	atf_check \
 		-o ignore \
 		-s exit:0 \
-		pkg -C ./ravensw.conf update -f
+		ravensw -C ./ravensw.conf update -f
 
 	atf_check \
 		-o match:"Installing foo-1\.0" \
 		-s exit:0 \
-		pkg -C ./ravensw.conf install -y foo
+		ravensw -C ./ravensw.conf install -y foo
 
 	# Upgrade bar
 	rm -fr repo
 	echo "bar-2.0" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg bar bar 2.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar bar 2.0 "${TMPDIR}"
 	cat << EOF >> bar.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -79,11 +79,11 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./bar.ucl -o ./repo/
+		ravensw create -M ./bar.ucl -o ./repo/
 
 	# Create bar1-1.1
 	echo "bar-1.1" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg bar1 bar1 1.1 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar1 bar1 1.1 "${TMPDIR}"
 	cat << EOF >> bar1.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -94,9 +94,9 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./bar1.ucl -o ./repo/
+		ravensw create -M ./bar1.ucl -o ./repo/
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg foo foo 1.0_1 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw foo foo 1.0_1 "${TMPDIR}"
 	cat << EOF >> foo.ucl
 deps: {
 	bar1: {
@@ -110,19 +110,19 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./foo.ucl -o ./repo/
+		ravensw create -M ./foo.ucl -o ./repo/
 
 	atf_check \
 		-o inline:"Creating repository in ./repo:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg -C ./ravensw.conf repo ./repo
+		ravensw -C ./ravensw.conf repo ./repo
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg -C ./ravensw.conf update -f
+		ravensw -C ./ravensw.conf update -f
 
 OUTPUT="Updating local repository catalog...
 local repository is up to date.
@@ -159,7 +159,7 @@ Number of packages to be upgraded: 1
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C ./ravensw.conf upgrade -y
+		ravensw -C ./ravensw.conf upgrade -y
 
 	atf_check \
 		-o match:"foo-1.0_1" \
@@ -167,7 +167,7 @@ Number of packages to be upgraded: 1
 		-o not-match:"bar-2.0" \
 		-e empty \
 		-s exit:0 \
-		pkg info
+		ravensw info
 }
 
 find_conflicts_body() {
@@ -182,7 +182,7 @@ EOF
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M +MANIFEST
+		ravensw register -M +MANIFEST
 
 	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test2 1 /
 	cat << EOF >> +MANIFEST
@@ -195,13 +195,13 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M +MANIFEST -o .
+		ravensw create -M +MANIFEST -o .
 
 	atf_check \
 		-o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo .
+		ravensw repo .
 
 	cat << EOF >> repo.conf
 local: {
@@ -238,5 +238,5 @@ ${JAILED}[2/2] Extracting test2-1:  done
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-s exit:0 \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y test2-1
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y test2-1
 }

@@ -14,7 +14,7 @@ tests_init \
 basic_body()
 {
 	echo "test" > a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 cat << EOF >> test.ucl
 files = {
 	${TMPDIR}/a: ""
@@ -25,14 +25,14 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	mkdir ${TMPDIR}/target
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qy \
 			${TMPDIR}/test-1.tzst
 
 OUTPUT="${TMPDIR}/target/local.sqlite
@@ -49,14 +49,14 @@ ${TMPDIR}/target${TMPDIR}/a
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 # check no leftovers during upgrades/reinstallation
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 
 	atf_check \
@@ -70,7 +70,7 @@ ${TMPDIR}/target${TMPDIR}/a
 basic_dirs_body()
 {
 	mkdir ${TMPDIR}/plop
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 cat << EOF >> test.ucl
 directories = {
 	${TMPDIR}/plop: y
@@ -81,14 +81,14 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	mkdir ${TMPDIR}/target
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 
 	test -d ${TMPDIR}/target${TMPDIR}/plop || atf_fail "directory not extracted"
@@ -98,7 +98,7 @@ setuid_body()
 {
 	touch ${TMPDIR}/a
 	chmod 04554 ${TMPDIR}/a || atf_fail "Fail to chmod"
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	cat << EOF >> test.ucl
 files = {
 	${TMPDIR}/a = ""
@@ -108,7 +108,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	atf_check \
 		-o match:"^-r-sr-xr-- " \
@@ -120,7 +120,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 
 	atf_check \
@@ -136,7 +136,7 @@ setuid_hardlinks_body()
 	ln ${TMPDIR}/a ${TMPDIR}/b
 	chmod 04554 ${TMPDIR}/a || atf_fail "Fail to chmod"
 	chmod 04554 ${TMPDIR}/b || atf_fail "Fail to chmod"
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	cat << EOF >> test.ucl
 files = {
 	${TMPDIR}/a = ""
@@ -147,7 +147,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	atf_check \
 		-o match:"^-r-sr-xr--.*a$" \
@@ -160,7 +160,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null  -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null  -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 
 	atf_check \
@@ -184,20 +184,20 @@ chflags_body()
 	# use nodump as it is the only one supported as user, by zfs and by
 	# libarchive
 	touch ${TMPDIR}/a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	echo "@(,,,nodump) ${TMPDIR}/a" > test.plist
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl -p test.plist
+		ravensw create -M test.ucl -p test.plist
 
 	mkdir ${TMPDIR}/target
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 		    ${TMPDIR}/test-1.tzst
 
 	atf_check \
@@ -214,20 +214,20 @@ chflags_schg_body()
 	test $(id -u) = 0 || atf_skip "Can only be run as root"
 
 	touch ${TMPDIR}/a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	echo "@(root,wheel,,schg) ${TMPDIR}/a" > test.plist
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl -p test.plist
+		ravensw create -M test.ucl -p test.plist
 
 	mkdir ${TMPDIR}/target
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 
 	atf_check \
@@ -241,7 +241,7 @@ chflags_schg_body()
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 }
 
@@ -253,7 +253,7 @@ chflags_schg_cleanup()
 
 symlinks_body()
 {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	cat << EOF >> test.ucl
 files: {
 ${TMPDIR}/a = "";
@@ -265,7 +265,7 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	mkdir ${TMPDIR}/target
 
@@ -273,6 +273,6 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
+		ravensw -o REPOS_DIR=/dev/null -r ${TMPDIR}/target install -qfy \
 			${TMPDIR}/test-1.tzst
 }

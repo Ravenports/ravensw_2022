@@ -2,7 +2,7 @@
 
 . $(atf_get_srcdir)/test_environment.sh
 
-# https://github.com/freebsd/pkg/issues/1374
+# https://github.com/freebsd/ravensw/issues/1374
 tests_init \
         issue1374
 
@@ -92,14 +92,14 @@ EOF
                         -o ignore \
                         -e empty \
                         -s exit:0 \
-                        pkg create -o ${TMPDIR}/repo1 -M ./${p}.ucl
+                        ravensw create -o ${TMPDIR}/repo1 -M ./${p}.ucl
         done
 
         atf_check \
                 -o inline:"Creating repository in ${TMPDIR}/repo1:  done\nPacking files for repository:  done\n" \
                 -e empty \
                 -s exit:0 \
-                pkg repo -o ${TMPDIR}/repo1 ${TMPDIR}/repo1
+                ravensw repo -o ${TMPDIR}/repo1 ${TMPDIR}/repo1
 
 
         cat << EOF > pB.ucl
@@ -125,41 +125,41 @@ EOF
                         -o ignore \
                         -e empty \
                         -s exit:0 \
-                        pkg create -o ${TMPDIR}/repo2 -M ./${p}.ucl
+                        ravensw create -o ${TMPDIR}/repo2 -M ./${p}.ucl
         done
 
         atf_check \
                 -o inline:"Creating repository in ${TMPDIR}/repo2:  done\nPacking files for repository:  done\n" \
                 -e empty \
                 -s exit:0 \
-                pkg repo -o ${TMPDIR}/repo2 ${TMPDIR}/repo2
+                ravensw repo -o ${TMPDIR}/repo2 ${TMPDIR}/repo2
 
 
         atf_check \
                 -o ignore \
                 -s exit:0 \
-                pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y foo
-
-        atf_check \
-                -o ignore \
-                -e empty \
-                -s exit:0 \
-                pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" delete -y foo
-
-
+                ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" install -y foo
 
         atf_check \
                 -o ignore \
                 -e empty \
                 -s exit:0 \
-                pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" autoremove -y
+                ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" delete -y foo
+
+
+
+        atf_check \
+                -o ignore \
+                -e empty \
+                -s exit:0 \
+                ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" autoremove -y
 
 	# 100% must be empty, but it's not
         atf_check \
                 -o empty \
                 -e empty \
                 -s exit:0 \
-                pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" query -e "%a == 0" "%n-%v"
+                ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" query -e "%a == 0" "%n-%v"
 
 
 }

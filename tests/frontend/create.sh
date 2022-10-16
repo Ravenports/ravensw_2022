@@ -14,7 +14,7 @@ tests_init \
 	create_from_plist_fflags create_from_plist_bad_fflags \
 	create_from_plist_with_keyword_arguments \
 	create_from_manifest_and_plist \
-	create_from_plist_pkg_descr \
+	create_from_plist_ravensw_descr \
 	create_from_plist_hash \
 	create_from_plist_with_keyword_and_message \
 	create_with_hardlink
@@ -55,7 +55,7 @@ basic_validation() {
 }
 
 create_with_hardlink_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1.0"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1.0"
 	echo "blah" >> foo
 	ln foo bar
 	echo "@(root,wheel,0555,) /foo" >> test.plist
@@ -64,7 +64,7 @@ create_with_hardlink_body() {
 	atf_check \
 		-o ignore \
 		-e ignore \
-		pkg create -M test.ucl -p test.plist -r .
+		ravensw create -M test.ucl -p test.plist -r .
 }
 
 create_from_plist_body() {
@@ -76,7 +76,7 @@ create_from_plist_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -94,7 +94,7 @@ create_from_plist_set_owner_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -112,7 +112,7 @@ create_from_plist_set_group_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -132,7 +132,7 @@ create_from_plist_gather_mode_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -150,7 +150,7 @@ create_from_plist_set_mode_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -168,7 +168,7 @@ create_from_plist_mini_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 	atf_check \
@@ -189,7 +189,7 @@ create_from_plist_dirrm_body() {
 		atf_check \
 			-o empty \
 			-e inline:"Warning: @dirrm[try] is deprecated, please use @dir\n" \
-			pkg create -o ${TMPDIR} -m . -p test.plist -r .
+			ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 		basic_validation
 
@@ -203,7 +203,7 @@ aline"
 	atf_check \
 		-o empty \
 		-e empty \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 
 	basic_validation
 
@@ -216,7 +216,7 @@ aline"
 	atf_check \
 		-o empty \
 		-e inline:"Warning: @ignore is deprecated\n" \
-		pkg -o DEVELOPER_MODE=yes create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o DEVELOPER_MODE=yes create -o ${TMPDIR} -m . -p test.plist -r .
 }
 
 create_from_plist_fflags_body() {
@@ -227,7 +227,7 @@ create_from_plist_fflags_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 }
 
 create_from_plist_bad_fflags_body() {
@@ -238,7 +238,7 @@ create_from_plist_bad_fflags_body() {
 		-o empty \
 		-e inline:"Malformed keyword '', wrong fflags\n" \
 		-s exit:70 \
-		pkg create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -o ${TMPDIR} -m . -p test.plist -r .
 }
 
 create_from_plist_with_keyword_arguments_body() {
@@ -248,7 +248,7 @@ create_from_plist_with_keyword_arguments_body() {
 		-o empty \
 		-e inline:"cannot load keyword from ./testkeyword.ucl: No such file or directory\nunknown keyword testkeyword: @testkeyword\n" \
 		-s exit:70 \
-		pkg -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
 
 cat << EOF >> testkeyword.ucl
 actions: []
@@ -261,7 +261,7 @@ EOF
 		-o empty \
 		-e inline:"Requesting argument %2 while only 1 arguments are available\n" \
 		-s exit:70 \
-		pkg -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
 
 cat << EOF > testkeyword.ucl
 actions: [file(%1)]
@@ -276,7 +276,7 @@ EOF
 		-o empty \
 		-e inline:"Invalid argument: expecting a number got (%1)\n" \
 		-s exit:70 \
-		pkg -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
 
 cat << EOF > testkeyword.ucl
 actions: [file(1), dir(2)]
@@ -291,13 +291,13 @@ EOF
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
 
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw -o PLIST_KEYWORDS_DIR=. create -o ${TMPDIR} -m . -p test.plist -r .
 
 cat << EOF >> output.ucl
 name = "test";
@@ -330,7 +330,7 @@ EOF
 		-o file:output.ucl \
 		-e empty \
 		-s exit:0 \
-		pkg info -R --raw-format=ucl -F test-1.tzst
+		ravensw info -R --raw-format=ucl -F test-1.tzst
 }
 
 create_from_manifest_and_plist_body() {
@@ -341,7 +341,7 @@ create_from_manifest_and_plist_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./+MANIFEST -p test.plist -r ${TMPDIR}
+		ravensw create -M ./+MANIFEST -p test.plist -r ${TMPDIR}
 
 	cat << EOF > output.ucl
 name = "test";
@@ -368,10 +368,10 @@ EOF
 		-o file:output.ucl \
 		-e empty \
 		-s exit:0 \
-		pkg info -R --raw-format=ucl -F test-1.tzst
+		ravensw info -R --raw-format=ucl -F test-1.tzst
 }
 
-create_from_plist_pkg_descr_body() {
+create_from_plist_ravensw_descr_body() {
 	genmanifest
 cat << EOF > ./+DISPLAY
 Message
@@ -382,8 +382,8 @@ Always:
 Message
 
 "
-	atf_check pkg create -m . -r ${TMPDIR}
-	atf_check -o inline:"${OUTPUT}" pkg info -D -F ./test-1.tzst
+	atf_check ravensw create -m . -r ${TMPDIR}
+	atf_check -o inline:"${OUTPUT}" ravensw info -D -F ./test-1.tzst
 
 cat << EOF > ./+DISPLAY
 [
@@ -401,8 +401,8 @@ message upgrade
 
 '
 
-	atf_check pkg create -m . -r ${TMPDIR}
-	atf_check -o inline:"${OUTPUT}" pkg info -D -F ./test-1.tzst
+	atf_check ravensw create -m . -r ${TMPDIR}
+	atf_check -o inline:"${OUTPUT}" ravensw info -D -F ./test-1.tzst
 
 }
 
@@ -415,7 +415,7 @@ create_from_plist_hash_body() {
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg create -h -o ${TMPDIR} -m . -p test.plist -r .
+		ravensw create -h -o ${TMPDIR} -m . -p test.plist -r .
 
 	atf_check \
 		-o ignore \
@@ -453,7 +453,7 @@ On install:
 on install
 
 '
-	atf_check pkg -o PLIST_KEYWORDS_DIR=. create -m . -r ${TMPDIR} -p test.plist
-	atf_check -o inline:"${OUTPUT}" pkg info -D -F ./test-1.tzst
+	atf_check ravensw -o PLIST_KEYWORDS_DIR=. create -m . -r ${TMPDIR} -p test.plist
+	atf_check -o inline:"${OUTPUT}" ravensw info -D -F ./test-1.tzst
 
 }

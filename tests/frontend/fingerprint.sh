@@ -49,9 +49,9 @@ EOD
 EOF
 
 	atf_check -o ignore -e ignore \
-		pkg create -M test.ucl -o fakerepo
+		ravensw create -M test.ucl -o fakerepo
 	atf_check -o ignore \
-		pkg repo fakerepo signing_command: sh sign.sh
+		ravensw repo fakerepo signing_command: sh sign.sh
 
 	cat >> repo.conf << EOF
 local: {
@@ -64,6 +64,6 @@ EOF
 	atf_check \
 		-o ignore \
 		-e match:".*extracting signature of repo.*" \
-		pkg -dd -o REPOS_DIR="${TMPDIR}" \
+		ravensw -dd -o REPOS_DIR="${TMPDIR}" \
 		-o RAVENSW_CACHEDIR="${TMPDIR}" update
 }

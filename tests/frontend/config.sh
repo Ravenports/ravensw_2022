@@ -3,25 +3,25 @@
 . $(atf_get_srcdir)/test_environment.sh
 tests_init \
 	empty_conf \
-	duplicate_pkgs_notallowed \
+	duplicate_ravensws_notallowed \
 	inline_repo \
 	nameserver
-#	duplicate_pkgs_allowed \
+#	duplicate_ravensws_allowed \
 
-duplicate_pkgs_allowed_body() {
+duplicate_ravensws_allowed_body() {
 	cat << EOF > ravensw.conf
 duplicatedefault: 2
 EOF
 
 	for n in 1 2; do
-		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test${n} test ${n}
+		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test${n} test ${n}
 		echo 'allowduplicate: true' >> test${n}.ucl
 
 	atf_check \
 		-e empty \
 		-o match:"Installing test-${n}..." \
 		-s exit:0 \
-		pkg register -M test${n}.ucl
+		ravensw register -M test${n}.ucl
 done
 
 	atf_check \
@@ -29,30 +29,30 @@ done
 		-o match:"test-1                         a test" \
 		-o match:"test-2                         a test" \
 		-s exit:0 \
-		pkg info
+		ravensw info
 }
 
-duplicate_pkgs_notallowed_body() {
+duplicate_ravensws_notallowed_body() {
 	for n in 1 2; do
-		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test${n} test ${n}
+		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test${n} test ${n}
 	done
 
 	atf_check \
 		-e empty \
 		-o match:"Installing test-1..." \
 		-s exit:0 \
-		pkg register -M test1.ucl
+		ravensw register -M test1.ucl
 
 	atf_check \
 		-e empty \
 		-s exit:70 \
-		pkg register -M test1.ucl
+		ravensw register -M test1.ucl
 
 	atf_check \
 		-e empty \
 		-o match:"test-1                         a test" \
 		-s exit:0 \
-		pkg info
+		ravensw info
 }
 
 empty_conf_body() {
@@ -76,25 +76,25 @@ EOF
 		-e empty \
 		-o ignore \
 		-s exit:0 \
-		pkg register -M test.ucl
+		ravensw register -M test.ucl
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg -C ravensw.conf info test
+		ravensw -C ravensw.conf info test
 }
 
 inline_repo_body() {
-	cat > pkgconfiguration << EOF
+	cat > ravenswconfiguration << EOF
 repositories: {
-	pkg1: { url = file:///tmp },
-	pkg2: { url = file:///tmp2 },
+	ravensw1: { url = file:///tmp },
+	ravensw2: { url = file:///tmp2 },
 }
 EOF
 	atf_check -o match:'^    url             : "file:///tmp",$' \
 		-o match:'^    url             : "file:///tmp2",$' \
-		pkg -o REPOS_DIR=/dev/null -C pkgconfiguration -vv
+		ravensw -o REPOS_DIR=/dev/null -C ravenswconfiguration -vv
 }
 
 nameserver_body()
@@ -104,14 +104,14 @@ nameserver_body()
 
 	atf_check \
 		-o inline:"\n" \
-		pkg -C /dev/null config nameserver
+		ravensw -C /dev/null config nameserver
 
 	atf_check \
 		-o inline:"192.168.1.1\n" \
-		pkg -o NAMESERVER="192.168.1.1" -C /dev/null config nameserver
+		ravensw -o NAMESERVER="192.168.1.1" -C /dev/null config nameserver
 
 	atf_check \
 		-o inline:"plop\n" \
 		-e inline:"Unable to set nameserver, ignoring\n" \
-		pkg -o NAMESERVER="plop" -C /dev/null config nameserver
+		ravensw -o NAMESERVER="plop" -C /dev/null config nameserver
 }

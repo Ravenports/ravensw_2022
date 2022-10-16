@@ -113,9 +113,9 @@ files: {
 }
 EOF
 
-	atf_check -o ignore -e empty pkg register -M jpeg.ucl
-	atf_check -o ignore -e empty pkg register -M deponjpeg.ucl
-	atf_check -o ignore -e empty pkg register -M magicdeponjpeg.ucl
+	atf_check -o ignore -e empty ravensw register -M jpeg.ucl
+	atf_check -o ignore -e empty ravensw register -M deponjpeg.ucl
+	atf_check -o ignore -e empty ravensw register -M magicdeponjpeg.ucl
 
 	cc -shared -Wl,-soname=libjpeg.so.6 -o libjpeg.so.6
 	ln -sf libjpeg.so.6 libjpeg.so
@@ -125,10 +125,10 @@ EOF
 	for p in jpeg deponjpeg2 magicdeponjpeg2 jpeg-turbo; do
 		atf_check -o ignore \
 			-e empty \
-			pkg create -M ./${p}.ucl
+			ravensw create -M ./${p}.ucl
 	done
 
-	atf_check -o ignore pkg repo .
+	atf_check -o ignore ravensw repo .
 
 	cat << EOF > repo.conf
 local: {
@@ -139,5 +139,5 @@ EOF
 	atf_check \
 		-o ignore \
 		-s exit:0 \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
 }

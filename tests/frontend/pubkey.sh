@@ -29,9 +29,9 @@ EOD
 EOF
 
 	atf_check -o ignore -e ignore \
-		pkg create -M test.ucl -o fakerepo
+		ravensw create -M test.ucl -o fakerepo
 	atf_check -o ignore -e ignore \
-		pkg repo fakerepo repo.key
+		ravensw repo fakerepo repo.key
 	cat >> repo.conf << EOF
 local: {
 	url: file:///${TMPDIR}/fakerepo
@@ -42,6 +42,6 @@ local: {
 EOF
 	atf_check \
 		-o ignore \
-		pkg -o REPOS_DIR="${TMPDIR}" \
+		ravensw -o REPOS_DIR="${TMPDIR}" \
 		-o ${RAVENSW_CACHEDIR}="${TMPDIR}" update
 }

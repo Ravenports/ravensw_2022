@@ -13,12 +13,12 @@ local1: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg a a 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw a a 1.0
 	cat << EOF >> a.ucl
 provides: [a-1]
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg b b 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw b b 1.0
 	cat << EOF >> b.ucl
 requires: [a-1]
 EOF
@@ -28,14 +28,14 @@ EOF
 		    -o ignore \
 		    -e empty \
 		    -s exit:0 \
-		    pkg create -M ./${p}.ucl
+		    ravensw create -M ./${p}.ucl
 	done
 
 	atf_check \
 	    -o ignore \
 	    -e empty \
 	    -s exit:0 \
-	    pkg repo .
+	    ravensw repo .
 
 	OUTPUT="Updating local1 repository catalog...
 ${JAILED}Fetching meta.tzst:  done
@@ -55,5 +55,5 @@ Number of packages to be installed: 2
 	atf_check \
 	    -o inline:"${OUTPUT}" \
 	    -s exit:1 \
-	    pkg -o REPOS_DIR="${TMPDIR}" install -n b
+	    ravensw -o REPOS_DIR="${TMPDIR}" install -n b
 }

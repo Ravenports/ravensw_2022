@@ -7,12 +7,12 @@ tests_init \
 	lock_delete
 
 lock_setup() {
-	for pkg in 'png' 'sqlite3' ; do
+	for ravensw in 'png' 'sqlite3' ; do
 		atf_check \
 		    -o match:".*Installing.*\.\.\.$" \
 		    -e empty \
 		    -s exit:0 \
-		    pkg register -t -M ${RESOURCEDIR}/$pkg.ucl
+		    ravensw register -t -M ${RESOURCEDIR}/$ravensw.ucl
 	done
 
 	test -f "./local.sqlite" || \
@@ -31,62 +31,62 @@ lock_body() {
 	    -o match:"Locking sqlite3.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -y sqlite3
+	    ravensw lock -y sqlite3
 
 	atf_check \
 	    -o match:"sqlite3-3.8.6" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -l
+	    ravensw lock -l
 
 	atf_check \
 	    -o inline:"sqlite3-3.8.6: already locked\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -y sqlite3
+	    ravensw lock -y sqlite3
 
 	atf_check \
 	    -o match:"Unlocking sqlite3.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg unlock -y sqlite3
+	    ravensw unlock -y sqlite3
 
 	atf_check \
 	    -o inline:"Currently locked packages:\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -l
+	    ravensw lock -l
 
 	atf_check \
 	    -o inline:"sqlite3-3.8.6: already unlocked\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg unlock -y sqlite3
+	    ravensw unlock -y sqlite3
 
 	atf_check \
 	    -o match:"Locking.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -y -a
+	    ravensw lock -y -a
 
 	atf_check \
 	    -o match:"sqlite3.*" \
 	    -o match:"png.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -l
+	    ravensw lock -l
 
 	atf_check \
 	    -o match:"Unlocking.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg unlock -y -a
+	    ravensw unlock -y -a
 
 	atf_check \
 	    -o inline:"Currently locked packages:\n" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -l
+	    ravensw lock -l
 }
 
 lock_delete_head() {
@@ -100,18 +100,18 @@ lock_delete_body() {
 	    -o match:"Locking sqlite3.*" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -y sqlite3
+	    ravensw lock -y sqlite3
 
 	atf_check \
 	    -o match:".*locked and may not be removed.*" \
 	    -o match:"sqlite3.*" \
 	    -e empty \
 	    -s exit:7 \
-	    pkg delete -y sqlite3
+	    ravensw delete -y sqlite3
 
 	atf_check \
 	    -o match:"sqlite3-3.8.6" \
 	    -e empty \
 	    -s exit:0 \
-	    pkg lock -l
+	    ravensw lock -l
 }

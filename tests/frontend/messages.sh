@@ -30,10 +30,10 @@ EOF
 		-o match:".*Installing.*" \
 		-o match:"^Always print.*" \
 		-o match:"^package being installed.*" \
-		pkg register -M test.ucl
+		ravensw register -M test.ucl
 	atf_check \
 		-o match:"^package being removed.*" \
-		pkg delete -y test
+		ravensw delete -y test
 
 	cat << EOF > repo1.conf
 local1: {
@@ -52,12 +52,12 @@ www: "unknown"
 comment: "need one"
 desc: "also need one"
 EOF
-	atf_check -o ignore pkg register -M test2.ucl
-	atf_check -o ignore pkg create -M test.ucl
-	atf_check -o ignore pkg repo .
+	atf_check -o ignore ravensw register -M test2.ucl
+	atf_check -o ignore ravensw create -M test.ucl
+	atf_check -o ignore ravensw repo .
 	atf_check -o match:"^Upgrading from lower than 1.0.*" \
-	    pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
-	atf_check -o ignore pkg delete -y test
+	    ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
+	atf_check -o ignore ravensw delete -y test
 
 	cat > test2.ucl << EOF
 name: "test"
@@ -70,11 +70,11 @@ www: "unknown"
 comment: "need one"
 desc: "also need one"
 EOF
-	atf_check -o ignore pkg register -M test2.ucl
+	atf_check -o ignore ravensw register -M test2.ucl
 	atf_check \
 		-o match:"^Upgrading from higher than 1.0.*" \
-	    pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
-	atf_check -o ignore pkg delete -y test
+	    ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
+	atf_check -o ignore ravensw delete -y test
 
 	cat > test2.ucl << EOF
 name: "test"
@@ -87,11 +87,11 @@ www: "unknown"
 comment: "need one"
 desc: "also need one"
 EOF
-	atf_check -o ignore pkg register -M test2.ucl
+	atf_check -o ignore ravensw register -M test2.ucl
 	atf_check \
 		-o match:"^Upgrading from >1.0 < 3.0.*" \
 		-o match:"^Upgrading from higher than 1.0.*" \
-		pkg -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
+		ravensw -o REPOS_DIR="${TMPDIR}" -o RAVENSW_CACHEDIR="${TMPDIR}" upgrade -y
 OUTPUT='test-5.20_3:
 Always:
 Always print
@@ -115,5 +115,5 @@ On upgrade from test>1.0<3.0:
 Upgrading from >1.0 < 3.0
 
 '
-	atf_check -o inline:"${OUTPUT}" pkg info -D test
+	atf_check -o inline:"${OUTPUT}" ravensw info -D test
 }

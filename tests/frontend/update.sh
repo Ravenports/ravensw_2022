@@ -19,5 +19,5 @@ EOF
 		-o match:"Unable to update repository test" \
 		-e match:"file://empty//packagesite.tzst: No such file or directory" \
 		-s exit:70 \
-		pkg -R repos update
+		ravensw -R repos update
 }

@@ -1,6 +1,6 @@
 
 
-new_pkg() {
+new_ravensw() {
 	cat << EOF > $1.ucl
 name: $2
 origin: $2

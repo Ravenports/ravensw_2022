@@ -9,26 +9,26 @@ tests_init \
 autoupgrade_body() {
 	atf_skip_on Linux Test fails on Linux
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg1 ravensw:standard 1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg2 ravensw:standard 1_1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 ravensw:standard 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 ravensw:standard 1_1
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M pkg1.ucl
+		ravensw register -M ravensw1.ucl
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./pkg2.ucl
+		ravensw create -M ./ravensw2.ucl
 
 	atf_check \
 		-o inline:"Creating repository in .:  done\nPacking files for repository:  done\n" \
 		-e empty \
 		-s exit:0 \
-		pkg repo .
+		ravensw repo .
 
 	cat << EOF > repo.conf
 local: {
@@ -40,7 +40,7 @@ EOF
 	atf_check \
 		-o match:".*New version of ravensw detected.*" \
 		-s exit:1 \
-		pkg -o REPOS_DIR="$TMPDIR" -o RAVENSW_CACHEDIR="$TMPDIR" upgrade -n
+		ravensw -o REPOS_DIR="$TMPDIR" -o RAVENSW_CACHEDIR="$TMPDIR" upgrade -n
 }
 
 autoupgrade_multirepo_head() {
@@ -49,14 +49,14 @@ autoupgrade_multirepo_head() {
 
 autoupgrade_multirepo_body() {
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg1 ravensw:standard 1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg pkg2 ravensw:standard 1.1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 ravensw:standard 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 ravensw:standard 1.1
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M pkg1.ucl
+		ravensw register -M ravensw1.ucl
 
 	mkdir repo1 repo2
 
@@ -64,25 +64,25 @@ autoupgrade_multirepo_body() {
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./pkg1.ucl -o repo1
+		ravensw create -M ./ravensw1.ucl -o repo1
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg create -M ./pkg2.ucl -o repo2
+		ravensw create -M ./ravensw2.ucl -o repo2
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg repo repo1
+		ravensw repo repo1
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg repo repo2
+		ravensw repo repo2
 
 	cat << EOF > repo.conf
 repo1: {
@@ -99,17 +99,17 @@ EOF
 	atf_check \
 		-o ignore \
 		-s exit:0 \
-		pkg install -r repo1 -fy ravensw:standard-1
+		ravensw install -r repo1 -fy ravensw:standard-1
 
 	atf_check \
 		-o match:".*New version of ravensw detected.*" \
 		-s exit:0 \
-		pkg upgrade -y
+		ravensw upgrade -y
 
 	atf_check \
 		-o ignore \
 		-e empty \
 		-s exit:0 \
-		pkg upgrade -y
+		ravensw upgrade -y
 }
 

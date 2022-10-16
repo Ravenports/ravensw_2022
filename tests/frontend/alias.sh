@@ -14,19 +14,19 @@ alias_body() {
 		-o inline:"ALIAS                ARGUMENTS\n" \
 		-e empty \
 		-s exit:0 \
-		pkg -C "" alias
+		ravensw -C "" alias
 
 	atf_check \
 		-o empty \
 		-e empty \
 		-s exit:0 \
-		pkg -C "" alias -q
+		ravensw -C "" alias -q
 
 	atf_check \
 		-o empty \
 		-e inline:"No such alias: 'nonexistent'\n" \
 		-s exit:69 \
-		pkg -C "" alias nonexistent
+		ravensw -C "" alias nonexistent
 }
 
 alias_from_env_body() {
@@ -40,25 +40,25 @@ list                 'info -q'
 		-o inline:"ALIAS                ARGUMENTS\n${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C "" alias
+		ravensw -C "" alias
 
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C "" alias -q
+		ravensw -C "" alias -q
 
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C "" showaliases
+		ravensw -C "" showaliases
 
 	atf_check \
 		-o empty \
 		-e inline:"No such alias: 'nonexistent'\n" \
 		-s exit:69 \
-		pkg -C "" alias nonexistent
+		ravensw -C "" alias nonexistent
 }
 
 alias_from_conf_body() {
@@ -79,23 +79,23 @@ list                 'info -q'
 		-o inline:"ALIAS                ARGUMENTS\n${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C config alias
+		ravensw -C config alias
 
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C config alias -q
+		ravensw -C config alias -q
 
 	atf_check \
 		-o inline:"${OUTPUT}" \
 		-e empty \
 		-s exit:0 \
-		pkg -C config showaliases
+		ravensw -C config showaliases
 
 	atf_check \
 		-o empty \
 		-e inline:"No such alias: 'nonexistent'\n" \
 		-s exit:69 \
-		pkg -C config alias nonexistent
+		ravensw -C config alias nonexistent
 }

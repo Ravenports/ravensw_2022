@@ -4,28 +4,28 @@
 
 tests_init \
 	delete_all \
-	delete_pkg \
+	delete_ravensw \
 	delete_with_directory_owned \
 	simple_delete \
 	simple_delete_prefix_ending_with_slash
 
 delete_all_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "foo" "foo" "1"
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "pkg" "ravensw:standard" "1"
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "foo" "foo" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "ravensw" "ravensw:standard" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 
-	atf_check -o ignore pkg register -M foo.ucl
-	atf_check -o ignore pkg register -M pkg.ucl
-	atf_check -o ignore pkg register -M test.ucl
+	atf_check -o ignore ravensw register -M foo.ucl
+	atf_check -o ignore ravensw register -M ravensw.ucl
+	atf_check -o ignore ravensw register -M test.ucl
 
-	atf_check -o ignore pkg delete -ay
+	atf_check -o ignore ravensw delete -ay
 }
 
-delete_pkg_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "pkg" "ravensw:standard" "1"
-	atf_check -o ignore pkg register -M pkg.ucl
-	atf_check -o ignore -e ignore -s exit:0 -o match:"Cannot delete ravensw itself without force flag" pkg delete -y ravensw:standard
-	atf_check -o ignore -e ignore pkg delete -yf ravensw:standard
+delete_ravensw_body() {
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "ravensw" "ravensw:standard" "1"
+	atf_check -o ignore ravensw register -M ravensw.ucl
+	atf_check -o ignore -e ignore -s exit:0 -o match:"Cannot delete ravensw itself without force flag" ravensw delete -y ravensw:standard
+	atf_check -o ignore -e ignore ravensw delete -yf ravensw:standard
 }
 
 simple_delete_body() {
@@ -33,7 +33,7 @@ simple_delete_body() {
 	mkdir dir
 	touch dir/file2
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1" "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1" "${TMPDIR}"
 	cat << EOF >> test.ucl
 files: {
     ${TMPDIR}/file1: "",
@@ -45,13 +45,13 @@ EOF
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M test.ucl
+		ravensw register -M test.ucl
 
 	atf_check \
 		-o match:".*Deinstalling.*" \
 		-e empty \
 		-s exit:0 \
-		pkg delete -y test
+		ravensw delete -y test
 
 	test -f file1 && atf_fail "'file1' still present"
 	test -f dir/file2 && atf_fail "'dir/file2' still present"
@@ -64,7 +64,7 @@ simple_delete_prefix_ending_with_slash_body() {
 	mkdir dir
 	touch dir/file2
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1" "${TMPDIR}/"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1" "${TMPDIR}/"
 	cat << EOF >> test.ucl
 files: {
     ${TMPDIR}/file1: "",
@@ -76,13 +76,13 @@ EOF
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M test.ucl
+		ravensw register -M test.ucl
 
 	atf_check \
 		-o match:".*Deinstalling.*" \
 		-e empty \
 		-s exit:0 \
-		pkg delete -y test
+		ravensw delete -y test
 
 	test -f file1 && atf_fail "'file1' still present"
 	test -f dir/file2 && atf_fail "'dir/file2' still present"
@@ -95,7 +95,7 @@ delete_with_directory_owned_body() {
 	mkdir dir
 	touch dir/file2
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1" "${TMPDIR}/"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1" "${TMPDIR}/"
 	cat << EOF >> test.ucl
 files: {
     ${TMPDIR}/file1: "",
@@ -103,7 +103,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test2" "test2" "1" "${TMPDIR}/"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test2" "test2" "1" "${TMPDIR}/"
 	cat << EOF >> test2.ucl
 directories: {
     ${TMPDIR}/dir: 'y',
@@ -113,19 +113,19 @@ EOF
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M test.ucl
+		ravensw register -M test.ucl
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \
 		-e empty \
 		-s exit:0 \
-		pkg register -M test2.ucl
+		ravensw register -M test2.ucl
 
 	atf_check \
 		-o match:".*Deinstalling.*" \
 		-e empty \
 		-s exit:0 \
-		pkg delete -y test
+		ravensw delete -y test
 
 	test -f file1 && atf_fail "'file1' still present"
 	test -f dir/file2 && atf_fail "'dir/file2' still present"
@@ -135,7 +135,7 @@ EOF
 		-o match:".*Deinstalling.*" \
 		-e empty \
 		-s exit:0 \
-		pkg delete -y test2
+		ravensw delete -y test2
 
 	test -d dir && atf_fail "'dir' still present"
 	test -d ${TMPDIR} || atf_fail "Prefix has been removed"

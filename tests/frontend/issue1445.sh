@@ -8,7 +8,7 @@ tests_init \
 
 
 dead_symlink_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	cat << EOF >> test.ucl
 directories {
 	${TMPDIR}/plop = "y";
@@ -16,18 +16,18 @@ directories {
 EOF
 	mkdir ${TMPDIR}/plop
 	atf_check \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	rmdir ${TMPDIR}/plop
 	ln -sf ${TMPDIR}/plop2 ${TMPDIR}/plop
 	atf_check \
 		-o ignore \
-		pkg -o REPOS_DIR=/dev/null install -y ${TMPDIR}/test-1.tzst
+		ravensw -o REPOS_DIR=/dev/null install -y ${TMPDIR}/test-1.tzst
 	test -d ${TMPDIR}/plop || atf_fail "directory not created"
 }
 
 good_symlink_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
 	cat << EOF >> test.ucl
 directories {
 	${TMPDIR}/plop = "y";
@@ -35,13 +35,13 @@ directories {
 EOF
 	mkdir ${TMPDIR}/plop
 	atf_check \
-		pkg create -M test.ucl
+		ravensw create -M test.ucl
 
 	rmdir ${TMPDIR}/plop
 	mkdir ${TMPDIR}/plop2
 	ln -sf ${TMPDIR}/plop2 ${TMPDIR}/plop
 	atf_check \
 		-o ignore \
-		pkg -o REPOS_DIR=/dev/null install -y ${TMPDIR}/test-1.tzst
+		ravensw -o REPOS_DIR=/dev/null install -y ${TMPDIR}/test-1.tzst
 	test -h ${TMPDIR}/plop || atf_fail "Symlink deleted"
 }

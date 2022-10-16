@@ -3,12 +3,12 @@
 . $(atf_get_srcdir)/test_environment.sh
 
 tests_init \
-	pkg_no_database \
-	pkg_config_defaults \
-	pkg_create_manifest_bad_syntax \
-	pkg_repo_load_order
+	ravensw_no_database \
+	ravensw_config_defaults \
+	ravensw_create_manifest_bad_syntax \
+	ravensw_repo_load_order
 
-pkg_no_database_body() {
+ravensw_no_database_body() {
         atf_skip_on Linux Test fails on Linux
 
 	atf_check \
@@ -18,7 +18,7 @@ pkg_no_database_body() {
 	    env -i PATH="${PATH}" DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH}" ravensw -o RAVENSW_DBDIR=/dev/null -N
 }
 
-pkg_config_defaults_body()
+ravensw_config_defaults_body()
 {
 	atf_check \
 	    -o match:'^ *RAVENSW_DBDIR = "/var/db/ravensw";$' \
@@ -46,13 +46,13 @@ pkg_config_defaults_body()
 	    -o match:'^ *SSH_RESTRICT_DIR = "";$' \
 	    -e empty              \
 	    -s exit:0             \
-	    env -i PATH="${PATH}" DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH}" pkg -C "" -R "" -vv
+	    env -i PATH="${PATH}" DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH}" ravensw -C "" -R "" -vv
 }
 
-pkg_create_manifest_bad_syntax_body()
+ravensw_create_manifest_bad_syntax_body()
 {
-	mkdir -p testpkg/.metadir
-	cat <<EOF >> testpkg/.metadir/+MANIFEST
+	mkdir -p testravensw/.metadir
+	cat <<EOF >> testravensw/.metadir/+MANIFEST
 name: test
 version: 1
 origin: test
@@ -71,16 +71,16 @@ EOF
 	    -o empty \
 	    -e inline:"Bad format in manifest for key: files\n" \
 	    -s exit:70 \
-	    pkg create -q -m testpkg/.metadir -r testpkg
+	    ravensw create -q -m testravensw/.metadir -r testravensw
 }
 
-pkg_repo_load_order_body()
+ravensw_repo_load_order_body()
 {
 	echo "03_repo: { url: file:///03_repo }" > plop.conf
 	echo "02_repo: { url: file:///02_repo }" > 02.conf
 	echo "01_repo: { url: file:///01_repo }" > 01.conf
 
-	out=$(pkg -o REPOS_DIR=. -vv)
+	out=$(ravensw -o REPOS_DIR=. -vv)
 	atf_check \
 	    -o match:'.*01_repo\:.*02_repo\:.*03_repo\:.*' \
 	    -e empty \

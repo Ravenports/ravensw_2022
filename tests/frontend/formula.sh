@@ -46,14 +46,14 @@ EOF
 		    -o ignore \
 		    -e empty \
 		    -s exit:0 \
-		    pkg create -M ./${p}.ucl
+		    ravensw create -M ./${p}.ucl
 	done
 
 	atf_check \
 	    -o ignore \
 	    -e empty \
 	    -s exit:0 \
-	    pkg repo .
+	    ravensw repo .
 
 	OUTPUT="Updating local1 repository catalog...
 ${JAILED}meta.tzst                                 :  done
@@ -73,5 +73,5 @@ Number of packages to be installed: 2
 	atf_check \
 	    -o inline:"${OUTPUT}" \
 	    -s exit:1 \
-	    pkg -o REPOS_DIR="${TMPDIR}" install -n b
+	    ravensw -o REPOS_DIR="${TMPDIR}" install -n b
 }
