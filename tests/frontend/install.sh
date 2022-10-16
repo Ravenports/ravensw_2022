@@ -71,7 +71,7 @@ EOF
 
 reinstall_body()
 {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test 1 /usr/local
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test 1 /raven
 
 	atf_check \
 		-o ignore \

@@ -19,7 +19,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -37,7 +37,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -63,7 +63,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -121,7 +121,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -139,7 +139,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -165,7 +165,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD
@@ -192,7 +192,7 @@ maintainer: test
 categories: [test]
 comment: a test
 www: http://test
-prefix: /usr/local
+prefix: /raven
 desc: <<EOD
 Yet another test
 EOD

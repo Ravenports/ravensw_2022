@@ -21,7 +21,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 files: {
 	${TMPDIR}/libjpeg.so: "",
@@ -37,7 +37,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 shlib_provided: [ "libjpeg.so.6" ]
 files: {
@@ -54,7 +54,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 deps: {
 	jpeg: { origin: graphics/jpeg, version: "1.0" }
@@ -72,7 +72,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 deps: {
 	jpeg-turbo: { origin: graphics/jpeg-turbo, version: "1.0" }
@@ -90,7 +90,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 files: {
 	${TMPDIR}/magicdeponjpeg.so: "",
@@ -106,7 +106,7 @@ maintainer: test
 categories: [test]
 comment: jpeg
 www: http://jpeg
-prefix: /usr/local
+prefix: /raven
 desc: jpeg desc
 files: {
 	${TMPDIR}/magicdeponjpeg.so: "",

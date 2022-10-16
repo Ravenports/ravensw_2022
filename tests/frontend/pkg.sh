@@ -56,7 +56,7 @@ ravensw_create_manifest_bad_syntax_body()
 name: test
 version: 1
 origin: test
-prefix: /usr/local
+prefix: /raven
 categories: [test]
 comment: this is a test
 maintainer: test
@@ -65,7 +65,7 @@ desc: <<EOD
 A description
 EOD
 files:
-  /usr/local/include/someFile.hp: 'sha256sum' p
+  /raven/include/someFile.hp: 'sha256sum' p
 EOF
 	atf_check \
 	    -o empty \
