@@ -1,0 +1,5 @@
+# make sure we're always using unix line endings.
+
+ .ad[sb]     text eol=lf
+*.sh         text eol=lf
+*.gpr        text eol=lf
