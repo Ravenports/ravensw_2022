@@ -1,0 +1,3 @@
+This directory is used to locally build ravensw
+mainly for test purposes.  The majority of the files
+that may be encountered here should not be committed.

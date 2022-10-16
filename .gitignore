@@ -1,0 +1,18 @@
+# ignore gnat object files
+
+b~*
+*.ali
+
+# ignore c-based object files
+
+*.a
+*.o
+*.pico
+*.po
+*.Po
+*.So
+
+
+# ignore binaries
+
+*.gz
