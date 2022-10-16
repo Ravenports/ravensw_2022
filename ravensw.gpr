@@ -17,9 +17,9 @@ project Ravensw is
       for Switches ("ada") use ("-L/raven/lib", "-lucl_pic", "-lm",
         "-lelf_pic", "-larchive_pic", "-lzstd_pic", "-lfetch_pic",
         "-Lextlib/custom_sqlite", "-lcustom_sqlite_pic",
-        "-Lextlib/blake3", "-lblake3_pic",
-        "-llinenoise", "-L/raven/libressl/lib", "-lssl_pic",
-        "-lcrypto_pic", "-lpthread", "-lresolv");
+        "-lblake3_pic", "-llinenoise",
+        "-L/raven/libressl/lib", "-lssl_pic", "-lcrypto_pic",
+        "-lpthread", "-lresolv");
    end Linker;
 
 end Ravensw;
