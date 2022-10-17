@@ -11,8 +11,11 @@ b~*
 *.po
 *.Po
 *.So
-
+extlib/custom_sqlite/sqlite3.[ch]
 
 # ignore binaries
 
 *.gz
+
+# ignore vendor directories
+vendor/sqlite3

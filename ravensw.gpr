@@ -11,6 +11,7 @@ project Ravensw is
 
    package Compiler is
       for Switches ("ada") use ("-gnatyabABcdefiIklnOptx", "-gnatyM100", "-fstack-check");
+      for Switches ("sqlite3_interface.c") use ("-I../extlib/custom_sqlite");
    end Compiler;
 
    package Linker is
