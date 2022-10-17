@@ -18,7 +18,8 @@ package body Ucl is
    is
       ckey : ICS.chars_ptr := ICS.New_String (key);
    begin
-      return res : access constant libucl.ucl_object_t := libucl.ucl_object_lookup (obj, ckey) do
+      return result : access constant libucl.ucl_object_t := libucl.ucl_object_lookup (obj, ckey)
+      do
          ICS.Free (ckey);
       end return;
    end ucl_object_find_key;
@@ -52,7 +53,8 @@ package body Ucl is
       ctxt : ICS.chars_ptr := ICS.New_String (txt);
    begin
       return result : access libucl.ucl_object_t :=
-        libucl.ucl_object_fromstring_common (ctxt, 0, flags) do
+        libucl.ucl_object_fromstring_common (ctxt, 0, flags)
+      do
          ICS.Free (ctxt);
       end return;
    end common_ucl_object_fromstring;
@@ -246,15 +248,14 @@ package body Ucl is
    function ucl_object_keyl (obj : access constant libucl.ucl_object_t;
                              key : String) return access constant libucl.ucl_object_t
    is
-      result : access constant libucl.ucl_object_t;
-      keyx   : ICS.chars_ptr;
+      keyx   : ICS.chars_ptr := ICS.New_String (key);
       lenx   : aliased IC.size_t := IC.size_t (key'Length);
    begin
-      keyx := ICS.New_String (key);
-      result := libucl.ucl_object_lookup_len (obj, keyx, lenx);
-      ICS.Free (keyx);
-
-      return result;
+      return result : access constant libucl.ucl_object_t :=
+        libucl.ucl_object_lookup_len (obj, keyx, lenx)
+      do
+         ICS.Free (keyx);
+      end return;
    end ucl_object_keyl;
 
 
@@ -355,12 +356,11 @@ package body Ucl is
    is
       use type ICX.bool;
 
-      ckey   : ICS.chars_ptr;
+      ckey   : ICS.chars_ptr := ICS.New_String (key);
       ccopy  : ICX.bool := ICX.bool'Val (0);
       result : ICX.bool;
 
    begin
-      ckey := ICS.New_String (key);
       if copy_key then
          ccopy := ICX.bool'Val (1);
       end if;
@@ -459,11 +459,9 @@ package body Ucl is
    --------------------------------------------------------------------
    procedure ucl_parser_register_variable (parser : T_parser; key, value : String)
    is
-      ckey : ICS.chars_ptr;
-      cval : ICS.chars_ptr;
+      ckey : ICS.chars_ptr := ICS.New_String (key);
+      cval : ICS.chars_ptr := ICS.New_String (value);
    begin
-      ckey := ICS.New_String (key);
-      cval := ICS.New_String (value);
       libucl.ucl_parser_register_variable (parser, ckey, cval);
 
       --  Don't free ckey and cval

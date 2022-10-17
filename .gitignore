@@ -9,6 +9,8 @@ build_objects/b__*
 build_objects/*.bexch
 build_objects/*.deps
 build_objects/ravensw
+build_objects/clang_ref_cache.db
+build_objects/gpsauto.cgpr
 
 # ignore c-based object files
 
