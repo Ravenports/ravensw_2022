@@ -20,7 +20,8 @@ project Ravensw is
         "-Lextlib/custom_sqlite", "-lcustom_sqlite_pic",
         "-lblake3_pic", "-llinenoise",
         "-L/raven/libressl/lib", "-lssl_pic", "-lcrypto_pic",
-        "-lpthread", "-lresolv");
+        "-lpthread");
+      -- "-lresolv" for linux, solaris
    end Linker;
 
 end Ravensw;

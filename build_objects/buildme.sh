@@ -57,9 +57,25 @@ check_prerequisites()
 {
 	local linenoise="/raven/include/linenoise.h"
 	local gprbuild="/raven/bin/gprbuild"
+	local libucl="/raven/lib/libucl_pic.a"
+	local libelf="/raven/lib/libelf_pic.a"
+	local libarchive="/raven/lib/libarchive_pic.a"
+	local libzstd="/raven/lib/libzstd_pic.a"
+	local libfetch="/raven/lib/libfetch_pic.a"
+	local libblake3="/raven/lib/libblake3_pic.a"
+	local libssl="/raven/libressl/lib/libssl_pic.a"
+	local libcrypto="/raven/libressl/lib/libcrypto_pic.a"
 
 	subcheck "linenoise" "${linenoise}"
 	subcheck "gprbuild" "${gprbuild}"
+	subcheck "libucl" "${libucl}"
+	subcheck "libelf" "${libelf}"
+	subcheck "libarchive" "${libarchive}"
+	subcheck "libzstd" "${libzstd}"
+	subcheck "libfetch" "${libfetch}"
+	subcheck "libblake3" "${libblake3}"
+	subcheck "libssl" "${libssl}"
+	subcheck "libcrypto" "${libcrypto}"
 }
 
 preclean()

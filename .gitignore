@@ -8,6 +8,7 @@ build_objects/*.d
 build_objects/b__*
 build_objects/*.bexch
 build_objects/*.deps
+build_objects/ravensw
 
 # ignore c-based object files
 
