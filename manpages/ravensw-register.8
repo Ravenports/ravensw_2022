@@ -12,33 +12,27 @@
 .\"    documentation and/or other materials provided with the distribution.
 .\"
 .\"
-.\"     @(#)pkg.8
-.\"
-.Dd August 13, 2021
-.Dt PKG-REGISTER 8
+.Dd October 17, 2022
+.Dt RAVENSW-REGISTER 8
 .Os
 .Sh NAME
-.Nm "pkg register"
+.Nm "ravensw register"
 .Nd register a package into the local package database
 .Sh SYNOPSIS
 .Nm
-.Op Fl dltN
-.Op Fl f Ar plist-file
-.Fl m Ar metadatadir
+.Op Fl dtN
+.Op Fl m Ar metadatadir
 .Fl i Ar input-path
 .Nm
-.Op Fl dltN
+.Op Fl dtN
 .Fl M Ar metadatafile
 .Pp
 .Nm
-.Op Cm --{debug,legacy,test,no-registration}
-.Op Cm --relocate Ar location
-.Op Cm --plist Ar plist-file
+.Op Cm --{debug,test,no-registration}
 .Cm --metadata Ar metadatadir
 .Cm --root Ar input-path
 .Nm
-.Op Cm --{debug,legacy,test,no-registration}
-.Op Cm --relocate Ar location
+.Op Cm --{debug,test,no-registration}
 .Cm --manifest Ar metadatafile
 .Sh DESCRIPTION
 .Nm
@@ -53,14 +47,12 @@ the package files are installed into the filesystem, and then
 is called to record what was installed into the package database.
 .Pp
 .Nm
-can derive package metadata from a number of different sources:
+can derive package metadata from two different sources:
 .Bl -bullet
 .It
 The package manifest
 .It
 The metadata directory
-.It
-Direct analysis of files installed by the package
 .El
 .Pp
 The package manifest is a
@@ -83,14 +75,9 @@ option.
 Other information about shared library requirements and the packages
 necessary to provide them may be obtained by direct analysis of the
 files installed by the package.
-File checksums may be left blank in the input metadata:
+File checksums may be left blank in the input metadata;
 all checksums will be recalculated from the installed or staged files
 overwriting the input.
-This is the mechanism currently used when installing software directly
-from the ports tree, as it provides reasonable backwards compatibility
-with the old style
-.Xr pkg_add 1
-command.
 .Pp
 Reading in a complete and comprehensive manifest from one file is a
 simpler alternative, but requires all the metadata to have been
@@ -101,7 +88,7 @@ the
 .Fl t
 option.
 This is intended for testing the functionality of
-.Xr pkg 8
+.Xr ravensw 8
 itself, and should not be routinely used.
 .Sh OPTIONS
 The following options are supported by
@@ -111,26 +98,14 @@ The following options are supported by
 Mark the package to be automatically removed if no other packages
 depend on it.
 For more information please refer to
-.Xr pkg-autoremove 8 .
+.Xr ravensw-autoremove 8 .
 .It Fl d , Cm --debug
 Enable debugging output.
 .It Fl N , Cm --no-registration
 Disable registration in the package database, the files will be installed,
 the scripts will be executed.
-.It Fl f Ar plist-file , Cm --plist Ar plist-file
-Specifies a
-.Fa pkg-plist
-style packing list file.
 .It Fl i Ar input-path , Cm --root Ar input-path
 Specifies the package input path or staging directory.
-.It Fl l , Cm --legacy
-Tells
-.Nm
-to generate an old-style package registry entry in a sub-directory of
-.Sy $PKG_DBDIR
-rather than updating the
-.Fa local.sqlite
-database.
 .It  Fl M Ar manifest , Cm --manifest Ar manifest
 Specifies the package manifest file.
 Use of this option means that the only file which will be used as a
@@ -157,29 +132,21 @@ to update the package database without performing any of the usual
 analyses of files installed by the package.
 This option should only be used with caution, and preferably only
 for the intended purpose of performing regression tests on
-.Xr pkg 8
+.Xr ravensw 8
 itself.
-.It Cm --relocate Ar location
-Annotates the package as having been relocated to
-.Pa location ,
-which is an alternate system root.
-This is an experimental feature and intended for cross-architecture
-package management.
-There is no corresponding single letter option.
-.Pq DEPRECATED
 .El
 .Sh ENVIRONMENT
 The following environment variables affect the execution of
 .Nm .
 See
-.Xr pkg.conf 5
+.Xr ravensw.conf 5
 for further description.
 .Bl -tag -width ".Ev NO_DESCRIPTIONS"
-.It Ev PKG_DBDIR
+.It Ev RAVENSW_DBDIR
 .El
 .Sh FILES
 See
-.Xr pkg.conf 5 .
+.Xr ravensw.conf 5 .
 .Sh SEE ALSO
 .Xr ravensw-repository 5 ,
 .Xr ravensw.conf 5 ,
