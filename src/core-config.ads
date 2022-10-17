@@ -1,8 +1,7 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../License.txt
 
-with Core;         use Core;
-with Core.Strings; use Core.Strings;
+with Core; use Core;
 
 package Core.Config is
 

@@ -10,7 +10,7 @@ project Ravensw is
    end Builder;
 
    package Compiler is
-      for Switches ("ada") use ("-gnatyabABcdefiIklnOptx", "-gnatyM100", "-fstack-check");
+      for Switches ("ada") use ("-gnatyabABcdefiIklnOptx", "-gnatyM100", "-fstack-check"); -- , "-gnatwa");
       for Switches ("sqlite3_interface.c") use ("-I../extlib/custom_sqlite");
    end Compiler;
 

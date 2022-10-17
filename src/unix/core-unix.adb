@@ -371,7 +371,7 @@ package body Core.Unix is
       end if;
 
       declare
-         result : String := IC.Strings.Value (ptr_to_dest);
+         result : constant String := IC.Strings.Value (ptr_to_dest);
       begin
          IC.Strings.Free (ptr_to_dest);
          return result;
@@ -415,7 +415,7 @@ package body Core.Unix is
    function last_error_ACCESS return Boolean
    is
       use type IC.int;
-      target_error : IC.int := C_errno_EACCESS;
+      target_error : constant IC.int := C_errno_EACCESS;
    begin
       return (target_error /= IC.int (0));
    end last_error_ACCESS;
@@ -427,7 +427,7 @@ package body Core.Unix is
    function last_error_NOENT return Boolean
    is
       use type IC.int;
-      target_error : IC.int := C_errno_ENOENT;
+      target_error : constant IC.int := C_errno_ENOENT;
    begin
       return (target_error /= IC.int (0));
    end last_error_NOENT;
@@ -439,7 +439,7 @@ package body Core.Unix is
    function last_error_INTR return Boolean
    is
       use type IC.int;
-      target_error : IC.int := C_errno_EINTR;
+      target_error : constant IC.int := C_errno_EINTR;
    begin
       return (target_error /= IC.int (0));
    end last_error_INTR;
@@ -451,7 +451,7 @@ package body Core.Unix is
    function last_error_AGAIN return Boolean
    is
       use type IC.int;
-      target_error : IC.int := C_errno_EAGAIN;
+      target_error : constant IC.int := C_errno_EAGAIN;
    begin
       return (target_error /= IC.int (0));
    end last_error_AGAIN;
@@ -463,7 +463,7 @@ package body Core.Unix is
    function last_error_CONNRESET return Boolean
    is
       use type IC.int;
-      target_error : IC.int := C_errno_ECONNRESET;
+      target_error : constant IC.int := C_errno_ECONNRESET;
    begin
       return (target_error /= IC.int (0));
    end last_error_CONNRESET;
@@ -475,7 +475,7 @@ package body Core.Unix is
    function bad_perms (fileowner : uid_t; filegroup : uid_t; sb : struct_stat_Access)
       return Boolean
    is
-      res : IC.int := C_bad_perms (IC.int (fileowner), IC.int (filegroup), sb);
+      res : constant IC.int := C_bad_perms (IC.int (fileowner), IC.int (filegroup), sb);
    begin
       return failure (res);
    end bad_perms;
@@ -487,7 +487,7 @@ package body Core.Unix is
    function wrong_owner (fileowner : uid_t; filegroup : uid_t; sb : struct_stat_Access)
       return Boolean
    is
-      res : IC.int := C_wrong_owner (IC.int (fileowner), IC.int (filegroup), sb);
+      res : constant IC.int := C_wrong_owner (IC.int (fileowner), IC.int (filegroup), sb);
    begin
       return failure (res);
    end wrong_owner;
@@ -574,11 +574,16 @@ package body Core.Unix is
       access_time : T_epochtime;
       mod_time    : T_epochtime)
    is
-      atime  : IC.long := IC.long (access_time);
-      mtime  : IC.long := IC.long (mod_time);
-      res    : IC.int;
+      atime  : constant IC.long := IC.long (access_time);
+      mtime  : constant IC.long := IC.long (mod_time);
    begin
-      res := C_set_file_times (fd, atime, mtime);
+      pragma Warnings (Off, "*unused_result*");
+      declare
+         unused_result : IC.int;
+      begin
+         unused_result := C_set_file_times (fd, atime, mtime);
+      end;
+      pragma Warnings (On, "*unused_result*");
    end set_file_times;
 
 
@@ -590,13 +595,17 @@ package body Core.Unix is
       access_time : T_epochtime;
       mod_time    : T_epochtime)
    is
-      atime  : IC.long := IC.long (access_time);
-      mtime  : IC.long := IC.long (mod_time);
+      atime  : constant IC.long := IC.long (access_time);
+      mtime  : constant IC.long := IC.long (mod_time);
       c_path : IC.Strings.chars_ptr;
-      res    : IC.int;
    begin
-      c_path := IC.Strings.New_String (path);
-      res := C_set_file_times2 (c_path, atime, mtime);
+      pragma Warnings (Off, "*unused_result*");
+      declare
+         unused_result : IC.int;
+      begin
+         unused_result := C_set_file_times2 (c_path, atime, mtime);
+      end;
+      pragma Warnings (On, "*unused_result*");
       IC.Strings.Free (c_path);
    end set_file_times;
 
@@ -733,7 +742,7 @@ package body Core.Unix is
    function kill (pid : Process_ID) return Boolean
    is
       res : IC.int;
-      sig : IC.int := IC.int (0);
+      sig : constant IC.int := IC.int (0);
    begin
       res := C_kill (pid, sig);
       return success (res);
@@ -837,7 +846,7 @@ package body Core.Unix is
    function wait_for_pid (pid : Process_ID; exit_status : out Integer) return Boolean
    is
       stat       : aliased IC.int := 0;
-      options    : IC.int := 0;
+      options    : constant IC.int := 0;
       bad_result : constant Process_ID := -1;
    begin
       loop
@@ -939,13 +948,12 @@ package body Core.Unix is
    --------------------------------------------------------------------
    procedure execvp (exec_program, exec_arguments : String)
    is
-      num_args : Positive := Strings.count_char (exec_arguments, LAT.LF) + 1;
-      delim    : String (1 .. 1) := (1 => LAT.LF);
+      num_args : constant Positive := Strings.count_char (exec_arguments, LAT.LF) + 1;
+      delim    : constant String (1 .. 1) := (1 => LAT.LF);
    begin
       declare
          arg0 : IC.Strings.chars_ptr;
          argv : array (1 .. num_args + 1) of aliased IC.Strings.chars_ptr;
-         res  : IC.int;
       begin
          arg0 := IC.Strings.New_String (exec_program);
          for x in 1 .. num_args loop
@@ -953,7 +961,13 @@ package body Core.Unix is
          end loop;
          argv (num_args + 1) := IC.Strings.Null_Ptr;
 
-         res := C_execvp (arg0, argv (argv'First)'Access);
+         pragma Warnings (Off, "*unused_result*");
+         declare
+            unused_result : IC.int;
+         begin
+            unused_result := C_execvp (arg0, argv (argv'First)'Access);
+         end;
+         pragma Warnings (On, "*unused_result*");
 
          --  If successful, this should never run
          IC.Strings.Free (arg0);

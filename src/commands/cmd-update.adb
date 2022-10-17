@@ -1,19 +1,14 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../License.txt
 
-with Ada.Characters.Latin_1;
-
 with Core.Strings;
 with Core.Database.Operations;
 with Core.Repo.Operations;
-with Core.Config;
 with Core.Event;
 
 use Core.Strings;
 
 package body Cmd.Update is
-
-   package LAT renames Ada.Characters.Latin_1;
 
    --------------------------------------------------------------------
    --  pkgcli_update

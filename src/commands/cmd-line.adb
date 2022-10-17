@@ -264,6 +264,8 @@ package body Cmd.Line is
       ---------------------------------
       function aCgix (datum : String; datumtxt : Text; use_all : Boolean := True) return Boolean
       is
+         pragma Unreferenced (datumtxt);
+
          sws_all    : constant String := "-a";
          swl_all    : constant String := "--all";
          sws_case   : constant String := "-C";
@@ -321,7 +323,7 @@ package body Cmd.Line is
       begin
          for Arg in 1 .. ACL.Argument_Count loop
             declare
-               datum      : String := ACL.Argument (Arg);
+               datum      : constant String := ACL.Argument (Arg);
                save_as_is : Boolean := False;
             begin
                if datum'Length = 1 then

@@ -10,7 +10,6 @@ with Core.Repo.Meta;
 with Core.Repo.Fetch;
 with Core.Repo.Operations.Schema;
 with Core.Repo.Iterator.Packages;
-with Core.VFS;
 with Core.Database.CustomCmds;
 with Core.CommonSQL;
 with Core.Checksum;
@@ -483,7 +482,7 @@ package body Core.Repo.Operations is
    is
       check_sql : constant String := "INSERT INTO repo_update VALUES(1);";
       start_sql : constant String := "CREATE TABLE IF NOT EXISTS repo_update (n INT);";
-      repo_key  : Text := SUS (reponame);
+      repo_key  : constant Text := SUS (reponame);
    begin
       if not repositories.Contains (repo_key) then
          raise invalid_repo_name;
@@ -525,7 +524,7 @@ package body Core.Repo.Operations is
       force    : Boolean) return Action_Result
    is
       local_time : aliased Unix.T_epochtime;
-      repo_key   : Text := SUS (reponame);
+      repo_key   : constant Text := SUS (reponame);
       file_size  : int64;
       rc         : Action_Result := RESULT_FATAL;
       skip_rest  : Boolean := False;
@@ -557,7 +556,7 @@ package body Core.Repo.Operations is
          arcfile : constant String := USS (repositories.Element (repo_key).meta.manifests_archive);
          target  : constant String := USS (repositories.Element (repo_key).meta.manifests);
 
-         tmp_manifest : String :=
+         tmp_manifest : constant String :=
            Repo.Fetch.fetch_remote_extract_to_temporary_file
              (my_repo   => get_repository (reponame),
               filename  => arcfile,
@@ -616,7 +615,7 @@ package body Core.Repo.Operations is
                file_handle : TIO.File_Type;
                cnt         : Natural := 0;
                total_len   : int64 := 0;
-               this_repo   : Repo_Cursor := get_repository (reponame);
+               this_repo   : constant Repo_Cursor := get_repository (reponame);
             begin
                TIO.Open (File => file_handle,
                          Mode => TIO.In_File,
@@ -721,7 +720,7 @@ package body Core.Repo.Operations is
       skip_next_step    : Boolean := False;
       res               : Action_Result;
       local_force       : Boolean := force;
-      repo_key          : Text := SUS (reponame);
+      repo_key          : constant Text := SUS (reponame);
       repodb            : sqlite_h.sqlite3_Access;
    begin
       if not SQLite.initialize_sqlite then
@@ -1051,8 +1050,9 @@ package body Core.Repo.Operations is
 
       procedure insert_dependency (position : Pkgtypes.Dependency_Crate.Cursor)
       is
-         dep : Pkgtypes.Package_Dependency renames Pkgtypes.Dependency_Crate.Element (position);
-         args : Set_Repo_Stmt_Args.Vector;
+         dep   :  Pkgtypes.Package_Dependency renames
+                 Pkgtypes.Dependency_Crate.Element (position);
+         args  : Set_Repo_Stmt_Args.Vector;
          index : constant ROS.repository_stmt_index := ROS.DEPS;
       begin
          if not problem then

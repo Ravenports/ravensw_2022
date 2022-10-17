@@ -31,8 +31,8 @@ package body Core.Repo.Read is
 
          declare
             --  key is the name of the repository, and source of the hash for repositories
-            key    : String := Ucl.ucl_object_key (item);
-            keystr : Text := SUS (key);
+            key    : constant String := Ucl.ucl_object_key (item);
+            keystr : constant Text := SUS (key);
          begin
             EV.emit_debug (1, "RepoRead: parsing key " & SQ (key));
             if repositories.Contains (keystr) then
@@ -63,7 +63,6 @@ package body Core.Repo.Read is
       myarch  : constant String := Config.configuration_value (config.abi);
       fd      : Unix.File_Descriptor;
       success : Boolean;
-      res     : Boolean;
    begin
       parser := Ucl.ucl_parser_new_basic;
       Ucl.ucl_parser_register_variable (parser, key_ABI, myarch);
@@ -76,7 +75,13 @@ package body Core.Repo.Read is
       end if;
 
       success := Ucl.ucl_parser_add_fd (parser, fd);
-      res := Unix.close_file (fd);
+      pragma Warnings (Off, "*unused_result*");
+      declare
+         unused_result : Boolean;
+      begin
+         unused_result := Unix.close_file (fd);
+      end;
+      pragma Warnings (On, "*unused_result*");
 
       if not success then
          EV.emit_with_strerror ("Error parsing: " & SQ (repodir & "/" & repofile));
@@ -118,7 +123,7 @@ package body Core.Repo.Read is
 
       procedure loadfile (position : Tmp_Crate.Cursor)
       is
-         filename : String := USS (Tmp_Crate.Element (position));
+         filename : constant String := USS (Tmp_Crate.Element (position));
       begin
          load_repo_file (dfd      => fd,
                          repodir  => repodir,
@@ -186,7 +191,7 @@ package body Core.Repo.Read is
                        flags    : Init_protocol)
    is
       enabled      : access constant libucl.ucl_object_t;
-      reponame_txt : Text := SUS (reponame);
+      reponame_txt : constant Text := SUS (reponame);
       new_repo     : A_repo;
       found_repo   : Boolean;
       enable_repo  : Boolean;
@@ -236,8 +241,8 @@ package body Core.Repo.Read is
                function content_is_object_type return Boolean;
                procedure generic_error_emission (flavor : String);
 
-               key  : String := Ucl.ucl_object_key (item);
-               ukey : String := uppercase (key);
+               key  : constant String := Ucl.ucl_object_key (item);
+               ukey : constant String := uppercase (key);
 
                procedure generic_error_emission (flavor : String) is
                begin
@@ -359,7 +364,7 @@ package body Core.Repo.Read is
          --  Priority for protocol: 1) flags, 2) config("IP_VERSION"), 3) repository("IP_VERSION")
          if flags = init_none then
             declare
-               proto : int64 := Config.configuration_value (config.ip_version);
+               proto : constant int64 := Config.configuration_value (config.ip_version);
             begin
                if proto = 0 then
                   case use_ipvx is
@@ -403,8 +408,8 @@ package body Core.Repo.Read is
                   exit when item = null;
 
                   declare
-                     keytxt : Text := SUS (Ucl.ucl_object_key (item));
-                     valtxt : Text := SUS (Ucl.ucl_object_tostring_forced (item));
+                     keytxt : constant Text := SUS (Ucl.ucl_object_key (item));
+                     valtxt : constant Text := SUS (Ucl.ucl_object_tostring_forced (item));
                   begin
                      if new_repo.env.Contains (keytxt) then
                         new_repo.env.Replace (keytxt, valtxt);

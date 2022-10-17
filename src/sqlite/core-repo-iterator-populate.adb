@@ -67,7 +67,7 @@ package body Core.Repo.Iterator.Populate is
 
       function get_liclogic (col_index : Natural) return Pkgtypes.License_Logic
       is
-         r64  : SQLite.sql_int64 := SQLite.retrieve_integer (stmt, col_index);
+         r64  : constant SQLite.sql_int64 := SQLite.retrieve_integer (stmt, col_index);
          AOR  : constant SQLite.sql_int64 := SQLite.sql_int64 (Character'Pos ('|'));
          AAND : constant SQLite.sql_int64 := SQLite.sql_int64 (Character'Pos ('&'));
       begin
@@ -87,7 +87,7 @@ package body Core.Repo.Iterator.Populate is
       for icol in 0 .. SQLite.get_number_of_columns (stmt) - 1 loop
          declare
             colname  : constant String := SQLite.get_column_name (stmt, icol);
-            datatype : pkg_attr := get_attribute (colname);
+            datatype : constant pkg_attr := get_attribute (colname);
          begin
             case datatype is
                when PKG_ABI           => P.abi := get_text (icol);
@@ -227,7 +227,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.categories.Append (data);
       return RESULT_OK;
@@ -241,7 +241,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.licenses.Append (data);
       return RESULT_OK;
@@ -255,7 +255,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.users.Append (data);
       return RESULT_OK;
@@ -269,7 +269,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.groups.Append (data);
       return RESULT_OK;
@@ -283,7 +283,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.shlibs_prov.Append (data);
       return RESULT_OK;
@@ -297,7 +297,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.shlibs_reqd.Append (data);
       return RESULT_OK;
@@ -311,7 +311,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.provides.Append (data);
       return RESULT_OK;
@@ -325,7 +325,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       pkg_access.requires.Append (data);
       return RESULT_OK;
@@ -339,7 +339,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      unique_id : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      unique_id : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
       conflict : Pkgtypes.Package_Conflict;
    begin
       --  silently ignore duplicates in case of conflicts
@@ -361,8 +361,8 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      name  : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      value : Text := SUS (SQLite.retrieve_string (stmt, 1));
+      name  : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      value : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
    begin
       if not pkg_access.annotations.Contains (name) then
          pkg_access.annotations.Insert (name, value);
@@ -378,7 +378,7 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      data : Text := SUS (SQLite.retrieve_string (stmt, 0));
+      data : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
    begin
       return pkg_adddir_attr (pkg_access       => pkg_access,
                               path             => data,
@@ -399,8 +399,8 @@ package body Core.Repo.Iterator.Populate is
    is
       use type SQLite.sql_int64;
 
-      script : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      type_index : SQLite.sql_int64 := SQLite.retrieve_integer (stmt, 1);
+      script : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      type_index : constant SQLite.sql_int64 := SQLite.retrieve_integer (stmt, 1);
    begin
       if type_index < 0 or else
         type_index > SQLite.sql_int64 (Pkgtypes.Package_Script'Pos (Pkgtypes.Package_Script'Last))
@@ -421,9 +421,9 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      name    : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      origin  : Text := SUS (SQLite.retrieve_string (stmt, 1));
-      version : Text := SUS (SQLite.retrieve_string (stmt, 2));
+      name    : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      origin  : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
+      version : constant Text := SUS (SQLite.retrieve_string (stmt, 2));
    begin
       return pkg_addrdep (pkg_access => pkg_access,
                           name       => name,
@@ -440,8 +440,8 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      path   : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      sha256 : Text := SUS (SQLite.retrieve_string (stmt, 1));
+      path   : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      sha256 : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
    begin
       return pkg_addfile_attr (pkg_access       => pkg_access,
                                path             => path,
@@ -461,8 +461,8 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      path    : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      content : Text := SUS (SQLite.retrieve_string (stmt, 1));
+      path    : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      content : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
    begin
       return pkg_addconfig_file (pkg_access, path, content);
    end add_config_files;
@@ -475,8 +475,8 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      name  : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      value : Text := SUS (SQLite.retrieve_string (stmt, 1));
+      name  : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      value : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
    begin
       return pkg_addoption (pkg_access, name, value);
    end add_options;
@@ -489,9 +489,9 @@ package body Core.Repo.Iterator.Populate is
      (stmt       : SQLite.thick_stmt;
       pkg_access : Pkgtypes.A_Package_Access) return Action_Result
    is
-      name    : Text := SUS (SQLite.retrieve_string (stmt, 0));
-      origin  : Text := SUS (SQLite.retrieve_string (stmt, 1));
-      version : Text := SUS (SQLite.retrieve_string (stmt, 2));
+      name    : constant Text := SUS (SQLite.retrieve_string (stmt, 0));
+      origin  : constant Text := SUS (SQLite.retrieve_string (stmt, 1));
+      version : constant Text := SUS (SQLite.retrieve_string (stmt, 2));
    begin
       return pkg_adddep (pkg_access => pkg_access,
                           name       => name,

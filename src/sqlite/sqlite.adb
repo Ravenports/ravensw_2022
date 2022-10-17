@@ -4,6 +4,9 @@
 with Ada.Unchecked_Conversion;
 with System;
 
+with Core.Strings;
+use Core.Strings;
+
 package body SQLite is
 
    package IC  renames Interfaces.C;

@@ -3,7 +3,6 @@
 
 with Interfaces.C.Strings;
 with Ada.Text_IO;
-with System;
 
 with Core.Strings;
 
@@ -23,7 +22,7 @@ package body Resolve is
 
       res    : IC.int;
       dname  : ICS.chars_ptr;
-      anslen : IC.int := IC.int (1024);
+      anslen : constant IC.int := IC.int (1024);
       answer : aliased IC.char_array (1 .. IC.size_t (anslen));
    begin
       dname := ICS.New_String (zone);
@@ -57,8 +56,8 @@ package body Resolve is
       use type INT.Unsigned_16;
       --  Input is in big endian order.  [A][B] => 0x0A0B
 
-      A : INT.Unsigned_16 := INT.Unsigned_16 (Character'Pos (str (str'First)));
-      B : INT.Unsigned_16 := INT.Unsigned_16 (Character'Pos (str (str'First + 1)));
+      A : constant INT.Unsigned_16 := INT.Unsigned_16 (Character'Pos (str (str'First)));
+      B : constant INT.Unsigned_16 := INT.Unsigned_16 (Character'Pos (str (str'First + 1)));
    begin
       return Generic16 (INT.Shift_Left (A, 8) + B);
    end nbo2int;
@@ -72,10 +71,10 @@ package body Resolve is
       use type INT.Unsigned_32;
       --  Input is in big endian order.  [A][B][C][D] => 0x0A0B0C0D
 
-      A : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First)));
-      B : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 1)));
-      C : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 2)));
-      D : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 3)));
+      A : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First)));
+      B : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 1)));
+      C : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 2)));
+      D : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 3)));
    begin
       return Generic32
         (INT.Shift_Left (A, 24) + INT.Shift_Left (B, 16) + INT.Shift_Left (C, 8) + D);
@@ -97,8 +96,10 @@ package body Resolve is
 
       answer : Arpa_Header;
 
-      M2 : INT.Unsigned_8 := INT.Unsigned_8 (Character'Pos (response (response'First + 2)));
-      M3 : INT.Unsigned_8 := INT.Unsigned_8 (Character'Pos (response (response'First + 3)));
+      M2 : constant INT.Unsigned_8 :=
+           INT.Unsigned_8 (Character'Pos (response (response'First + 2)));
+      M3 : constant INT.Unsigned_8 :=
+           INT.Unsigned_8 (Character'Pos (response (response'First + 3)));
    begin
       answer.id      := nbo2int (response (response'First .. response'First + 1));
       answer.qdcount := nbo2int (response (response'First + 4  .. response'First + 5));
@@ -318,7 +319,7 @@ package body Resolve is
       host     : aliased IC.char_array (1 .. hostlen);
       buffer   : aliased IC.char_array (1 .. response'Length);
       index    : IC.size_t := buffer'First;
-      eomindex : IC.size_t := buffer'Last;
+      eomindex : constant IC.size_t := buffer'Last;
       result   : DNS_Response;
       header   : Arpa_Header;
 
@@ -451,7 +452,7 @@ package body Resolve is
       procedure update_weight2 (element : in out An_Answer);
       procedure adjust_weighting (canvas : String; num_duplicates : Natural);
 
-      total : Natural := Natural (response.answers.Length);
+      total : constant Natural := Natural (response.answers.Length);
       pass_weight2 : Normalized_Weight := 0;
 
       procedure update_weight2 (Element : in out An_Answer) is
@@ -582,8 +583,6 @@ package body Resolve is
    --------------------------------------------------------------------
    procedure set_nameserver (nameserver : String)
    is
-      use type IC.int;
-
       nsname : ICS.chars_ptr;
       res : IC.int;
    begin

@@ -62,16 +62,17 @@ static BITCMD	*addcmd(BITCMD *, mode_t, mode_t, mode_t, mode_t);
 static void	 compress_mode(BITCMD *);
 
 #ifdef _WIN32
-#define S_IRWXG 0
-#define S_IRWXO 0
-#define S_IXGRP 0
-#define S_IXOTH 0
+// #define S_IRWXG 0
+// #define S_IRWXO 0
+// #define S_IXGRP 0
+// #define S_IXOTH 0
 #define S_ISUID 0
 #define S_ISGID 0
-#define S_IROTH 0
-#define S_IRGRP 0
-#define S_IWOTH 0
-#define S_IWGRP 0
+// #define S_IROTH 0
+// #define S_IRGRP 0
+// #define S_IWOTH 0
+// #define S_IWGRP 0
+#define sigset_t _sigset_t
 #endif
 
 #ifndef S_ISTXT

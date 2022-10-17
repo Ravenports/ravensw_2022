@@ -2,14 +2,10 @@
 --  Reference: ../License.txt
 
 with Ada.Containers.Vectors;
-with Interfaces.C.Extensions;
 
 with Core.Pkgtypes;
-with Core.Strings;
 with Core.Unix;
 with Core.Database;
-
-use Core.Strings;
 
 package Core.Checksum is
 

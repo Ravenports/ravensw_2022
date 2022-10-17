@@ -2,8 +2,6 @@
 --  Reference: ../../License.txt
 
 with Ada.Directories;
-with Ada.Characters.Latin_1;
-with Interfaces.C.Strings;
 
 with Core.CommonSQL;
 with Core.Database.CustomCmds;
@@ -21,8 +19,6 @@ use Core.Strings;
 package body Core.Database.Operations is
 
    package DIR renames Ada.Directories;
-   package LAT renames Ada.Characters.Latin_1;
-   package ICS renames Interfaces.C.Strings;
    package CUS renames Core.Database.CustomCmds;
    package ROP renames Core.Repo.Operations;
 
@@ -35,7 +31,7 @@ package body Core.Database.Operations is
    is
       procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor);
 
-      active : Repo.Active_Repository_Name_Set.Vector := Repo.ordered_active_repositories;
+      active : constant Repo.Active_Repository_Name_Set.Vector := Repo.ordered_active_repositories;
       all_ok : Action_Result := RESULT_OK;
 
       procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor)
@@ -395,7 +391,6 @@ package body Core.Database.Operations is
       timeout_secs : int64;
       retrys       : int64 := 0;
       retcode      : Action_Result := RESULT_END;
-      msg          : Text;
    begin
       max_retries  := Config.configuration_value (Config.lock_retries);
       timeout_secs := Config.configuration_value (Config.lock_wait);
@@ -487,7 +482,7 @@ package body Core.Database.Operations is
       --  RESULT_OK:
       --    We can go ahead
 
-      db_dir : String := Config.configuration_value (Config.dbdir);
+      db_dir : constant String := Config.configuration_value (Config.dbdir);
       retval : Action_Result := RESULT_OK;
       RW     : constant RDB_Mode_Flags := (RDB_MODE_READ or RDB_MODE_WRITE);
    begin
@@ -516,7 +511,8 @@ package body Core.Database.Operations is
             declare
                procedure check (Position : Repo.Active_Repository_Name_Set.Cursor);
 
-               active : Repo.Active_Repository_Name_Set.Vector := Repo.ordered_active_repositories;
+               active : constant Repo.Active_Repository_Name_Set.Vector :=
+                        Repo.ordered_active_repositories;
                quit   : Boolean := False;
 
                procedure check (Position : Repo.Active_Repository_Name_Set.Cursor)
@@ -1007,7 +1003,6 @@ package body Core.Database.Operations is
 
    begin
       loop
-         rc := RESULT_FATAL;
          exit when insert_main_package (rc);
          case rc is
             when RESULT_FATAL => return RESULT_FATAL;

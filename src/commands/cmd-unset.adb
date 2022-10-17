@@ -130,9 +130,8 @@ package body Cmd.Unset is
 
       numwords    : constant Natural := Command_verb'Range_Length - 1;
       minlength   : constant Natural := numwords / cols'Range_Length;
-      cols_minus1 : constant Natural := numwords mod cols'Range_Length;
 
-      col_length  : array (cols) of Natural := (others => minlength);
+      col_length  : constant array (cols) of Natural := (others => minlength);
       print_order : array (1 .. numwords) of Command_verb;
 
       column : cols := cols'First;
@@ -161,7 +160,7 @@ package body Cmd.Unset is
 
       for cindex in print_order'Range loop
          declare
-            command : Command_verb := print_order (cindex);
+            command : constant Command_verb := print_order (cindex);
             C : constant String := convert_command_enum_to_label (command);
          begin
             case command is
@@ -198,7 +197,7 @@ package body Cmd.Unset is
          for x in 1 .. num_repos loop
             declare
                reponame : constant String := specific_field (joined_list, x, LAT.LF & "");
-               R        : Repo.Repo_Cursor := repo.get_repository (reponame);
+               R        : constant Repo.Repo_Cursor := repo.get_repository (reponame);
             begin
                TIO.Put_Line ("  " & Repo.repo_name (R) & ": {");
                print_extconfig ("url", Repo.repo_url (R), True);

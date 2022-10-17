@@ -26,7 +26,7 @@ package body Core.Repo.Keys is
          exit when item = null;
 
          declare
-            key : String := Ucl.ucl_object_key (item);
+            key : constant String := Ucl.ucl_object_key (item);
          begin
             if Ucl.type_is_string (item) then
                if key = "function" then

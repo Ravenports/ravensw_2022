@@ -5,7 +5,6 @@ with Core.Event;
 with core.Strings;
 with core.CommonSQL;
 with Core.Repo.Iterator.Populate;
-with SQLite;
 
 use Core.Strings;
 

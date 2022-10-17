@@ -3,11 +3,10 @@
 
 with libucl;
 with System;
+with Core;
 with Core.Unix;
-with Core.Strings;
 
 use Core;
-use Core.Strings;
 
 package Ucl is
 

@@ -55,7 +55,7 @@ package body Core.Strings is
    --------------------------------------------------------------------------------------------
    function part_1 (S : String; separator : String := "/") return String
    is
-      slash : Integer := AS.Fixed.Index (S, separator);
+      slash : constant Integer := AS.Fixed.Index (S, separator);
    begin
       if slash = 0 then
          return S;
@@ -69,7 +69,7 @@ package body Core.Strings is
    --------------------------------------------------------------------------------------------
    function part_2 (S : String; separator : String := "/") return String
    is
-      slash : Integer := AS.Fixed.Index (S, separator);
+      slash : constant Integer := AS.Fixed.Index (S, separator);
    begin
       if slash = 0 then
          return S;
@@ -121,8 +121,8 @@ package body Core.Strings is
                                old_string : String;
                                new_string : String) return Text
    is
-      back_marker  : Natural := SU.Index (Source => US, Pattern => old_string);
-      front_marker : Natural := back_marker + old_string'Length - 1;
+      back_marker  : constant Natural := SU.Index (Source => US, Pattern => old_string);
+      front_marker : constant Natural := back_marker + old_string'Length - 1;
    begin
       if back_marker = 0 then
          return US;
@@ -289,7 +289,7 @@ package body Core.Strings is
       delimiter    : String := " ") return String
    is
       back  : Integer;
-      dsize : Natural := delimiter'Length;
+      dsize : constant Natural := delimiter'Length;
       front : Integer := S'First;
    begin
       for field in 1 .. field_number - 1 loop
@@ -313,7 +313,7 @@ package body Core.Strings is
    --------------------------------------------------------------------------------------------
    function uppercase (US : Text) return Text
    is
-      tall : String := uppercase (USS (US));
+      tall : constant String := uppercase (USS (US));
    begin
       return SUS (tall);
    end uppercase;
@@ -333,7 +333,7 @@ package body Core.Strings is
    --------------------------------------------------------------------------------------------
    function lowercase (US : Text) return Text
    is
-      short : String := lowercase (USS (US));
+      short : constant String := lowercase (USS (US));
    begin
       return SUS (short);
    end lowercase;
@@ -365,7 +365,7 @@ package body Core.Strings is
    is
       result  : String (1 .. places) := (others => ' ');
       workstr : String (1 .. places + 3);
-      max     : Natural := 8 ** places - 1;
+      max     : constant Natural := 8 ** places - 1;
       start   : Positive;
       index   : Natural;
    begin

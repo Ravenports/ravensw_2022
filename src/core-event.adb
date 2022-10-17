@@ -245,7 +245,6 @@ package body Core.Event is
    --------------------------------------------------------------------
    procedure draw_progressbar (current, total : int64)
    is
-      use type CAL.Arithmetic.Day_Count;
       subtype Percentage_Point is Natural range 0 .. 100;
 
       now     : CAL.Time;
@@ -313,7 +312,7 @@ package body Core.Event is
 
                procedure insert_fragment (S : String)
                is
-                  L_start : Positive := line_end + 1;
+                  L_start : constant Positive := line_end + 1;
                begin
                   line_end := line_end + S'Length;
                   line (L_start .. line_end) := S;

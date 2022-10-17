@@ -1,13 +1,10 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../../License.txt
 
-with Interfaces.C;
 with Ucl;
 
 
 package body Core.Object is
-
-   package IC renames Interfaces.C;
 
    --------------------------------------------------------------------
    --  pkg_object_string

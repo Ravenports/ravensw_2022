@@ -3,6 +3,9 @@
 
 
 with Core.Event;
+with Core.Strings;
+
+use Core.Strings;
 
 package body Core.Version is
 
@@ -33,7 +36,7 @@ package body Core.Version is
 
       procedure split_versionstr (versionstr : String)
       is
-         count_commas : Natural := count_char (versionstr, ',');
+         count_commas : constant Natural := count_char (versionstr, ',');
          ver_wo_epoch : Text;
       begin
          if count_commas = 0 then
@@ -52,8 +55,8 @@ package body Core.Version is
          end if;
 
          declare
-            workstr : String := USS (ver_wo_epoch);
-            count_scores : Natural := count_char (workstr, '_');
+            workstr : constant String := USS (ver_wo_epoch);
+            count_scores : constant Natural := count_char (workstr, '_');
          begin
             if count_scores = 0 then
                --  No revision
@@ -72,7 +75,7 @@ package body Core.Version is
          end;
       end split_versionstr;
 
-      versionstr : String := get_versionstr;
+      versionstr : constant String := get_versionstr;
    begin
       if IsBlank (pkgname) then
          Event.emit_error ("split_version: passed empty string for pkgname");
@@ -121,8 +124,8 @@ package body Core.Version is
       if result = identical then
          if not equivalent (v1.version, v2.version) then
             declare
-               version1 : String := USS (v1.version);
-               version2 : String := USS (v2.version);
+               version1 : constant String := USS (v1.version);
+               version2 : constant String := USS (v2.version);
                v1_index : Integer := version1'First;
                v2_index : Integer := version2'First;
             begin
@@ -211,7 +214,7 @@ package body Core.Version is
       if is_alpha (full_version (position)) then
          declare
             c    : Character := to_lower (full_version (position));
-            done : Character := Character'Val (0);
+            done : constant Character := Character'Val (0);
          begin
             has_patch_level := True;
 

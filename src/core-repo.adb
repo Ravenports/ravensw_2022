@@ -200,7 +200,7 @@ package body Core.Repo is
    --------------------------------------------------------------------
    function repository_is_active (reponame : String) return Boolean
    is
-      reponame_txt : Text := SUS (reponame);
+      reponame_txt : constant Text := SUS (reponame);
    begin
       if repositories.Contains (reponame_txt) then
          return repositories.Element (reponame_txt).enable;
@@ -249,7 +249,7 @@ package body Core.Repo is
    --------------------------------------------------------------------
    function get_repository (reponame : String) return Repo_Cursor
    is
-      reponame_txt : Text := SUS (reponame);
+      reponame_txt : constant Text := SUS (reponame);
    begin
       if repositories.Contains (reponame_txt) then
          return (position => repositories.Find (reponame_txt));

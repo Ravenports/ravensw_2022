@@ -21,7 +21,7 @@ package body Core.Database.Shell is
    --------------------------------------------------------------------
    procedure start_shell (arguments : String)
    is
-      numargs : Natural := count_char (arguments, LAT.LF) + 1;
+      numargs : constant Natural := count_char (arguments, LAT.LF) + 1;
    begin
       if not SQLite.initialize_sqlite then
          return;
@@ -32,7 +32,6 @@ package body Core.Database.Shell is
          delim : constant String (1 .. 1) := (1 => LAT.LF);
          argv    : argv_t;
          argsval : access ICS.chars_ptr;
-         result  : IC.int;
       begin
          for x in 1 .. numargs loop
             argv (x) := ICS.New_String (specific_field (arguments, x, delim));
@@ -40,7 +39,13 @@ package body Core.Database.Shell is
 
          argsval := argv (1)'Access;
 
-         result := sqlite_h.sqlite3_shell (IC.int (numargs), argsval);
+         pragma Warnings (Off, "*unused_result*");
+         declare
+            unused_result : IC.int;
+         begin
+            unused_result := sqlite_h.sqlite3_shell (IC.int (numargs), argsval);
+         end;
+         pragma Warnings (On, "*unused_result*");
 
          for x in 1 .. numargs loop
             ICS.Free (argv (x));
@@ -56,10 +61,15 @@ package body Core.Database.Shell is
    is
       dbdir  : constant String := Config.configuration_value (Config.dbdir);
       dbfile : constant String := dbdir & "/" & local_ravensw_db;
-      result : IC.int;
    begin
       reponame.all := ICS.New_String (dbfile);
-      result := sqlite_h.sqlite3_auto_extension (callback => CustomCmds.sqlcmd_init'Access);
+      pragma Warnings (Off, "*unused_res*");
+      declare
+         unused_res : IC.int;
+      begin
+         unused_res := sqlite_h.sqlite3_auto_extension (callback => CustomCmds.sqlcmd_init'Access);
+      end;
+      pragma Warnings (On, "*unused_res*");
    end pkgshell_open;
 
 

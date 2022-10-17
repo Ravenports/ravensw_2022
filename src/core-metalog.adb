@@ -55,7 +55,7 @@ package body Core.Metalog is
       end if;
 
       declare
-         mode_str : String := octal (mode, 3, True);
+         mode_str : constant String := octal (mode, 3, True);
       begin
          case mtype is
             when PKG_METALOG_DIR =>
@@ -123,9 +123,8 @@ package body Core.Metalog is
 
       function positive_flag (place : places) return String;
 
-      xflags : T_flags := T_flags (fflags);
+      xflags : constant T_flags := T_flags (fflags);
       result : Text;
-      track  : Natural := 0;
       seen   : Boolean := False;
 
       function positive_flag (place : places) return String is

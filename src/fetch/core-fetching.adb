@@ -62,8 +62,8 @@ package body Core.Fetching is
       is
          text_key : Text renames Pkgtypes.Package_NVPairs.Key (position);
          text_val : Text renames Pkgtypes.Package_NVPairs.Element (position);
-         env_key  : String := USS (text_key);
-         env_val  : String := USS (text_val);
+         env_key  : constant String := USS (text_key);
+         env_val  : constant String := USS (text_val);
       begin
          if ENV.Exists (env_key) then
             env_to_restore.Insert (text_key, SUS (ENV.Value (env_key)));
@@ -80,15 +80,15 @@ package body Core.Fetching is
 
          procedure unset (pos2 : Pkgtypes.Text_Crate.Cursor)
          is
-            key : String := USS (Pkgtypes.Text_Crate.Element (pos2));
+            key : constant String := USS (Pkgtypes.Text_Crate.Element (pos2));
          begin
             ENV.Clear (key);
          end unset;
 
          procedure restore (pos2 : Pkgtypes.Package_NVPairs.Cursor)
          is
-            env_key  : String := USS (Pkgtypes.Package_NVPairs.Key (pos2));
-            env_val  : String := USS (Pkgtypes.Package_NVPairs.Element (pos2));
+            env_key  : constant String := USS (Pkgtypes.Package_NVPairs.Key (pos2));
+            env_val  : constant String := USS (Pkgtypes.Package_NVPairs.Element (pos2));
          begin
             ENV.Set (env_key, env_val);
          end restore;
@@ -217,9 +217,9 @@ package body Core.Fetching is
             if http_index > 0 then
                declare
                   info : Repo.SSH.Mirror_Host;
-                  original_doc  : String := Libfetch.url_doc (url_components);
-                  original_pwd  : String := Libfetch.url_password (url_components);
-                  original_user : String := Libfetch.url_user (url_components);
+                  original_doc  : constant String := Libfetch.url_doc (url_components);
+                  original_pwd  : constant String := Libfetch.url_password (url_components);
+                  original_user : constant String := Libfetch.url_user (url_components);
                begin
                   info := Repo.SSH.get_http_mirror (my_repo, http_index);
                   Libfetch.free_url (url_components);
@@ -307,7 +307,8 @@ package body Core.Fetching is
          if timestamp /= null then
             declare
                use type Unix.T_epochtime;
-               mtime : Unix.T_epochtime := Libfetch.get_file_modification_time (url_components);
+               mtime : constant Unix.T_epochtime :=
+                       Libfetch.get_file_modification_time (url_components);
             begin
                if mtime > 0 then
                   if mtime <= timestamp.all then

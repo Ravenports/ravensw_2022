@@ -5,10 +5,13 @@ with Interfaces;
 
 with Core.Repo;
 with Core.Event;
+with Core.Strings;
 with Core.Utilities;
 with Core.Database.Operations;
 with SSL;
 with blake_3;
+
+use Core.Strings;
 
 package body Core.Checksum is
 
@@ -53,7 +56,7 @@ package body Core.Checksum is
    --------------------------------------------------------------------
    function checksum_is_valid (cksum : Text) return Boolean
    is
-      sum : String := USS (cksum);
+      sum         : constant String := USS (cksum);
       testversion : Integer;
       testenum    : Integer;
       --  format: {CHECKSUM_CUR_VERSION}${type}$
@@ -90,7 +93,7 @@ package body Core.Checksum is
    function checksum_file (path : String; checksum_type : A_Checksum_Type) return String
    is
       fd : Unix.File_Descriptor;
-      R  : Unix.T_Open_Flags := (RDONLY => True, others => False);
+      R  : constant Unix.T_Open_Flags := (RDONLY => True, others => False);
    begin
       fd := Unix.open_file (path, R);
       if Unix.file_connected (fd) then
@@ -319,7 +322,7 @@ package body Core.Checksum is
       b32 : constant String (1 .. 32) := "ybndrfg8ejkmcpqxot1uwisza345h769";
 
       scenario  : bits5;
-      mylast    : Natural := (plain'Length * 8 + 4) / 5;
+      mylast    : constant Natural := (plain'Length * 8 + 4) / 5;
       result    : String (1 .. mylast);
       index     : Natural := result'First;
       rawbytes  : array (0 .. plain'Length - 1) of fullword;
@@ -471,7 +474,7 @@ package body Core.Checksum is
    --------------------------------------------------------------------
    function checksum_symlink (path : String; checksum_type : A_Checksum_Type) return String
    is
-      link_path : String := Unix.readlink (path);
+      link_path : constant String := Unix.readlink (path);
    begin
       if IsBlank (link_path) then
          Event.emit_errno ("checksum_symlink", path, Unix.errno);
@@ -489,7 +492,7 @@ package body Core.Checksum is
       relative_path : String;
       checksum_type : A_Checksum_Type) return String
    is
-      link_path : String := Unix.readlink (fd, relative_path);
+      link_path : constant String := Unix.readlink (fd, relative_path);
    begin
       if IsBlank (link_path) then
          Event.emit_errno ("checksum_symlinkat", "fd, " & relative_path, Unix.errno);
@@ -739,7 +742,7 @@ package body Core.Checksum is
       procedure insert_dependency (position : Pkgtypes.Dependency_Crate.Cursor)
       is
 
-         val : Text := SUS (USS (Pkgtypes.Dependency_Crate.Element (position).name) &
+         val : constant Text := SUS (USS (Pkgtypes.Dependency_Crate.Element (position).name) &
                               "~" & USS (Pkgtypes.Dependency_Crate.Element (position).origin));
       begin
          checksum_add_entry (entries, "depend", val);
@@ -777,7 +780,7 @@ package body Core.Checksum is
       Entry_Sorter.Sort (entries);
 
       declare
-         bdigest : String := checksum_hash (entries, checksum_type);
+         bdigest : constant String := checksum_hash (entries, checksum_type);
          prefix  : constant String :=
            int2str (CHECKSUM_CUR_VERSION) & CHECKSUM_SEPARATOR &
            int2str (A_Checksum_Type'Pos (checksum_type)) & CHECKSUM_SEPARATOR;

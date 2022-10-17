@@ -6,7 +6,7 @@ with Ada.Characters.Latin_1;
 with Ada.Directories;
 with System;
 
-with Core.Strings;
+with Core.Strings;        use Core.Strings;
 with Core.Context;
 with Core.Object;
 with Core.Event;
@@ -116,7 +116,7 @@ package body Core.Config.Read is
    --------------------------------------------------------------------
    function convert (obj : access constant libucl.ucl_object_t) return Config_Entry_Type
    is
-      ut : libucl.ucl_type_t := libucl.ucl_object_type (obj);
+      ut : constant libucl.ucl_type_t := libucl.ucl_object_type (obj);
    begin
       case ut is
          when libucl.UCL_OBJECT  => return pkg_object;
@@ -170,7 +170,7 @@ package body Core.Config.Read is
             --  format A,B,C,D
             if not IsBlank (payload) then
                declare
-                  nf  : Natural := CS.count_char (payload, LAT.Comma);
+                  nf  : constant Natural := CS.count_char (payload, LAT.Comma);
                begin
                   for k in 1 .. nf + 1 loop
                      inserted := Ucl.ucl_array_push (obj,
@@ -184,7 +184,7 @@ package body Core.Config.Read is
             --  format A=B,C=D,E=F,G=H
             if not IsBlank (payload) then
                declare
-                  nf  : Natural := CS.count_char (payload, LAT.Comma);
+                  nf  : constant Natural := CS.count_char (payload, LAT.Comma);
                begin
                   for k in 1 .. nf + 1 loop
                      declare
@@ -378,12 +378,12 @@ package body Core.Config.Read is
          exit when item = null;
 
          declare
-            key : String := Ucl.ucl_object_key (item);
+            key : constant String := Ucl.ucl_object_key (item);
          begin
             declare
-               val      : String := ENV.Value (key);
+               val      : constant String := ENV.Value (key);
                obj      : access libucl.ucl_object_t;
-               contype  : Config_Entry_Type := convert (item);
+               contype  : constant Config_Entry_Type := convert (item);
                inserted : Boolean;
             begin
                obj := convert_string_to_ucl_object (contype, val);
@@ -417,9 +417,9 @@ package body Core.Config.Read is
 
       for F in 1 .. numfields loop
          declare
-            delimiter : String := LAT.Vertical_Line & "";
-            nvequals  : String := "=";
-            nvpair    : String := specific_field (options, F, delimiter);
+            delimiter : constant String := LAT.Vertical_Line & "";
+            nvequals  : constant String := "=";
+            nvpair    : constant String := specific_field (options, F, delimiter);
          begin
             if contains (nvpair, nvequals) then
                declare
@@ -482,9 +482,9 @@ package body Core.Config.Read is
 
       for n in 1 .. num_repos loop
          declare
-            reponame : String := specific_field (list_of_loaded_repos, n, LAT.LF & "");
-            R        : Repo.Repo_Cursor := Repo.get_repository (reponame);
-            url      : String := Repo.repo_url (R);
+            reponame : constant String := specific_field (list_of_loaded_repos, n, LAT.LF & "");
+            R        : constant Repo.Repo_Cursor := Repo.get_repository (reponame);
+            url      : constant String := Repo.repo_url (R);
             fatal    : Boolean := True;
             scheme   : constant String := part_1 (url, delim);
          begin
@@ -539,7 +539,7 @@ package body Core.Config.Read is
             inserted : Boolean;
             obj      : access libucl.ucl_object_t;
             name     : constant String := get_ci_key (debug_level);
-            contype  : Config_Entry_Type := config_get_type (debug_level);
+            contype  : constant Config_Entry_Type := config_get_type (debug_level);
             val      : constant String := int2str (Integer (dlevel));
          begin
             obj := convert_string_to_ucl_object (contype, val);
@@ -552,7 +552,7 @@ package body Core.Config.Read is
          context.register_debug_level (dlevel);
       else
          declare
-            DL : int64 := config_get_int64 (get_ci_key (debug_level));
+            DL : constant int64 := config_get_int64 (get_ci_key (debug_level));
          begin
             if DL >= int64 (ST_Debug_Level'First) and then
               DL <= int64 (ST_Debug_Level'Last)
@@ -666,7 +666,7 @@ package body Core.Config.Read is
 
       --  Start the event pipe if defined
       declare
-         evpipe : String := config_get_string (get_ci_key (event_pipe));
+         evpipe : constant String := config_get_string (get_ci_key (event_pipe));
       begin
          if not IsBlank (evpipe) then
             --  event pipe closed by Core.Finalize.cleanup
@@ -682,8 +682,8 @@ package body Core.Config.Read is
          iter    : aliased libucl.ucl_object_iter_t;
          item    : access constant libucl.ucl_object_t;
          UA_seen : Boolean := False;
-         UA_key  : String := get_ci_key (user_agent);
-         UA_val  : String := config_get_string (UA_key);
+         UA_key  : constant String := get_ci_key (user_agent);
+         UA_val  : constant String := config_get_string (UA_key);
       begin
          obj := config_get (get_ci_key (environ));
          iter := libucl.ucl_object_iter_t (System.Null_Address);
@@ -697,8 +697,8 @@ package body Core.Config.Read is
             --  to pass objects or arrays to set in environment so skip them if found
             if not Ucl.type_is_object (item) and then not Ucl.type_is_array (item) then
                declare
-                  key     : String := Ucl.ucl_object_key (item);
-                  payload : String := Ucl.ucl_object_tostring_forced (item);
+                  key     : constant String := Ucl.ucl_object_key (item);
+                  payload : constant String := Ucl.ucl_object_tostring_forced (item);
                begin
                   EV.emit_debug (2, "Setting env var: " & key & "=" & payload);
                   if not IsBlank (key) then
@@ -751,7 +751,7 @@ package body Core.Config.Read is
                exit when item = null;
 
                declare
-                  diritem : String := COB.pkg_object_string (item);
+                  diritem : constant String := COB.pkg_object_string (item);
                begin
                   if not IsBlank (repo_list) then
                      SU.Append (repo_list, LAT.LF);
@@ -770,7 +770,7 @@ package body Core.Config.Read is
       end if;
 
       declare
-         nserver : String := config_get_string (get_ci_key (nameserver));
+         nserver : constant String := config_get_string (get_ci_key (nameserver));
       begin
          if not Isblank (nserver) then
             Resolve.set_nameserver (nserver);
@@ -778,7 +778,7 @@ package body Core.Config.Read is
       end;
 
       declare
-         metalog_filename : String := config_get_string (get_ci_key (metalog_file));
+         metalog_filename : constant String := config_get_string (get_ci_key (metalog_file));
       begin
          if not IsBlank (metalog_filename) then
             if Metalog.metalog_open (metalog_filename) /= RESULT_OK then

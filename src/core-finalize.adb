@@ -3,7 +3,6 @@
 
 with Core.Metalog;
 with Core.Context;
-with Core.Unix;
 
 package body Core.Finalize is
 

@@ -3,7 +3,6 @@
 
 with Ada.Calendar.Conversions;
 with Ada.Directories;
-with System;
 
 with Core.Strings;
 with Core.Config;
@@ -44,9 +43,9 @@ package body Core.Database.CustomCmds is
       end if;
 
       declare
-         op_str : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
-         arg1   : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
-         arg2   : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (3));
+         op_str : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
+         arg1   : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
+         arg2   : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (3));
          op     : Depends.Dep_Version_Operator;
          cmp    : Version.Cmp_Result;
          ret    : Boolean;
@@ -108,8 +107,8 @@ package body Core.Database.CustomCmds is
       end if;
 
       declare
-         regex     : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
-         str       : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
+         regex     : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
+         str       : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
          re_Access : regex_h.regex_t_Access;
          ret       : IC.int;
 
@@ -244,8 +243,8 @@ package body Core.Database.CustomCmds is
       use type IC.int;
 
       errmsg : ICS.chars_ptr;
-      Now    : Ada.Calendar.Time := Ada.Calendar.Clock;
-      epoch  : IC.long := Ada.Calendar.Conversions.To_Unix_Time (Now);
+      Now    : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+      epoch  : constant IC.long := Ada.Calendar.Conversions.To_Unix_Time (Now);
    begin
       if numargs /= 0 then
          errmsg := ICS.New_String ("Invalid usage of now(): no arguments expected");
@@ -285,8 +284,8 @@ package body Core.Database.CustomCmds is
       end if;
 
       declare
-         what : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
-         data : ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
+         what : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
+         data : constant ICS.chars_ptr := sqlite_h.sqlite3_value_text (argv (2));
 
          use type ICS.chars_ptr;
       begin
@@ -377,7 +376,7 @@ package body Core.Database.CustomCmds is
       numargs : IC.int;
       argsval : not null access sqlite_h.sqlite3_value_Access)
    is
-      db : sqlite_h.sqlite3_Access := sqlite_h.sqlite3_context_db_handle (context);
+      db : constant sqlite_h.sqlite3_Access := sqlite_h.sqlite3_context_db_handle (context);
       db_filename : constant String := SQLite.get_db_filename (db, SQLite.primary_db_identity);
       errmsg : IC.Strings.chars_ptr;
       argv   : array (1 .. 2) of sqlite_h.sqlite3_value_Access;
@@ -395,13 +394,14 @@ package body Core.Database.CustomCmds is
       end if;
 
       declare
-         path : String := DIR.Containing_Directory (db_filename);
-         arg1 : IC.Strings.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
+         path : constant String := DIR.Containing_Directory (db_filename);
+         arg1 : constant IC.Strings.chars_ptr := sqlite_h.sqlite3_value_text (argv (1));
          fpath : constant String := path & "/" & ICS.Value (arg1);
       begin
          if Unix.valid_permissions (fpath, (flag_read => True, others => False)) then
             declare
-               cksum : String := Checksum.checksum_file (fpath, Checksum.HASH_TYPE_SHA256_HEX);
+               cksum : constant String :=
+                 Checksum.checksum_file (fpath, Checksum.HASH_TYPE_SHA256_HEX);
             begin
                if cksum = ICS.Value (arg1) then
                   sqlite_h.sqlite3_result_int (context, IC.int (1));
@@ -457,12 +457,16 @@ package body Core.Database.CustomCmds is
    --------------------------------------------------------------------
    --  define_six_functions
    --------------------------------------------------------------------
-   procedure define_six_functions (db : not null sqlite_h.sqlite3_Access)
-   is
-      res : IC.int;
+   procedure define_six_functions (db : not null sqlite_h.sqlite3_Access) is
    begin
       --  impossible to fail, no need to check result
-      res := sqlcmd_init (db, null, null);
+      pragma Warnings (Off, "*unused_result*");
+      declare
+         unused_result : IC.int;
+      begin
+         unused_result := sqlcmd_init (db, null, null);
+      end;
+      pragma Warnings (On, "*unused_result*");
    end define_six_functions;
 
 

@@ -14,10 +14,10 @@ package body Core.Context is
    begin
       if not Unix.file_connected (context.dbdirfd) then
          declare
-            db_dir : String := configuration_value (dbdir);
-            flags : Unix.T_Open_Flags := (DIRECTORY => True,
-                                          CLOEXEC => True,
-                                          others => False);
+            db_dir : constant String := configuration_value (dbdir);
+            flags  : constant Unix.T_Open_Flags := (DIRECTORY => True,
+                                                    CLOEXEC => True,
+                                                    others => False);
          begin
             context.dbdirfd := Unix.open_file (db_dir, flags);
          end;
@@ -118,44 +118,60 @@ package body Core.Context is
    --------------------------------------------------------------------
    --  close_eventpipe
    --------------------------------------------------------------------
-   procedure close_eventpipe
-   is
-      success : Boolean;
+   procedure close_eventpipe is
    begin
-      success := Unix.close_file (context.eventpipe);
+      pragma Warnings (Off, "*success*");
+      declare
+         success : Boolean;
+      begin
+         success := Unix.close_file (context.eventpipe);
+      end;
+      pragma Warnings (On, "*success*");
    end close_eventpipe;
 
 
    --------------------------------------------------------------------
    --  close_root_fd
    --------------------------------------------------------------------
-   procedure close_root_fd
-   is
-      success : Boolean;
+   procedure close_root_fd is
    begin
-      success := Unix.close_file (context.rootfd);
+      pragma Warnings (Off, "*success*");
+      declare
+         success : Boolean;
+      begin
+         success := Unix.close_file (context.rootfd);
+      end;
+      pragma Warnings (On, "*success*");
    end close_root_fd;
 
 
    --------------------------------------------------------------------
    --  close_cache_directory_fd
    --------------------------------------------------------------------
-   procedure close_cache_directory_fd
-   is
-      success : Boolean;
+   procedure close_cache_directory_fd is
    begin
-      success := Unix.close_file (Context.cachedirfd);
+      pragma Warnings (Off, "*success*");
+      declare
+         success : Boolean;
+      begin
+         success := Unix.close_file (Context.cachedirfd);
+      end;
+      pragma Warnings (On, "*success*");
    end close_cache_directory_fd;
 
 
    --------------------------------------------------------------------
    --  close_db_directory_fd
    --------------------------------------------------------------------
-   procedure close_db_directory_fd
-   is
-      success : Boolean;
+   procedure close_db_directory_fd is
    begin
-      success := Unix.close_file (context.dbdirfd);
+      pragma Warnings (Off, "*success*");
+      declare
+         success : Boolean;
+      begin
+         success := Unix.close_file (context.dbdirfd);
+      end;
+      pragma Warnings (On, "*success*");
    end close_db_directory_fd;
 
 

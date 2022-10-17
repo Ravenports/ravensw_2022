@@ -144,8 +144,8 @@ package body Core.Utilities is
    function hex2char (hex : hexrep) return Character
    is
       value : Natural;
-      V10   : Character := hex (hex'First);
-      V01   : Character := hex (hex'Last);
+      V10   : constant Character := hex (hex'First);
+      V01   : constant Character := hex (hex'Last);
    begin
       --  16ths place
       case V10 is
@@ -311,14 +311,14 @@ package body Core.Utilities is
       --  Little endian : H<<56 + G<<48 + F<<40 + E<<32 + D<<24 + C<<16 + B<<8 + A
       --  Big endian    : A<<56 + B<<48 + C<<40 + D<<32 + E<<24 + F<<16 + G<<8 + H
 
-      A : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First)));
-      B : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 1)));
-      C : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 2)));
-      D : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 3)));
-      E : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 4)));
-      F : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 5)));
-      G : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 6)));
-      H : INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 7)));
+      A : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First)));
+      B : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 1)));
+      C : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 2)));
+      D : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 3)));
+      E : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 4)));
+      F : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 5)));
+      G : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 6)));
+      H : constant INT.Unsigned_64 := INT.Unsigned_64 (Character'Pos (str (str'First + 7)));
 
       use type INT.Unsigned_64;
       use type System.Bit_Order;
@@ -369,10 +369,10 @@ package body Core.Utilities is
       --  Little endian : D<<24 + C<<16 + B<<8 + A
       --  Big endian    : A<<24 + B<<16 + C<<8 + D
 
-      A : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First)));
-      B : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 1)));
-      C : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 2)));
-      D : INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 3)));
+      A : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First)));
+      B : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 1)));
+      C : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 2)));
+      D : constant INT.Unsigned_32 := INT.Unsigned_32 (Character'Pos (str (str'First + 3)));
 
       use type INT.Unsigned_32;
       use type System.Bit_Order;
@@ -398,7 +398,7 @@ package body Core.Utilities is
    --------------------------------------------------------------------
    function is_valid_abi (arch : String; show_errors : Boolean) return Boolean
    is
-      myarch : String := Config.configuration_value (Config.abi);
+      myarch : constant String := Config.configuration_value (Config.abi);
    begin
       if not Unix.filename_match (arch, myarch) then
          if arch /= myarch then

@@ -2,7 +2,6 @@
 --  Reference: ../License.txt
 
 with Ada.Environment_Variables;
-with Ada.Containers.Vectors;
 with Ada.Directories;
 
 with Core.Context;
@@ -373,7 +372,8 @@ package body Core.Repo.Fetch is
          when SIG_PUBKEY =>
             declare
                rc     : Action_Result;
-               pubkey : String := meta_extract_signature_pubkey (fd, dest_fd, filename, rc);
+               pubkey : constant String :=
+                        meta_extract_signature_pubkey (fd, dest_fd, filename, rc);
                cert   : Signature_Certificate;
             begin
                if rc = RESULT_OK then
@@ -742,7 +742,7 @@ package body Core.Repo.Fetch is
 
       procedure erase_metafile
       is
-         rel_filename : String := Repo.meta_filename (repo_name (my_repo));
+         rel_filename : constant String := Repo.meta_filename (repo_name (my_repo));
          res : Boolean;
       begin
          res := Unix.unlink (dbdirfd, rel_filename, False);
@@ -770,10 +770,10 @@ package body Core.Repo.Fetch is
       end if;
 
       declare
-         filepath : String := Repo.meta_filename (repo_name (my_repo));
-         flags    : Unix.T_Open_Flags := (RDONLY => True,
-                                          WRONLY => True,
-                                          CREAT  => True,
+         filepath : constant  String := Repo.meta_filename (repo_name (my_repo));
+         flags    : constant Unix.T_Open_Flags := (RDONLY => True,
+                                                   WRONLY => True,
+                                                   CREAT  => True,
                                           TRUNC  => True,
                                           others => False);
       begin
@@ -946,11 +946,11 @@ package body Core.Repo.Fetch is
    --------------------------------------------------------------------
    function open_temporary_file (filename : String) return Unix.File_Descriptor
    is
-      tmp_flags : Unix.T_Open_Flags := (RDONLY => True,
-                                        WRONLY => True,
-                                        CREAT  => True,
-                                        TRUNC  => True,
-                                        others => False);
+      tmp_flags : constant Unix.T_Open_Flags := (RDONLY => True,
+                                                 WRONLY => True,
+                                                 CREAT  => True,
+                                                 TRUNC  => True,
+                                                 others => False);
    begin
       return Unix.open_file (filename, tmp_flags);
    end open_temporary_file;

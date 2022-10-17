@@ -2,9 +2,6 @@
 --  Reference: ../License.txt
 
 with Core.Pkgtypes;
-with Core.Strings;
-
-use Core.Strings;
 
 package Core.Version is
 

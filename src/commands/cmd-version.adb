@@ -37,7 +37,7 @@ package body Cmd.Version is
          when no_defined_behavior =>
             --  happens when no -t, -T, -I, -R, or -r switch set
             declare
-               versionsrc : String := Config.configuration_value (config.version_source);
+               versionsrc : constant String := Config.configuration_value (config.version_source);
                autodetect : Boolean := True;
             begin
                if versionsrc'Length > 0 then
@@ -54,9 +54,9 @@ package body Cmd.Version is
                   end case;
                end if;
 
-               if autodetect then
-                  null;
-               end if;
+               --  if autodetect then
+               --     null;
+               --  end if;
             end;
          when use_remote_catalog_state =>
             use_catalog := True;
@@ -257,6 +257,8 @@ package body Cmd.Version is
       quiet       : Boolean;
       reponame    : String) return Boolean
    is
+      pragma Unreferenced (match_char, not_char);
+
       procedure release_db;
       procedure print (Position : Line_Crate.Cursor);
       procedure iterator_initialize (Position : Repo.Active_Repository_Name_Set.Cursor);
@@ -280,11 +282,11 @@ package body Cmd.Version is
       end release_db;
 
       procedure compare_remote (this_repo : String;
-                               local_pkg : Pkgtypes.A_Package)
+                                local_pkg : Pkgtypes.A_Package)
       is
-         loc_name    : String := Printf.format_attribute (local_pkg, Printf.PKG_NAME);
-         loc_origin  : String := Printf.format_attribute (local_pkg, Printf.PKG_ORIGIN);
-         loc_version : String := Printf.format_attribute (local_pkg, Printf.PKG_VERSION);
+         loc_name    : constant String := Printf.format_attribute (local_pkg, Printf.PKG_NAME);
+         loc_origin  : constant String := Printf.format_attribute (local_pkg, Printf.PKG_ORIGIN);
+         loc_version : constant String := Printf.format_attribute (local_pkg, Printf.PKG_VERSION);
          skip        : Boolean := False;
          remote_pkg  : aliased Pkgtypes.A_Package;
          new_line    : Display_Line;

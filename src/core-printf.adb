@@ -145,8 +145,8 @@ package body Core.Printf is
       name      : String;
       attribute : dep_attribute) return String
    is
-      result : Text;
-      nametxt : Text := SUS (name);
+      result  : Text;
+      nametxt : constant Text := SUS (name);
    begin
       if pkg.depends.Contains (nametxt) then
          case attribute is
@@ -207,7 +207,7 @@ package body Core.Printf is
       attribute : option_attribute) return String
    is
       result  : Text;
-      nametxt : Text := SUS (name);
+      nametxt : constant Text := SUS (name);
    begin
       if pkg.options.Contains (nametxt) then
          case attribute is

@@ -3,6 +3,9 @@
 
 with Interfaces.C.Strings;
 with Interfaces.C.Extensions;
+with Core.Strings;
+
+use Core.Strings;
 
 package body Ucl is
 
@@ -18,7 +21,8 @@ package body Ucl is
    is
       ckey : ICS.chars_ptr := ICS.New_String (key);
    begin
-      return result : access constant libucl.ucl_object_t := libucl.ucl_object_lookup (obj, ckey)
+      return result : constant access constant libucl.ucl_object_t :=
+        libucl.ucl_object_lookup (obj, ckey)
       do
          ICS.Free (ckey);
       end return;
@@ -137,7 +141,7 @@ package body Ucl is
    --------------------------------------------------------------------
    function ucl_parser_new_basic return T_parser
    is
-      flags : IC.int := 0;
+      flags : constant IC.int := 0;
    begin
       return libucl.ucl_parser_new (flags);
    end ucl_parser_new_basic;
@@ -148,7 +152,7 @@ package body Ucl is
    --------------------------------------------------------------------
    function ucl_parser_new_nofilevars return T_parser
    is
-      flags : IC.int := IC.int (libucl.UCL_PARSER_NO_FILEVARS);
+      flags : constant IC.int := IC.int (libucl.UCL_PARSER_NO_FILEVARS);
    begin
       return libucl.ucl_parser_new (flags);
    end ucl_parser_new_nofilevars;
@@ -159,7 +163,7 @@ package body Ucl is
    --------------------------------------------------------------------
    function ucl_parser_new_lowercase return T_parser
    is
-      flags : IC.int := IC.int (libucl.UCL_PARSER_KEY_LOWERCASE);
+      flags : constant IC.int := IC.int (libucl.UCL_PARSER_KEY_LOWERCASE);
    begin
       return libucl.ucl_parser_new (flags);
    end ucl_parser_new_lowercase;
@@ -210,8 +214,6 @@ package body Ucl is
                                 expand_values : Boolean)
                                 return access constant libucl.ucl_object_t
    is
-      use type ICX.bool;
-
       exv : ICX.bool := ICX.bool'Val (0);
    begin
       if expand_values then
@@ -249,9 +251,9 @@ package body Ucl is
                              key : String) return access constant libucl.ucl_object_t
    is
       keyx   : ICS.chars_ptr := ICS.New_String (key);
-      lenx   : aliased IC.size_t := IC.size_t (key'Length);
+      lenx   : aliased constant IC.size_t := IC.size_t (key'Length);
    begin
-      return result : access constant libucl.ucl_object_t :=
+      return result : constant access constant libucl.ucl_object_t :=
         libucl.ucl_object_lookup_len (obj, keyx, lenx)
       do
          ICS.Free (keyx);
@@ -356,7 +358,7 @@ package body Ucl is
    is
       use type ICX.bool;
 
-      ckey   : ICS.chars_ptr := ICS.New_String (key);
+      ckey   : constant ICS.chars_ptr := ICS.New_String (key);
       ccopy  : ICX.bool := ICX.bool'Val (0);
       result : ICX.bool;
 
@@ -446,7 +448,7 @@ package body Ucl is
    begin
       result := libucl.ucl_object_emit (obj, libucl.UCL_EMIT_CONFIG);
       declare
-         dump : String := ICS.Value (result);
+         dump : constant String := ICS.Value (result);
       begin
          ICS.Free (result);
          return dump;
@@ -459,8 +461,8 @@ package body Ucl is
    --------------------------------------------------------------------
    procedure ucl_parser_register_variable (parser : T_parser; key, value : String)
    is
-      ckey : ICS.chars_ptr := ICS.New_String (key);
-      cval : ICS.chars_ptr := ICS.New_String (value);
+      ckey : constant ICS.chars_ptr := ICS.New_String (key);
+      cval : constant ICS.chars_ptr := ICS.New_String (value);
    begin
       libucl.ucl_parser_register_variable (parser, ckey, cval);
 
@@ -477,7 +479,7 @@ package body Ucl is
    begin
       result := libucl.ucl_object_emit (obj, libucl.UCL_EMIT_YAML);
       declare
-         dump : String := ICS.Value (result);
+         dump : constant String := ICS.Value (result);
       begin
          ICS.Free (result);
          return dump;

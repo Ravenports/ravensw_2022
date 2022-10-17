@@ -1,7 +1,6 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../License.txt
 
-private with Libelf;
 private with libelf_h;
 private with gelf_h;
 

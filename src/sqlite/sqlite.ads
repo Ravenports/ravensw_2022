@@ -3,13 +3,10 @@
 
 with sqlite_h;
 with regex_h;
-with Core.Strings;
+with Core; use Core;
 
 private with Ada.Containers.Vectors;
 private with Interfaces.C.Strings;
-
-use Core;
-use Core.Strings;
 
 package SQLite is
 

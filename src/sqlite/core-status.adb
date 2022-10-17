@@ -1,7 +1,6 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../../License.txt
 
-with Ada.Directories;
 with GNAT.OS_Lib;
 with Core.Config;
 with SQLite;
@@ -9,7 +8,6 @@ with sqlite_h;
 
 package body Core.Status is
 
-   package DIR renames Ada.Directories;
    package OSL renames GNAT.OS_Lib;
 
    --------------------------------------------------------------------

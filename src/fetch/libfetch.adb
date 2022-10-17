@@ -1,6 +1,7 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../../License.txt
 
+with Interfaces.C.Strings;
 with Interfaces.C.Extensions;
 
 package body Libfetch is
@@ -206,7 +207,7 @@ package body Libfetch is
      (timestamp : Core.Unix.T_epochtime;
       url_components : in out URL_Component_Set)
    is
-      c_timestamp : Interfaces.Integer_64 := Interfaces.Integer_64 (timestamp);
+      c_timestamp : constant Interfaces.Integer_64 := Interfaces.Integer_64 (timestamp);
    begin
       url_components.components.ims_time := c_timestamp;
    end provide_IMS_timestamp;
@@ -300,7 +301,7 @@ package body Libfetch is
      (offset : Core.Unix.T_filesize;
       url_components : in out URL_Component_Set)
    is
-      c_offset : IC.int := IC.int (offset);
+      c_offset : constant IC.int := IC.int (offset);
    begin
       url_components.components.offset := c_offset;
    end provide_offset;
@@ -338,8 +339,8 @@ package body Libfetch is
    --------------------------------------------------------------------
    function url_user_at_host (url_components : URL_Component_Set) return String
    is
-      user : String := url_user (url_components);
-      host : String := url_host (url_components);
+      user : constant String := url_user (url_components);
+      host : constant String := url_host (url_components);
    begin
       if user = "" then
          return host;
@@ -524,11 +525,15 @@ package body Libfetch is
    --------------------------------------------------------------------
    --  initialize_estreams
    --------------------------------------------------------------------
-   procedure initialize_estreams
-   is
-      res : IC.int;
+   procedure initialize_estreams is
    begin
-      res := fetch_h.es_init;
+      pragma Warnings (Off, "*init_result*");
+      declare
+         init_result : IC.int;
+      begin
+         init_result := fetch_h.es_init;
+      end;
+      pragma Warnings (On, "*init_result*");
    end initialize_estreams;
 
 end Libfetch;

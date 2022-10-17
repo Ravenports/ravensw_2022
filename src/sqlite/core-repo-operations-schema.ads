@@ -2,7 +2,7 @@
 --  Reference: ../../License.txt
 
 with sqlite_h;
-private with Interfaces.C;
+with Interfaces.c;
 private with SQLite;
 
 package Core.Repo.Operations.Schema is

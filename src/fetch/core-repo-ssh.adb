@@ -3,7 +3,6 @@
 
 with Ada.Characters.Latin_1;
 with Ada.Calendar;
-with System;
 
 with Core.Event;
 with Core.Config;
@@ -141,7 +140,7 @@ package body Core.Repo.SSH is
       for message'Address use buffer;
 
       rlen          : int64 := -1;
-      index         : IC.size_t := message'First;
+      index         : constant IC.size_t := message'First;
       check_timeout : Boolean := False;
       deadline      : CAL.Time;
       current_time  : CAL.Time;
@@ -159,7 +158,8 @@ package body Core.Repo.SSH is
       loop
          onward := True;
          declare
-            data_from_socket : String := Unix.read_fd (my_repo.ssh_io.fd_in, Natural (buflen));
+            data_from_socket : constant String :=
+              Unix.read_fd (my_repo.ssh_io.fd_in, Natural (buflen));
          begin
             if IsBlank (data_from_socket) then
                if Unix.last_error_INTR then
@@ -438,7 +438,7 @@ package body Core.Repo.SSH is
                declare
                   procedure add_mirror (Key : text; Element : in out A_repo);
 
-                  trimmed : String := trim (line (line'First + 4 .. line'Last));
+                  trimmed : constant String := trim (line (line'First + 4 .. line'Last));
 
                   procedure add_mirror (Key : text; Element : in out A_repo) is
                   begin

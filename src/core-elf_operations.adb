@@ -5,6 +5,7 @@ with Ada.Environment_Variables;
 with Ada.Directories;
 with Ada.Unchecked_Conversion;
 
+with Libelf;
 with Core.Unix;
 with Core.Event;
 with Core.Strings; use Core.Strings;
@@ -37,7 +38,7 @@ package body Core.Elf_Operations is
             return result;
          when others =>
             declare
-               elf_properties : T_parse_result := parse_elf_for_arch (triplet_1);
+               elf_properties : constant T_parse_result := parse_elf_for_arch (triplet_1);
             begin
                result.error := elf_properties.error;
                if result.error = RESULT_OK then
@@ -75,7 +76,7 @@ package body Core.Elf_Operations is
          readonly_flags : constant Unix.T_Open_Flags := (RDONLY => True, others => False);
       begin
          declare
-            abi_file : String := ENV.Value ("ABI_FILE");
+            abi_file : constant String := ENV.Value ("ABI_FILE");
          begin
             --  If ABI_FILE set, then limit ABI checks to it.
             if DIR.Exists (abi_file) then
@@ -134,7 +135,7 @@ package body Core.Elf_Operations is
 
                if Libelf.section_header_is_elf_note (section_header'Access) then
                   declare
-                     data : access libelf_h.Elf_Data := Libelf.elf_getdata (elf_section);
+                     data : constant access libelf_h.Elf_Data := Libelf.elf_getdata (elf_section);
                   begin
                      if elf_note_analyze (data, elf_header, info) then
                         --  OS note found
@@ -389,7 +390,7 @@ package body Core.Elf_Operations is
    --------------------------------------------------------------------
    function determine_word_size (elfhdr : gelf_h.GElf_Ehdr) return T_wordsize
    is
-      value : Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_CLASS);
+      value : constant Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_CLASS);
    begin
       case value is
          when 1 => return BITS_32;
@@ -404,7 +405,7 @@ package body Core.Elf_Operations is
    --------------------------------------------------------------------
    function determine_endian (elfhdr : gelf_h.GElf_Ehdr) return T_endian
    is
-      value : Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_DATA);
+      value : constant Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_DATA);
    begin
       case value is
          when 1 => return LITTLE;
@@ -479,7 +480,7 @@ package body Core.Elf_Operations is
          when arm =>
             declare
                eabi_mask : constant modword := flags and EF_ARM_EABIMASK;
-               osabi     : Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_OSABI);
+               osabi : constant Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_OSABI);
             begin
                if eabi_mask /= 0 then
                   return eabi;
@@ -529,8 +530,8 @@ package body Core.Elf_Operations is
    is
       --  c code: (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
       type pos32 is mod 2 ** 32;
-      xx   : pos32 := pos32 (x);
-      yym1 : pos32 := pos32 (y - 1);
+      xx   : constant pos32 := pos32 (x);
+      yym1 : constant pos32 := pos32 (y - 1);
    begin
       return Natural ((xx + yym1) and (not yym1));
    end roundup2;
@@ -541,10 +542,10 @@ package body Core.Elf_Operations is
    --------------------------------------------------------------------
    function le32dec (wordstr : T_Wordstr) return T_Word
    is
-      p0 : Integer := Character'Pos (wordstr (wordstr'First));
-      p1 : Integer := Character'Pos (wordstr (wordstr'First + 1));
-      p2 : Integer := Character'Pos (wordstr (wordstr'First + 2));
-      p3 : Integer := Character'Pos (wordstr (wordstr'First + 3));
+      p0 : constant Integer := Character'Pos (wordstr (wordstr'First));
+      p1 : constant Integer := Character'Pos (wordstr (wordstr'First + 1));
+      p2 : constant Integer := Character'Pos (wordstr (wordstr'First + 2));
+      p3 : constant Integer := Character'Pos (wordstr (wordstr'First + 3));
    begin
       return T_Word
         (p0 +
@@ -560,10 +561,10 @@ package body Core.Elf_Operations is
    --------------------------------------------------------------------
    function be32dec (wordstr : T_Wordstr) return T_Word
    is
-      p0 : Integer := Character'Pos (wordstr (wordstr'First));
-      p1 : Integer := Character'Pos (wordstr (wordstr'First + 1));
-      p2 : Integer := Character'Pos (wordstr (wordstr'First + 2));
-      p3 : Integer := Character'Pos (wordstr (wordstr'First + 3));
+      p0 : constant Integer := Character'Pos (wordstr (wordstr'First));
+      p1 : constant Integer := Character'Pos (wordstr (wordstr'First + 1));
+      p2 : constant Integer := Character'Pos (wordstr (wordstr'First + 2));
+      p3 : constant Integer := Character'Pos (wordstr (wordstr'First + 3));
    begin
       return T_Word
         (p3 +
@@ -590,13 +591,13 @@ package body Core.Elf_Operations is
         new Ada.Unchecked_Conversion (Source => note_buffer,
                                       Target => elfdefinitions_h.Elf_Note);
 
-      buffer : String := Libelf.convert_elf_data_buffer (data);
+      buffer : constant String := Libelf.convert_elf_data_buffer (data);
       index  : Natural := buffer'First;
       bnote  : note_buffer;
       note   : elfdefinitions_h.Elf_Note;
       found  : Boolean := False;
 
-      eidata : Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_DATA);
+      eidata : constant Libelf.EI_Byte := Libelf.get_ident_byte (elfhdr, Libelf.EI_DATA);
       bigend : constant Boolean := (eidata = ELFDATA2MSB);
 
       invalid_osname : constant String := "unknown";
@@ -610,7 +611,7 @@ package body Core.Elf_Operations is
          index := index + note_buffer'Length;
          declare
             --  Subtract 1 from n_namesz, the strings are null-terminated
-            name : String := buffer (index .. index + Natural (note.n_namesz) - 2);
+            name : constant String := buffer (index .. index + Natural (note.n_namesz) - 2);
          begin
             index := index + roundup2 (Natural (note.n_namesz), 4);
             if name = "DragonFly" or else

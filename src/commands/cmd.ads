@@ -2,7 +2,6 @@
 --  Reference: ../License.txt
 
 with Core;        use Core;
-with Core.Config;
 
 with Ada.Text_IO;
 private with Ada.Containers.Vectors;

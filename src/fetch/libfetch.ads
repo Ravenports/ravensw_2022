@@ -1,7 +1,6 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../../License.txt
 
-with Interfaces.C.Strings;
 with System;
 with Core.Unix;
 with fetch_h;

@@ -47,7 +47,7 @@ package body Core.Repo.Meta is
             return result;
          when 1 =>
             declare
-               schema : access libucl.ucl_object_t := meta_open_schema_v1;
+               schema : constant access libucl.ucl_object_t := meta_open_schema_v1;
                errmsg : Text;
             begin
                if schema = null then
