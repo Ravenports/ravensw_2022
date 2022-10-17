@@ -1,0 +1,341 @@
+.\"
+.\" FreeBSD pkg - a next generation package for the installation and maintenance
+.\" of non-core utilities.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\"
+.\"     @(#)pkg.8
+.\"
+.Dd August 23, 2019
+.Dt RAVENSW 8
+.Os
+.\" ---------------------------------------------------------------------------
+.Sh NAME
+.Nm ravensw
+.Nd manipulate packages
+.\" ---------------------------------------------------------------------------
+.Sh SYNOPSIS
+.Nm
+.Op Fl v
+.Op Fl d
+.Op Fl l
+.Op Fl N
+.Op Fl j Ao jail name or id Ac | Fl c Ao chroot path Ac | Fl r Ao root directory Ac
+.Op Fl C Ao configuration file Ac
+.Op F1 o Ao option=value Ac
+.Op Fl R Ao repository configuration directory Ac
+.Op Fl 4 | Fl 6
+.Ao command Ac Ao Ar flags Ac
+.Pp
+.Nm
+.Op Cm --version
+.Op Cm --debug
+.Op Cm --list
+.Op Fl N
+.Op Cm --jail Ao jail name or id Ac | Cm --chroot Ao chroot path Ac | Cm --rootdir Ao root directory Ac
+.Op Cm --config Ao configuration file Ac
+.Op Cm --option Ao option=value Ac
+.Op Cm --repo-conf-dir Ao repository configuration directory Ac
+.Op Fl 4 | Fl 6
+.Ao command Ac Ao Ar flags Ac
+.\" ---------------------------------------------------------------------------
+.Sh DESCRIPTION
+.Nm ravensw
+provides an interface for manipulating packages: registering,
+adding, removing and upgrading packages.
+See
+.Xr ravensw.conf 5
+for details.
+.\" ---------------------------------------------------------------------------
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width indent
+.It Fl v , Cm --version
+Display the current version of
+.Nm .
+.It Fl d , Cm --debug
+Show debug information.
+.It Fl l , Cm --list
+List all the available command names, and exit without performing any
+other action.
+The
+.Fl v
+option takes precedence over
+.Fl l
+but
+.Fl l
+will override any other command line arguments.
+.It Fl o Ao option=value Ac , Cm --option Ao option=value Ac
+Set configuration option for
+.Nm
+from the command line.
+Options that are set from the environment are redefined.
+It is permitted to specify this option multiple times.
+.It Fl N
+Activation status check mode.
+.Nm
+will run sanity tests.
+It first checks for the existence
+of the SQLite database as specified by the configuration.
+It then attempts to run a simple read-only query to determine the
+number of packages installed.
+If the query is successful, and at least one package is installed,
+.Nm
+will exit normally after printing out the number of installed
+packages, otherwise an error message will be printed.
+The exit status should be a reliable indication of whether a system
+is configured to use
+.Nm
+as its package management system or not.
+.Pp
+Example usage:
+.Bd -literal -offset indent
+  if ravensw -N >/dev/null 2>&1; then
+    # ravensw functional
+  else
+    # ravensw missing or non-functional
+  fi
+.Ed
+.It Fl j Ao jail name or id Ac , Cm --jail Ao jail name or id Ac
+.Nm
+will execute in the given
+.Ao jail name or id Ac ,
+where
+.Em name
+matches
+.Dq Cm jls Ar name
+and
+.Em id
+matches
+.Dq Cm jls Ar jid .
+This option is only supported on
+.Fx currently .
+See
+.Xr jail 8
+and
+.Xr jls 8 .
+.It Fl c Ao chroot path Ac , Cm --chroot Ao chroot path Ac
+.Nm
+will chroot in the
+.Ao chroot path Ac
+environment.
+.It Fl r Ao root directory Ac , Cm --rootdir Ao root directory Ac
+.Nm
+will install all packages within the specified
+.Ao root directory Ac .
+.It Fl C Ao configuration file Ac , Cm --config Ao configuration file Ac
+.Nm
+will use the specified file as a configuration file.
+.It Fl R Ao repo conf dir Ac , Cm --repo-conf-dir Ao repo conf dir Ac
+.Nm
+will search the directory for per-repository configuration files.
+This overrides any value of
+.Ev REPOS_DIR
+specified in the main configuration file.
+.It Fl 4
+.Nm
+will use IPv4 for fetching repository and packages.
+.It Fl 6
+.Nm
+will use IPv6 for fetching repository and packages.
+.El
+.\" ---------------------------------------------------------------------------
+.Sh COMMANDS
+The following commands (or their unambiguous abbreviations) are supported by
+.Nm :
+.Bl -tag -width indent
+.It Ic help Ar command
+Display usage information of the specified command.
+.It Ic add
+Install a package from either a local source or a remote one.
+.Pp
+When installing from remote source you need to specify the
+protocol to use when fetching the package.
+.Pp
+Currently supported protocols are FTP, HTTP and HTTPS.
+.It Ic annotate
+Add, modify or delete tag-value style annotations on packages.
+.It Ic alias
+List the command line aliases.
+.It Ic autoremove
+Delete packages which were automatically installed as dependencies and are not required any more.
+.It Ic backup
+Dump the local package database to a file specified on the command-line.
+.It Ic check
+Sanity checks installed packages.
+.It Ic clean
+Clean the local cache of fetched remote packages.
+.It Ic create
+Create a package.
+.It Ic delete
+Delete a package from the database and the system.
+.It Ic fetch
+Fetch packages from a remote repository.
+.It Ic info
+Display information about installed packages.
+.It Ic install
+Install a package from a remote package repository.
+If a package is found in more than one remote repository,
+then installation happens from the first one.
+Downloading a package is tried from each package repository in turn,
+until the package is successfully fetched.
+.It Ic lock
+Prevent modification or deletion of a package.
+.It Ic query
+Query information about installed packages.
+.It Ic repo
+Create a local package repository for remote usage.
+.It Ic rquery
+Query information for remote repositories.
+.It Ic search
+Search for the given pattern in the remote package
+repositories.
+.It Ic set
+Modify information in the installed database.
+.It Ic shell
+Open a SQLite shell to the local or remote database.
+Extreme care should be taken when using this command.
+.It Ic shlib
+Displays which packages link to a specific shared library.
+.It Ic stats
+Display package database statistics.
+.It Ic unlock
+Unlocks packages, allowing them to be modified or deleted.
+.It Ic update
+Update the available remote repositories as listed in
+.Xr ravensw.conf 5 .
+.It Ic upgrade
+Upgrade a package to a newer version.
+.It Ic version
+Summarize installed versions of packages.
+.It Ic which
+Query the database for package(s) that installed a specific
+file.
+.El
+.\" ---------------------------------------------------------------------------
+.Sh ENVIRONMENT
+All configuration options from
+.Xr ravensw.conf 5
+can be passed as environment variables.
+.Pp
+Extra environment variables are:
+.Bl -tag -width "INSTALL_AS_USER"
+.It INSTALL_AS_USER
+Allow all manipulation to be done as a regular user instead of checking for
+root credentials when appropriate.
+.br
+It is expected that the user will ensure that every file and directory
+manipulated by
+.Nm
+are readable
+.Pq or writable where appropriate
+by the user.
+.El
+.\" ---------------------------------------------------------------------------
+.Sh FILES
+See
+.Xr ravensw.conf 5 .
+.\" ---------------------------------------------------------------------------
+.Sh EXAMPLES
+Search for a package:
+.Dl $ ravensw search joe
+.Pp
+Install a package:
+.Dl Installing must specify a unique origin or version otherwise it will try installing all matches.
+.Pp
+.Dl % ravensw install joe-single-standard
+.Pp
+List installed packages:
+.Dl $ ravensw info
+.Pp
+Upgrade from remote repository:
+.Dl % ravensw upgrade
+.Pp
+List non-automatic packages:
+.Dl $ ravensw query -e '%a = 0' %o
+.Pp
+List automatic packages:
+.Dl $ ravensw query -e '%a = 1' %o
+.Pp
+Delete an installed package:
+.Dl % ravensw delete "joe*"
+.Pp
+Remove unneeded dependencies:
+.Dl % ravensw autoremove
+.Pp
+Change a package from automatic to non-automatic, which will prevent
+.Ic autoremove
+from removing it:
+.Dl % ravensw set -A 0 joe-single-standard
+.Pp
+Change a package from non-automatic to automatic, which will make
+.Ic autoremove
+allow it be removed once nothing depends on it:
+.Dl % ravensw set -A 1 joe-single-standard
+.Pp
+Create package file from an installed package:
+.Dl % ravensw create -o /var/ravenports/primary/packages/All joe-single-standard
+.Pp
+Determine which package installed a file:
+.Dl $ ravensw which /raven/bin/joe
+.Pp
+Check installed packages for checksum mismatches:
+.Dl # ravensw check -s -a
+.Pp
+Check for missing dependencies:
+.Dl # ravensw check -d -a
+.\" ---------------------------------------------------------------------------
+.Sh SEE ALSO
+.Xr ravensw-repository 5 ,
+.Xr ravensw.conf 5 ,
+.Xr ravensw-add 8 ,
+.Xr ravensw-alias 8 ,
+.Xr ravensw-annotate 8 ,
+.Xr ravensw-autoremove 8 ,
+.Xr ravensw-backup 8 ,
+.Xr ravensw-check 8 ,
+.Xr ravensw-clean 8 ,
+.Xr ravensw-config 8 ,
+.Xr ravensw-create 8 ,
+.Xr ravensw-delete 8 ,
+.Xr ravensw-fetch 8 ,
+.Xr ravensw-info 8 ,
+.Xr ravensw-install 8 ,
+.Xr ravensw-lock 8 ,
+.Xr ravensw-query 8 ,
+.Xr ravensw-repo 8 ,
+.Xr ravensw-rquery 8 ,
+.Xr ravensw-search 8 ,
+.Xr ravensw-set 8 ,
+.Xr ravensw-shell 8 ,
+.Xr ravensw-shlib 8 ,
+.Xr ravensw-ssh 8 ,
+.Xr ravensw-stats 8 ,
+.Xr ravensw-update 8 ,
+.Xr ravensw-upgrade 8 ,
+.Xr ravensw-version 8 ,
+.Xr ravensw-which 8
+.\" ---------------------------------------------------------------------------
+.Sh HISTORY
+The pkg command first appeared in
+.Fx 9.1 .
+The
+.Nm
+program reimplemented most of pkg in Ada, replacing
+.Fx ports-specific code and adapting it for Ravenports.
+.\" ---------------------------------------------------------------------------
+.Sh AUTHORS AND CONTRIBUTORS
+.An John Marino Aq draco@marino.st
+.\" ---------------------------------------------------------------------------
+.Sh BUGS
+See the issue tracker at
+.Em https://github.com/jrmarino/ravensw/issues

@@ -1,0 +1,136 @@
+.\"
+.\" FreeBSD pkg - a next generation package for the installation and maintenance
+.\" of non-core utilities.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\"
+.\"     @(#)pkg.8
+.\"
+.Dd May 25, 2014
+.Dt RAVENSW-ADD 8
+.Os
+.Sh NAME
+.Nm "ravensw add"
+.Nd Registers a package and installs it on the system
+.Sh SYNOPSIS
+.Nm
+.Op Fl IAfMq
+.Ar pkg-name ...
+.Nm
+.Op Fl IAfMq
+.Ar <protocol>://<path>/<pkg-name> ...
+.Pp
+.Nm
+.Op Cm --{no-scripts,automatic,force,accept-missing,quiet}
+.Ar pkg-name ...
+.Nm
+.Op Cm --{no-scripts,automatic,force,accept-missing,quiet}
+.Ar <protocol>://<path>/<pkg-name> ...
+.Sh DESCRIPTION
+.Nm
+installs packages from either a local source or a remote one.
+.Pp
+When installing from a remote source you need to specify
+the protocol to use when fetching the package.
+.Pp
+Currently supported protocols are FTP, HTTP and HTTPS.
+.Pp
+Otherwise,
+.Nm
+will read the file named on the command line.
+.Pp
+If this is a regular file, and the package to be installed has
+unmet dependencies,
+.Nm
+will search the directory containing
+.Ar pkg-name
+for suitable archive files to fulfill those dependencies.
+If
+.Ar pkg-name
+is literally
+.Pa -
+then it will read the package data from stdin.
+.Nm
+will automatically detect and unpack most common compression formats
+based on the content of the data stream it reads, ignoring any
+extension the filename may have.
+.Pp
+If this involves reading from a pipe (including
+.Pa stdin ) ,
+fifo, socket or some other non-regular form of input stream then
+.Nm
+will immediately emit an error if
+.Ar pkg-name
+has unmet dependencies.
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width automatic
+.It Fl A , Cm --automatic
+Mark the installed packages as automatic.
+Will be automatically removed if no other packages depend on them.
+For more information please refer to
+.Xr ravensw-autoremove 8 .
+.It Fl f , Cm --force
+Force the reinstallation of the package if already installed.
+.It Fl I , Cm --no-scripts
+If any installation scripts (pre-install or post-install) exist for given
+packages, do not execute them.
+.It Fl M , Cm --accept-missing
+Force the installation of the package with missing dependencies.
+.It Fl q , Cm --quiet
+Force quiet output.
+.El
+.Sh ENVIRONMENT
+The following environment variables affect the execution of
+.Nm .
+See
+.Xr ravensw.conf 5
+for further description.
+.Bl -tag -width ".Ev NO_DESCRIPTIONS"
+.It Ev DEFAULT_ALWAYS_YES
+.It Ev ASSUME_ALWAYS_YES
+.It Ev HANDLE_RC_SCRIPTS
+.It Ev RAVENSW_DBDIR
+.El
+.Sh FILES
+See
+.Xr ravensw.conf 5 .
+.Sh SEE ALSO
+.Xr ravensw-repository 5 ,
+.Xr ravensw.conf 5 ,
+.Xr ravensw 8 ,
+.Xr ravensw-alias 8 ,
+.Xr ravensw-annotate 8 ,
+.Xr ravensw-autoremove 8 ,
+.Xr ravensw-backup 8 ,
+.Xr ravensw-check 8 ,
+.Xr ravensw-clean 8 ,
+.Xr ravensw-config 8 ,
+.Xr ravensw-create 8 ,
+.Xr ravensw-delete 8 ,
+.Xr ravensw-fetch 8 ,
+.Xr ravensw-info 8 ,
+.Xr ravensw-install 8 ,
+.Xr ravensw-lock 8 ,
+.Xr ravensw-query 8 ,
+.Xr ravensw-repo 8 ,
+.Xr ravensw-rquery 8 ,
+.Xr ravensw-search 8 ,
+.Xr ravensw-set 8 ,
+.Xr ravensw-shell 8 ,
+.Xr ravensw-shlib 8 ,
+.Xr ravensw-ssh 8 ,
+.Xr ravensw-stats 8 ,
+.Xr ravensw-update 8 ,
+.Xr ravensw-upgrade 8 ,
+.Xr ravensw-version 8 ,
+.Xr ravensw-which 8

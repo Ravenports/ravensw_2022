@@ -1,0 +1,281 @@
+.\"
+.\" FreeBSD pkg - a next generation package for the installation and maintenance
+.\" of non-core utilities.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\"
+.\"     @(#)pkg.8
+.\"
+.Dd August 29, 2019
+.Dt RAVENSW-VERSION 8
+.Os
+.Sh NAME
+.Nm "ravensw version"
+.Nd summarize installed versions of packages
+.Sh SYNOPSIS
+.Nm
+.Op Fl IR
+.Op Fl hoqvU
+.Op Fl l Ar limchar | Fl L Ar limchar
+.Op Fl Cegix Ar pattern
+.Op Fl r Ar reponame
+.Op Fl O Ar origin | Fl n Ar pkgname
+.Nm
+.Fl t Ar version1 Ar version2
+.Nm
+.Fl T Ar pkgname Ar pattern
+.Pp
+.Nm
+.Op Fl -{index,remote}
+.Op Fl -{help,origin,quiet,verbose,no-repo-update}
+.Op Fl -like Ar limchar | -not-like Ar limchar
+.Op Fl -{case-sensitive,exact,glob,case-insensitive,regex} Ar pattern
+.Op Fl -repository Ar reponame
+.Op Fl -match-origin Ar origin | Fl -match-name Ar pkgname
+.Nm
+.Fl -test-version Ar version1 Ar version2
+.Nm
+.Fl -test-pattern Ar pkgname Ar pattern
+.Sh DESCRIPTION
+.Nm
+is used for generating a report of packages installed by
+.Xr ravensw 8 .
+.Pp
+The database of available packages and versions to compare against the
+installed packages may be chosen by specifying one of
+.Fl P ,
+.Fl R
+or
+.Fl I
+or by by setting
+.Cm VERSION_SOURCE
+in
+.Xr ravensw.conf 5 .
+If not specified then the ports index file
+will be used if it exists
+.Fl ( I ) .
+Otherwise, should a ports tree exist that will be used to compare
+versions
+.Fl ( P ) .
+Failing either of those two choices, the repository catalog will be
+used
+.Fl ( R ) .
+.Pp
+When
+.Fl I
+is used, versions of installed packages will be compared to the
+versions listed in the conspiracy index derived from the
+.Cm RAVENPORTS
+setting in
+.Xr ravensw.conf 5 .
+.Pp
+When
+.Fl R
+is used,
+package repository catalogs will be automatically updated whenever
+.Nm
+is run by a user ID with write access to the package database,
+unless disabled by the
+.Fl U
+flag or setting
+.Cm REPO_AUTOUPDATE
+to
+.Sy NO
+in
+.Xr ravensw.conf 5 .
+.Pp
+When comparing package versions the package name and a comparison character are printed:
+.Bl -tag -width indent
+.It Li =
+The installed version of the package is current.
+.It Li \&<
+The installed version of the package is older than the current version.
+.It Li \&>
+The installed version of the package is newer than the current version.
+This situation can arise with an out of date index file, or when
+testing new ports.
+.It Li \&?
+The installed package does not appear in the index.
+This could be due to an out of date index or a package taken from a PR
+that has not yet been committed.
+.It Li \&!
+The installed package exists in the index but for some reason,
+.Nm
+was unable to compare the version number of the installed package
+with the corresponding entry in the index.
+.El
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width repository
+.It Fl C , Fl -case-sensitive
+Make the standard or the regular expression
+.Fl ( x )
+matching against
+.Ar pkg-name
+case sensitive.
+.It Fl h , Fl -help
+Displays usage information.
+.It Fl I , Fl -index
+Use
+.Pa repology.json
+file from the
+.Cm RAVENPORTS
+configuration setting for determining if a package is out of date.
+.It Fl R , Fl -remote
+Use repository catalog for determining if a package is out of date.
+This is the default if the ravenports tree does not exists.
+.It Fl U , Fl -no-repo-update
+Suppress the automatic update of the local copy of the repository catalog
+from remote.
+This only has any effect in combination with the
+.Fl R
+option.
+Automatic repository catalog updates are only attempted when the
+effective UID of the process has write access to the package database.
+Otherwise they are silently ignored.
+.It Fl r Ar reponame , Fl -repository Ar reponame
+Compare installed package versions to packages available from the
+named repository only, irrespective of the configured
+.Dq active
+status from
+.Pa repo.conf .
+By default all repository catalogs marked
+.Dq active
+are used for version comparisons.
+Implies
+.Fl R .
+.It Fl q , Fl -quiet
+Be quiet.
+Less output will be produced.
+.It Fl v , Fl -verbose
+Be verbose.
+.It Fl l Ar limchar , Fl -like Ar limchar
+Display only the packages which status flag matches the one specified by
+.Ar limchar .
+.It Fl L Ar limchar , Fl -not-like Ar limchar
+Does the opposite of
+.Fl l
+flag.
+Displays the packages which status flag does not match the one
+specified by
+.Ar limchar
+.It Fl i , Fl -case-insensitive
+Make the exact
+.Fl ( e )
+or regular expression
+.Fl ( x )
+matching against
+.Ar pattern
+case insensitive.
+This is the default, unless modified by setting
+.Ev CASE_SENSITIVE_MATCH
+to true in
+.Pa ravensw.conf .
+.It Fl x Ar pattern , Fl -regex Ar pattern
+Only display the packages that match the regular expression.
+Uses the "modern" or "extended" regex syntax.
+.It Fl g Ar pattern , Fl -glob Ar pattern
+Only display the packages that match the glob expression.
+.It Fl e Ar string , Fl -exact Ar string
+Only display the packages that exactly match the string.
+.It Fl O Ar origin , Fl -match-origin Ar origin
+Display only the packages which origin matches
+.Ar origin .
+.It Fl n Ar pkgname , Fl -match-name Ar pkgname
+Display only the packages which name matches
+.Ar pkgname .
+.It Fl t Ar version1 Ar version2 , Fl -test-version Ar version1 Ar version2
+Test a pair of version number strings and exit.
+The output consists of one of the single characters
+.Li =
+(equal),
+.Li \&<
+(right-hand number greater), or
+.Li \&>
+(left-hand number greater) on standard output.
+This flag is mostly useful for scripts or for testing.
+.It Fl T Ar pkgname Ar pattern , Fl -test-pattern Ar pkgname Ar pattern
+Compare
+.Ar pkgname
+against shell glob
+.Ar pattern
+and set exit code accordingly.
+.Fl T
+can also be used in `filter mode':
+When one of the arguments is `-', standard input is used, and lines
+with matching package names/patterns are echoed to standard output.
+.El
+.Sh ENVIRONMENT
+The following environment variables affect the execution of
+.Nm .
+See
+.Xr ravensw.conf 5
+for further description.
+.Bl -tag -width ".Ev NO_DESCRIPTIONS"
+.It Ev CASE_SENSITIVE_MATCH
+.It Ev RAVENSW_DBDIR
+.It Ev RAVENPORTS
+.El
+.Sh FILES
+See
+.Xr ravensw.conf 5 .
+.Sh EXAMPLES
+The following is a typical invocation of the
+.Nm
+command, which checks the installed packages against the local ports
+index file:
+.Pp
+.Dl % ravensw version -v
+.Pp
+The command below generates a report against the versions in the repository catalog:
+.Pp
+.Dl % ravensw update
+.Dl % ravensw version -vR
+.Pp
+The following lists packages needing upgrade, compared to the repository catalog:
+.Pp
+.Dl % ravensw update
+.Dl % ravensw version -vRL=
+.Pp
+The following command compares two package version strings:
+.Pp
+.Dl % ravensw version -t 1.5 1.5.1
+.Sh SEE ALSO
+.Xr ravensw-repository 5 ,
+.Xr ravensw.conf 5 ,
+.Xr ravensw 8 ,
+.Xr ravensw-add 8 ,
+.Xr ravensw-alias 8 ,
+.Xr ravensw-annotate 8 ,
+.Xr ravensw-autoremove 8 ,
+.Xr ravensw-backup 8 ,
+.Xr ravensw-check 8 ,
+.Xr ravensw-clean 8 ,
+.Xr ravensw-config 8 ,
+.Xr ravensw-create 8 ,
+.Xr ravensw-delete 8 ,
+.Xr ravensw-fetch 8 ,
+.Xr ravensw-info 8 ,
+.Xr ravensw-install 8 ,
+.Xr ravensw-lock 8 ,
+.Xr ravensw-query 8 ,
+.Xr ravensw-repo 8 ,
+.Xr ravensw-rquery 8 ,
+.Xr ravensw-search 8 ,
+.Xr ravensw-set 8 ,
+.Xr ravensw-shell 8 ,
+.Xr ravensw-shlib 8 ,
+.Xr ravensw-ssh 8 ,
+.Xr ravensw-stats 8 ,
+.Xr ravensw-update 8 ,
+.Xr ravensw-upgrade 8 ,
+.Xr ravensw-which 8

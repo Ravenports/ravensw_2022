@@ -1,0 +1,129 @@
+.\"
+.\" FreeBSD pkg - a next generation package for the installation and
+.\" maintenance of non-core utilities.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\"
+.\"     @(#)pkg.8
+.\"
+.Dd October 30, 2014
+.Dt RAVENSW-UPDATE 8
+.Os
+.Sh NAME
+.Nm "ravensw update"
+.Nd update the local catalogs of the enabled package repositories
+.Sh SYNOPSIS
+.Nm
+.Op Fl fq
+.Op Fl r Ar reponame
+.Pp
+.Nm
+.Op Cm --{force,quiet}
+.Op Cm --repository Ar reponame
+.Sh DESCRIPTION
+.Nm
+is used for updating the local copy of the repository catalogs
+from the remote package repository databases.
+Updates to catalogs are normally downloaded only when the master
+copy on the remote package repository is newer than the local copy.
+.Pp
+The repository catalogs to be updated are defined in the
+.Xr ravensw.conf 5
+file or by the entries in
+.Pa /raven/etc/ravensw/repos .
+See
+.Xr ravensw.conf 5
+for details.
+.Pp
+It is best practice to ensure your package repository catalogs are
+up to date before doing any package installation (via
+.Xr ravensw-install 8 )
+or upgrades (via
+.Xr ravensw-upgrade 8 ) .
+However, explicitly running
+.Nm
+is not normally necessary.
+By default invoking either of
+.Nm ravensw install
+or
+.Nm ravensw upgrade
+will cause repository
+catalogs to be updated automatically, unless disabled by setting
+.Ev REPO_AUTOUPDATE
+to false in
+.Xr ravensw.conf 5 .
+.Pp
+.Ss Signed repositories
+If the repository catalog is signed and
+.Ev PUBKEY
+is defined for the repository, the signature will be verified after download.
+See
+.Xr ravensw.conf 5
+for more information.
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width quiet
+.It Fl q , Cm --quiet
+Force quiet output.
+.It Fl f , Cm --force
+Force a full download of the repository catalog without regard to the
+respective ages of the local and remote copies of the catalog.
+.It Fl r Ar reponame , Cm --repository Ar reponame
+Download the catalog for the named repository only.
+This will update only the named repository, irrespective of the configured
+.Dq active
+status from
+.Pa repo.conf .
+.El
+.Sh ENVIRONMENT
+The following environment variables affect the execution of
+.Nm .
+See
+.Xr ravensw.conf 5
+for further description.
+.Bl -tag -width ".Ev NO_DESCRIPTIONS"
+.It Ev RAVENSW_DBDIR
+.It Ev REPO_AUTOUPDATE
+.El
+.Sh FILES
+See
+.Xr ravensw.conf 5 .
+.Sh SEE ALSO
+.Xr ravensw-repository 5 ,
+.Xr ravensw.conf 5 ,
+.Xr ravensw 8 ,
+.Xr ravensw-add 8 ,
+.Xr ravensw-alias 8 ,
+.Xr ravensw-annotate 8 ,
+.Xr ravensw-autoremove 8 ,
+.Xr ravensw-backup 8 ,
+.Xr ravensw-check 8 ,
+.Xr ravensw-clean 8 ,
+.Xr ravensw-config 8 ,
+.Xr ravensw-create 8 ,
+.Xr ravensw-delete 8 ,
+.Xr ravensw-fetch 8 ,
+.Xr ravensw-info 8 ,
+.Xr ravensw-install 8 ,
+.Xr ravensw-lock 8 ,
+.Xr ravensw-query 8 ,
+.Xr ravensw-repo 8 ,
+.Xr ravensw-rquery 8 ,
+.Xr ravensw-search 8 ,
+.Xr ravensw-set 8 ,
+.Xr ravensw-shell 8 ,
+.Xr ravensw-shlib 8 ,
+.Xr ravensw-ssh 8 ,
+.Xr ravensw-stats 8 ,
+.Xr ravensw-upgrade 8 ,
+.Xr ravensw-version 8 ,
+.Xr ravensw-which 8
