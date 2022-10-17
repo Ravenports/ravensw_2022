@@ -620,6 +620,7 @@ package body Core.Unix is
    --------------------------------------------------------------------
    function read_fd (fd : File_Descriptor; max_bytes : Natural) return String
    is
+      use type IC.Extensions.long_long;
       buffer : array (1 .. max_bytes) of aliased IC.unsigned_char;
       res    : IC.Extensions.long_long;
    begin
@@ -788,6 +789,7 @@ package body Core.Unix is
    --------------------------------------------------------------------
    function reset_file_for_reading (fd : File_Descriptor) return Boolean
    is
+      use type IC.Extensions.long_long;
       res      : IC.Extensions.long_long;
       SEEK_SET : constant IC.int := 0;
    begin
@@ -803,6 +805,7 @@ package body Core.Unix is
      (fd  : File_Descriptor;
       msg : String) return Boolean
    is
+      use type IC.Extensions.long_long;
       bufsiz : constant IC.size_t := msg'Length;
       buffer : array (msg'Range) of aliased IC.unsigned_char;
       res    : IC.Extensions.long_long;

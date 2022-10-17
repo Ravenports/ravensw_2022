@@ -50,6 +50,7 @@ package body Core.Repo.SSH is
       --  We're only using 1 iovec structure, so we're limited to IC.size_t number of
       --  characters for the message (32 bits version 64 bit result)
       use type IC.size_t;
+      use type IC.Extensions.long_long;
 
       my_repo : A_repo;
       for my_repo'Address use data;
@@ -131,6 +132,7 @@ package body Core.Repo.SSH is
       buflen : IC.size_t) return IC.Extensions.long_long
    is
       use type IC.size_t;
+      use type IC.Extensions.long_long;
 
       my_repo : A_repo;
       for my_repo'Address use data;

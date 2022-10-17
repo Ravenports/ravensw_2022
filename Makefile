@@ -11,7 +11,10 @@ THISPATH=	/raven/toolchain/ravensys-gcc/bin:/raven/toolchain/bin:${PATH}
 
 all:
 	${MAKE} -C ${.CURDIR}/extlib/custom_sqlite
-	env PATH=${THISPATH} gprbuild -v -p -P ${.CURDIR}/ravensw
+	env PATH=${THISPATH} gprbuild -p -P ${.CURDIR}/ravensw
 
 clean:
 	${MAKE} -C ${.CURDIR}/extlib/custom_sqlite clean
+
+short:
+	env PATH=${THISPATH} gprbuild -v -p -P ${.CURDIR}/ravensw
