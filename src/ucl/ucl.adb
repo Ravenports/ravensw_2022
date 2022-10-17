@@ -16,13 +16,11 @@ package body Ucl is
    function ucl_object_find_key (obj : access constant libucl.ucl_object_t;
                                  key : String) return access constant libucl.ucl_object_t
    is
-      ckey   : ICS.chars_ptr;
-      result : access constant libucl.ucl_object_t;
+      ckey : ICS.chars_ptr := ICS.New_String (key);
    begin
-      ckey := ICS.New_String (key);
-      result := libucl.ucl_object_lookup (obj, ckey);
-      ICS.Free (ckey);
-      return result;
+      return res : access constant libucl.ucl_object_t := libucl.ucl_object_lookup (obj, ckey) do
+         ICS.Free (ckey);
+      end return;
    end ucl_object_find_key;
 
 
@@ -51,13 +49,12 @@ package body Ucl is
                                           flags : libucl.ucl_string_flags)
                                           return access libucl.ucl_object_t
    is
-      ctxt   : ICS.chars_ptr;
-      result : access libucl.ucl_object_t;
+      ctxt : ICS.chars_ptr := ICS.New_String (txt);
    begin
-      ctxt := ICS.New_String (txt);
-      result := libucl.ucl_object_fromstring_common (ctxt, 0, flags);
-      ICS.Free (ctxt);
-      return result;
+      return result : access libucl.ucl_object_t :=
+        libucl.ucl_object_fromstring_common (ctxt, 0, flags) do
+         ICS.Free (ctxt);
+      end return;
    end common_ucl_object_fromstring;
 
 

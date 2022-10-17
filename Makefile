@@ -15,6 +15,7 @@ all:
 
 clean:
 	${MAKE} -C ${.CURDIR}/extlib/custom_sqlite clean
+	env PATH=${THISPATH} gprclean -p -P ${.CURDIR}/ravensw
 
 short:
 	env PATH=${THISPATH} gprbuild -v -p -P ${.CURDIR}/ravensw
