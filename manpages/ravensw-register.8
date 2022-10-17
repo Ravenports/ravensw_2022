@@ -21,67 +21,26 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl dtN
-.Op Fl m Ar metadatadir
-.Fl i Ar input-path
-.Nm
-.Op Fl dtN
 .Fl M Ar metadatafile
 .Pp
-.Nm
-.Op Cm --{debug,test,no-registration}
-.Cm --metadata Ar metadatadir
-.Cm --root Ar input-path
 .Nm
 .Op Cm --{debug,test,no-registration}
 .Cm --manifest Ar metadatafile
 .Sh DESCRIPTION
 .Nm
-is used for registering a package into the local package database.
-.Pp
-.Nm
-assembles a full set of package metadata from various possible inputs,
-and writes the metadata into the package registry database.
-This is one of the final steps when installing software from ports:
-the package files are installed into the filesystem, and then
-.Nm
-is called to record what was installed into the package database.
-.Pp
-.Nm
-can derive package metadata from two different sources:
-.Bl -bullet
-.It
-The package manifest
-.It
-The metadata directory
-.El
+is used for registering package information into the local package database.
 .Pp
 The package manifest is a
 .Cm UCL
 format listing of package metadata.
-It can contain all of the necessary metadata needed by the package,
-but the more usual approach is to provide selected items via the
-manifest, and fill in the rest, either from legacy files such as
-.Fa pkg-plist ,
-.Fa +DESC ,
-.Fa +DISPLAY
-or
-.Fa +MESSAGE
-which are optional and mostly located in the
-.Ar metadatadir
-given as the argument to the
-.Fl m
-option.
+It contains all of the necessary metadata needed by the package.
 .Pp
-Other information about shared library requirements and the packages
-necessary to provide them may be obtained by direct analysis of the
+Other information involving shared library requirements and the packages
+that provide them are obtained by direct analysis of the
 files installed by the package.
-File checksums may be left blank in the input metadata;
-all checksums will be recalculated from the installed or staged files
-overwriting the input.
-.Pp
-Reading in a complete and comprehensive manifest from one file is a
-simpler alternative, but requires all the metadata to have been
-assembled beforehand.
+File checksums values should be set as blank strings in the manifest file
+since all checksum values will be overridden by calculating the checksums
+of the listed staged files.
 .Pp
 Direct analysis of the installed files can be suppressed by use of
 the
@@ -102,34 +61,18 @@ For more information please refer to
 .It Fl d , Cm --debug
 Enable debugging output.
 .It Fl N , Cm --no-registration
-Disable registration in the package database, the files will be installed,
-the scripts will be executed.
-.It Fl i Ar input-path , Cm --root Ar input-path
-Specifies the package input path or staging directory.
+Disable registration in the package database, the files will be installed
+and any scripts will be executed.
 .It  Fl M Ar manifest , Cm --manifest Ar manifest
-Specifies the package manifest file.
-Use of this option means that the only file which will be used as a
-source of package metadata is the named
+Specifies the package
 .Ar manifest
-file.
-The
-.Fl M
-option is mutually exclusive with
-.Fl m .
-.It  Fl m Ar metadatadir , Cm --metadata Ar metadatadir
-Specifies the metadata directory to use when registering the package.
-This directory will hold the package manifest, and optionally may contain
-a number of other old-style metadata input files.
-The
-.Fl m
-option is mutually exclusive with
-.Fl M .
+file, the only source of package metadata.
 .It  Fl t , Cm --test
 Enable testing mode.
 This allows
 .Nm
 to update the package database without performing any of the usual
-analyses of files installed by the package.
+analysis of files installed by the package.
 This option should only be used with caution, and preferably only
 for the intended purpose of performing regression tests on
 .Xr ravensw 8
