@@ -1,11 +1,13 @@
 include @builddir@/mk/defs.mk
 
+SKIP=	pkg-audit.8 \
+	pkg-updating.8 \
+
 MAN5=	pkg-repository.5 \
 	pkg.conf.5
 MAN8=	pkg-add.8 \
 	pkg-alias.8 \
 	pkg-annotate.8 \
-	pkg-audit.8 \
 	pkg-autoremove.8 \
 	pkg-backup.8 \
 	pkg-check.8 \
@@ -28,7 +30,6 @@ MAN8=	pkg-add.8 \
 	pkg-ssh.8 \
 	pkg-stats.8 \
 	pkg-update.8 \
-	pkg-updating.8 \
 	pkg-upgrade.8 \
 	pkg-version.8 \
 	pkg-which.8 \

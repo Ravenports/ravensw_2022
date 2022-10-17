@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# run as: /fix-xrefs pkg*.8 pkg*.5
+# run as: ./fix-xrefs ravensw*.[58]
 
 use strict;
 use warnings;
@@ -27,11 +27,9 @@ MAIN:
         [m/^(\S+)\.(\d)$/]
       } @ARGV;
 
-    map {s/pkg/ravensw/} @xrefs;
     eval {
         for my $man (@ARGV) {
             my ($match) = ( $man =~ m/^(\S+)\./ );
-            $match =~ s/pkg/ravensw/;
 
             open READ,  "<$man";
             open WRITE, ">$man.new";
