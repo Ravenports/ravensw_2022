@@ -29,3 +29,6 @@ extlib/custom_sqlite/shell.c
 
 # ignore vendor directories
 vendor/sqlite3
+
+# ignore test fragments and results
+tests/html/
