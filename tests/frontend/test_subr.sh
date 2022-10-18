@@ -1,6 +1,6 @@
 
 
-new_manifest() {
+new_pkg() {
 	cat << EOF > $1.ucl
 name: $2
 origin: $2

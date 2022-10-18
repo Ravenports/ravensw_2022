@@ -22,7 +22,7 @@ version_body() {
 }
 
 compare_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 5.20_3
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 5.20_3
 
 	atf_check \
 		-o match:".*Installing.*" \

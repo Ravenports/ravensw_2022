@@ -11,11 +11,13 @@ tests_init	\
 		add_quiet \
 		add_stdin \
 		add_stdin_missing \
-		add_no_version
+		add_no_version \
+		add_no_version_multi \
+		add_wrong_version
 
-initialize_ravensw() {
+initialize_pkg() {
 	touch a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 1
 	cat << EOF >> test.ucl
 files: {
 	${TMPDIR}/a: ""
@@ -38,7 +40,7 @@ EOF
 }
 
 add_body() {
-	initialize_ravensw
+	initialize_pkg
 
 OUTPUT="${JAILED}Installing test-1...
 pre-install
@@ -58,7 +60,7 @@ post-install
 }
 
 add_automatic_body() {
-	initialize_ravensw
+	initialize_pkg
 
 OUTPUT="${JAILED}Installing test-1...
 pre-install
@@ -78,7 +80,7 @@ post-install
 }
 
 add_noscript_body() {
-	initialize_ravensw
+	initialize_pkg
 
 OUTPUT="${JAILED}Installing test-1...
 ${JAILED}Extracting test-1:  done
@@ -90,13 +92,13 @@ ${JAILED}Extracting test-1:  done
 }
 
 add_force_body() {
-	initialize_ravensw
+	initialize_pkg
 }
 
 
 add_accept_missing_body() {
 	touch a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 1
 	cat << EOF >> test.ucl
 deps: {
 	b: {
@@ -125,8 +127,8 @@ EOF
 
 	atf_check \
 		-o inline:"${JAILED}Installing test-1...\n\nFailed to install the following 1 package(s): test-1.tzst\n" \
-		-e inline:"Missing dependency 'b'\n" \
-		-s exit:70 \
+		-e inline:"${PROGNAME}: Missing dependency 'b'\n" \
+		-s exit:1 \
 		ravensw add test-1.tzst
 
 OUTPUT="${JAILED}Installing test-1...
@@ -136,13 +138,13 @@ post-install
 "
 	atf_check \
 		-o inline:"${OUTPUT}" \
-		-e inline:"Missing dependency 'b'\n" \
+		-e inline:"${PROGNAME}: Missing dependency 'b'\n" \
 		-s exit:0 \
 		ravensw add -M test-1.tzst
 }
 
 add_quiet_body() {
-	initialize_ravensw
+	initialize_pkg
 
 	atf_check \
 		-o inline:"pre-install\npost-install\n" \
@@ -151,7 +153,7 @@ add_quiet_body() {
 }
 
 add_stdin_body() {
-	initialize_ravensw
+	initialize_pkg
 
 OUTPUT="${JAILED}Installing test-1...
 pre-install
@@ -166,7 +168,7 @@ post-install
 
 add_stdin_missing_body() {
 	touch a
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 1
 	cat << EOF >> test.ucl
 deps: {
 	b: {
@@ -193,33 +195,74 @@ EOF
 		-s exit:0 \
 		ravensw create -M test.ucl
 
-	cat test-1.tzst | atf_check \
+	atf_check \
 		-o inline:"${JAILED}Installing test-1...\n\nFailed to install the following 1 package(s): -\n" \
-		-e inline:"Missing dependency 'b'\n" \
-		-s exit:70 \
-		ravensw add -
+		-e inline:"${PROGNAME}: Missing dependency 'b'\n" \
+		-s exit:1 \
+		ravensw add - < test-1.tzst
 
 OUTPUT="${JAILED}Installing test-1...
 pre-install
 ${JAILED}Extracting test-1:  done
 post-install
 "
-	cat test-1.tzst | atf_check \
+	atf_check \
 		-o inline:"${OUTPUT}" \
-		-e inline:"Missing dependency 'b'\n" \
+		-e inline:"${PROGNAME}: Missing dependency 'b'\n" \
 		-s exit:0 \
-		ravensw add -M -
+		ravensw add -M - < test-1.tzst
 }
 
 add_no_version_body() {
-
-	for p in test test-lib final ; do
-		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ${p} ${p} 1
+	for p in test final ; do
+		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ${p} ${p} 1
 		if [ ${p} = "final" ]; then
 			cat << EOF >> final.ucl
 deps {
 	test {
 		origin = "test";
+	}
+}
+EOF
+		fi
+		atf_check -o ignore -s exit:0 \
+			ravensw create -M ${p}.ucl
+	done
+	atf_check -o ignore -s exit:0 \
+		ravensw add final-1.tzst
+}
+
+add_no_version_multi_body() {
+	for p in test final ; do
+		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ${p} ${p} 1
+		if [ ${p} = "final" ]; then
+			cat << EOF >> final.ucl
+deps {
+	test {
+		origin = "test";
+	},
+	pkgnotfound {
+		origin = "pkgnotfound";
+	}
+}
+EOF
+		fi
+		atf_check -o ignore -s exit:0 \
+			ravensw create -M ${p}.ucl
+	done
+	atf_check -o ignore -e ignore -s exit:1 \
+		ravensw add final-1.tzst
+}
+
+add_wrong_version_body() {
+	for p in test final ; do
+		atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg ${p} ${p} 1
+		if [ ${p} = "final" ]; then
+			cat << EOF >> final.ucl
+deps {
+	test {
+		origin = "test";
+		version = "2";
 	}
 }
 EOF
