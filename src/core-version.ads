@@ -116,13 +116,14 @@ private
          value   : Natural;
       end record;
 
-   stage : constant array (1 .. 5) of Stage_Type :=
+   stage : constant array (1 .. 6) of Stage_Type :=
      (
       ("pl   ", 2, 0),
-      ("alpha", 5, 1),
-      ("beta ", 4, 2),
-      ("pre  ", 3, Character'Pos ('p') - Character'Pos ('a') + 1),
-      ("rc   ", 2, Character'Pos ('r') - Character'Pos ('a') + 1)
+      ("snap ", 4, 1),
+      ("alpha", 5, 2),
+      ("beta ", 4, 3),
+      ("pre  ", 3, Character'Pos ('p') - Character'Pos ('a') + 2),
+      ("rc   ", 2, Character'Pos ('r') - Character'Pos ('a') + 2)
      );
 
    function get_component

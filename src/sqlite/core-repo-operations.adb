@@ -10,6 +10,7 @@ with Core.Repo.Meta;
 with Core.Repo.Fetch;
 with Core.Repo.Operations.Schema;
 with Core.Repo.Iterator.Packages;
+with Core.VFS;  --  required for dbdir_* functions
 with Core.Database.CustomCmds;
 with Core.CommonSQL;
 with Core.Checksum;
