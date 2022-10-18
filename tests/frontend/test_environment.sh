@@ -9,7 +9,7 @@ export PATH="${OUTPUTDIR}:${PATH}"
 export INSTALL_AS_USER=yes
 export RAVENSW_DBDIR=.
 export NO_TICK=yes
-export PROGNAME=ravensw
+export PROGNAME="ravensw"
 
 tests_init()
 {
@@ -31,6 +31,13 @@ atf_init_test_cases() {
 
 atf_skip_on() {
 	if [ "${OS}" = "$1" ]; then
+		shift
+		atf_skip "$@"
+	fi
+}
+
+atf_require() {
+	if ! command -v "$1" 2>/dev/null >/dev/null; then
 		shift
 		atf_skip "$@"
 	fi
