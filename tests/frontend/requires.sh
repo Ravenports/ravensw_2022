@@ -13,12 +13,12 @@ local1: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw a a 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest a a 1.0
 	cat << EOF >> a.ucl
 provides: [a-1]
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw b b 1.0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest b b 1.0
 	cat << EOF >> b.ucl
 requires: [a-1]
 EOF

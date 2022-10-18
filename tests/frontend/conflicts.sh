@@ -12,7 +12,7 @@ tests_init \
 # bar1 and bar conflict with each other
 complex_conflicts_body() {
 	echo "bar-1.0" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar bar 1.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest bar bar 1.0 "${TMPDIR}"
 	cat << EOF >> bar.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -25,7 +25,7 @@ EOF
 		-s exit:0 \
 		ravensw create -M ./bar.ucl -o ./repo/
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw foo foo 1.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest foo foo 1.0 "${TMPDIR}"
 	cat << EOF >> foo.ucl
 deps: {
 	bar: {
@@ -68,7 +68,7 @@ EOF
 	# Upgrade bar
 	rm -fr repo
 	echo "bar-2.0" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar bar 2.0 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest bar bar 2.0 "${TMPDIR}"
 	cat << EOF >> bar.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -83,7 +83,7 @@ EOF
 
 	# Create bar1-1.1
 	echo "bar-1.1" > file1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw bar1 bar1 1.1 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest bar1 bar1 1.1 "${TMPDIR}"
 	cat << EOF >> bar1.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -96,7 +96,7 @@ EOF
 		-s exit:0 \
 		ravensw create -M ./bar1.ucl -o ./repo/
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw foo foo 1.0_1 "${TMPDIR}"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest foo foo 1.0_1 "${TMPDIR}"
 	cat << EOF >> foo.ucl
 deps: {
 	bar1: {

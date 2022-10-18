@@ -11,7 +11,7 @@ register_conflicts_body() {
 	mkdir -p teststage/${TMPDIR}
 	echo a > teststage/${TMPDIR}/plop
 	sum=$(openssl dgst -sha256 -binary teststage/${TMPDIR}/plop | hexdump -v -e '/1 "%x"')
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 1
 	cat >> test.ucl << EOF
 files: {
 	"${TMPDIR}/plop" : "$sum"
@@ -26,7 +26,7 @@ EOF
 	atf_check_equal ${sum} ${nsum}
 	rm -f test.ucl
 	echo b > teststage/${TMPDIR}/plop
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test2 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test2 1
 	cat >> test.ucl << EOF
 files: {
 	"${TMPDIR}/plop" : "$sum2"
@@ -81,7 +81,7 @@ remove
 
 prefix_is_a_symlink_body()
 {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest "test" "test" "1"
 	mkdir -p ${TMPDIR}/${TMPDIR}/plop/bla
 	echo "something" > ${TMPDIR}/${TMPDIR}/plop/bla/a
 	ln ${TMPDIR}/${TMPDIR}/plop/bla/a ${TMPDIR}/${TMPDIR}/plop/bla/b

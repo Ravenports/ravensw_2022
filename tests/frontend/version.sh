@@ -3,7 +3,7 @@
 . $(atf_get_srcdir)/test_environment.sh
 
 tests_init \
-	version #\compare
+	version compare
 
 version_body() {
 	atf_check -o inline:"<\n" -s exit:0 ravensw version -t 1 2
@@ -22,7 +22,7 @@ version_body() {
 }
 
 compare_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_pkg test test 5.20_3
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 5.20_3
 
 	atf_check \
 		-o match:".*Installing.*" \

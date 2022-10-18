@@ -9,8 +9,8 @@ tests_init \
 autoupgrade_body() {
 	atf_skip_on Linux Test fails on Linux
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 ravensw:standard 1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 ravensw:standard 1_1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw1 ravensw:standard 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw2 ravensw:standard 1_1
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \
@@ -49,8 +49,8 @@ autoupgrade_multirepo_head() {
 
 autoupgrade_multirepo_body() {
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 ravensw:standard 1
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 ravensw:standard 1.1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw1 ravensw:standard 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw2 ravensw:standard 1.1
 
 	atf_check \
 		-o match:".*Installing.*\.\.\.$" \

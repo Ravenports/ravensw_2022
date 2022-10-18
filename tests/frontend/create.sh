@@ -55,7 +55,7 @@ basic_validation() {
 }
 
 create_with_hardlink_body() {
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw "test" "test" "1.0"
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest "test" "test" "1.0"
 	echo "blah" >> foo
 	ln foo bar
 	echo "@(root,wheel,0555,) /foo" >> test.plist

@@ -1,6 +1,6 @@
 
 
-new_ravensw() {
+new_manifest() {
 	cat << EOF > $1.ucl
 name: $2
 origin: $2

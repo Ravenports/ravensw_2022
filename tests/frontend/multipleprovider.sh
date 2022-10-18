@@ -8,7 +8,7 @@ tests_init \
 multiple_providers_body() {
 	touch file
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 test1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw1 test1 1
 	cat << EOF >> ravensw1.ucl
 shlibs_provided [
 	"lib1.so.6"
@@ -18,7 +18,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 dep 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw2 dep 1
 	cat << EOF >> ravensw2.ucl
 shlibs_required [
 	"lib1.so.6"
@@ -39,7 +39,7 @@ EOF
 			ravensw register -M ${p}.ucl
 	done
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw3 test1 1_0
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw3 test1 1_0
 	cat << EOF >> ravensw3.ucl
 shlibs_provided [
 	"lib1.so.6"
@@ -49,7 +49,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw4 test2 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw4 test2 1
 	cat << EOF >> ravensw4.ucl
 shlibs_provided [
 	"lib1.so.6"
@@ -59,7 +59,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw5 dep 1_1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw5 dep 1_1
 	cat << EOF >> ravensw5.ucl
 shlibs_required [
 	"lib1.so.6"

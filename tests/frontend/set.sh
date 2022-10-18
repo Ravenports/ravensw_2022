@@ -10,7 +10,7 @@ tests_init \
 
 initialize_ravensw() {
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw test test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest test test 1
 	sed -i'' -e 's#origin.*#origin: origin/test#' test.ucl
 
 	atf_check \

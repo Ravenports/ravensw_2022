@@ -10,28 +10,28 @@ package_merge_body() {
 	touch file2
 	touch file3
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 test-file1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw1 test-file1 1
 	cat << EOF >> ravensw1.ucl
 files: {
 	${TMPDIR}/file1: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 test-file2 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw2 test-file2 1
 	cat << EOF >> ravensw2.ucl
 files: {
 	${TMPDIR}/file2: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw3 test-file3 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw3 test-file3 1
 	cat << EOF >> ravensw3.ucl
 files: {
 	${TMPDIR}/file3: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw4 test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw4 test 1
 	cat << EOF >> ravensw4.ucl
 deps: {
 	test-file1: {
@@ -49,7 +49,7 @@ deps: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw dep1 test1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest dep1 test1 1
 	cat << EOF >> dep1.ucl
 deps: {
 	test-file1: {
@@ -67,7 +67,7 @@ EOF
 			ravensw register -M ${p}.ucl
 	done
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw5 test 1.1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw5 test 1.1
 	cat << EOF >> ravensw5.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -76,7 +76,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw dep2 test1 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest dep2 test1 1
 	cat << EOF >> dep2.ucl
 deps: {
 	test: {

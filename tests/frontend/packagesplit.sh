@@ -9,7 +9,7 @@ package_split_body() {
 	touch file1
 	touch file2
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw1 test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw1 test 1
 	cat << EOF >> ravensw1.ucl
 files: {
 	${TMPDIR}/file1: "",
@@ -17,7 +17,7 @@ files: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw dep1 master 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest dep1 master 1
 	cat << EOF >> dep1.ucl
 deps: {
 	test {
@@ -27,21 +27,21 @@ deps: {
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw2 sub-test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw2 sub-test 1
 	cat << EOF >> ravensw2.ucl
 files: {
 	${TMPDIR}/file1: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw3 sub-test2 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw3 sub-test2 1
 	cat << EOF >> ravensw3.ucl
 files: {
 	${TMPDIR}/file2: "",
 }
 EOF
 
-	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_ravensw ravensw4 test 1
+	atf_check -s exit:0 sh ${RESOURCEDIR}/test_subr.sh new_manifest ravensw4 test 1
 	cat << EOF >> ravensw4.ucl
 deps: {
 	sub-test: {
