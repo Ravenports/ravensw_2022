@@ -22,13 +22,19 @@
 .Nm
 .Op Fl dtN
 .Fl M Ar metadatafile
+.Fl i Ar input-path
 .Pp
 .Nm
 .Op Cm --{debug,test,no-registration}
 .Cm --manifest Ar metadatafile
+.Cm --root Ar input-path
 .Sh DESCRIPTION
 .Nm
 is used for registering package information into the local package database.
+This command is not used by users of binary package systems such as
+Ravenports; it was originally intended for installation of source builds.
+Its primary purpose these days are to support regression testing of
+.Xr ravensw 8 .
 .Pp
 The package manifest is a
 .Cm UCL
@@ -63,6 +69,13 @@ Enable debugging output.
 .It Fl N , Cm --no-registration
 Disable registration in the package database, the files will be installed
 and any scripts will be executed.
+.It Fl i Ar input-path , Cm --root Ar input-path
+Specifies the package input path or staging directory.
+The
+.Fl l
+option cannot be used with the
+.Fl t
+option.
 .It  Fl M Ar manifest , Cm --manifest Ar manifest
 Specifies the package
 .Ar manifest
@@ -73,10 +86,7 @@ This allows
 .Nm
 to update the package database without performing any of the usual
 analysis of files installed by the package.
-This option should only be used with caution, and preferably only
-for the intended purpose of performing regression tests on
-.Xr ravensw 8
-itself.
+Scripted regression testing is the only reason this option exists.
 .El
 .Sh ENVIRONMENT
 The following environment variables affect the execution of
