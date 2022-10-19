@@ -2,8 +2,11 @@
 --  Reference: ../License.txt
 
 with Core.Database.Operations;
-with Core.Pkgtypes;
 with Core.Event;
+with Core.Config;
+with Core.Context;
+
+with Core.Strings;  use Core.Strings;
 
 package body Cmd.Register is
 
@@ -24,17 +27,23 @@ package body Cmd.Register is
       my_pkg.package_type := Pkgtypes.PKG_INSTALLED;
       my_pkg.automatic := comline.register_automatic;
 
-      --  Todo: pkg_load_metadata
+      if command_load_metadata (pkg_access     => my_pkg'Unchecked_Access,
+                                metadatafile   => USS (comline.register_metafile),
+                                root_directory => USS (comline.register_root),
+                                testing        => comline.register_test) /= RESULT_OK
+      then
+         return False;
+      end if;
 
       if not comline.register_skipreg then
          if DBO.rdb_open_localdb (db) /= RESULT_OK then
-            Event.emit_notice ("database failed to open, exiting.");
+            Event.emit_notice ("Local database failed to open, exiting.");
             return False;
          end if;
 
          if not DBO.rdb_obtain_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
             Event.emit_error
-              ("Cannot get a exclusive lock on database. It is locked by another process.");
+              ("Cannot get a exclusive lock on local database. It is locked by another process.");
             DBO.rdb_close (db);
             return False;
          end if;
@@ -42,7 +51,7 @@ package body Cmd.Register is
          --  Todo: pkg_add_port
 
          if not DBO.rdb_release_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
-            Event.emit_error ("Cannot release exclusive lock on database.");
+            Event.emit_error ("Cannot release exclusive lock on local database.");
          end if;
          DBO.rdb_close (db);
       else
@@ -82,5 +91,54 @@ package body Cmd.Register is
       end case;
    end access_is_sufficient;
 
+
+   --------------------------------------------------------------------
+   --  command_load_metadata
+   --------------------------------------------------------------------
+   function command_load_metadata
+     (pkg_access     : Pkgtypes.A_Package_Access;
+      metadatafile   : String;
+      root_directory : String;
+      testing        : Boolean) return Action_Result
+   is
+   begin
+      --  TODO: implement load_manifest (pkg_create.c), actually pkg_parse_manifest_file
+      -- pkg_manifest.c
+      --  pkg_parse_manifest_fileat(AT_FDCWD, pkg, file, keys);
+      --  aready exists and core.manifest as function parse_manifest
+      return RESULT_FATAL;
+   end command_load_metadata;
+
+
+   --------------------------------------------------------------------
+   --  fix_up_abi
+   --------------------------------------------------------------------
+   procedure fix_up_abi
+     (pkg_access     : Pkgtypes.A_Package_Access;
+      root_directory : String;
+      testing        : Boolean)
+   is
+      defaultarch : Boolean := False;
+   begin
+      --  If not defined architecture, autodetermine it
+      if IsBlank (pkg_access.abi) then
+         declare
+            arch : String := Config.get_ci_key (Config.abi);
+         begin
+            pkg_access.abi := SUS (arch);
+            defaultarch := True;
+         end;
+      end if;
+
+      if testing then
+         null;
+         --  TODO: analyze files
+      end if;
+
+      if Context.reveal_developer_mode then
+         null;
+         --  TODO: suggest arch
+      end if;
+   end fix_up_abi;
 
 end Cmd.Register;
