@@ -20,12 +20,12 @@
 .Nd register a package into the local package database
 .Sh SYNOPSIS
 .Nm
-.Op Fl dtN
+.Op Fl tN
 .Fl M Ar metadatafile
 .Fl i Ar input-path
 .Pp
 .Nm
-.Op Cm --{debug,test,no-registration}
+.Op Cm --{test,no-registration}
 .Cm --manifest Ar metadatafile
 .Cm --root Ar input-path
 .Sh DESCRIPTION
@@ -64,8 +64,6 @@ Mark the package to be automatically removed if no other packages
 depend on it.
 For more information please refer to
 .Xr ravensw-autoremove 8 .
-.It Fl d , Cm --debug
-Enable debugging output.
 .It Fl N , Cm --no-registration
 Disable registration in the package database, the files will be installed
 and any scripts will be executed.
