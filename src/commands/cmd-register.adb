@@ -28,25 +28,31 @@ package body Cmd.Register is
 
       if not comline.register_skipreg then
          null;
+         --  Todo: check rdb_open_all vs rdb_open.  This doesn't look right
          if DBO.rdb_open_all (db, Database.RDB_DEFAULT) /= RESULT_OK then
             Event.emit_notice ("database failed to open, exiting.");
             return False;
          end if;
-      end if;
 
-      if not DBO.rdb_obtain_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
-         Event.emit_error
-           ("Cannot get a exclusive lock on database. It is locked by another process.");
+         if not DBO.rdb_obtain_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
+            Event.emit_error
+              ("Cannot get a exclusive lock on database. It is locked by another process.");
+            DBO.rdb_close (db);
+            return False;
+         end if;
+
+         --  Todo: pkg_add_port
+
+         if not DBO.rdb_release_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
+            Event.emit_error ("Cannot release exclusive lock on database.");
+         end if;
          DBO.rdb_close (db);
-         return False;
+      else
+         --  Todo: pkg_add_port
+         null;
       end if;
 
-      --  Todo: pkg_add_port
-
-      if not DBO.rdb_release_lock (db, Database.RDB_LOCK_EXCLUSIVE) then
-         Event.emit_error ("Cannot release exclusive lock on database.");
-      end if;
-      DBO.rdb_close (db);
+      --  Todo: mystery messages?
 
       Event.emit_notice ("Register implementation unfinished.");
       return True;
