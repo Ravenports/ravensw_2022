@@ -23,48 +23,11 @@ package body Core.Database.Operations is
    package ROP renames Core.Repo.Operations;
 
    --------------------------------------------------------------------
-   --  rdb_open_all
+   --  rdb_open_localdb
    --------------------------------------------------------------------
-   function rdb_open_all (db       : in out RDB_Connection;
-                          dbtype   : RDB_Source)
-                          return Action_Result
+   function rdb_open_localdb (db : in out RDB_Connection) return Action_Result
    is
-      procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor);
-
-      active : constant Repo.Active_Repository_Name_Set.Vector := Repo.ordered_active_repositories;
-      all_ok : Action_Result := RESULT_OK;
-
-      procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor)
-      is
-         rname : Text renames Repo.Active_Repository_Name_Set.Element (Position);
-      begin
-         if all_ok = RESULT_OK then
-            if rdb_open (db, dbtype, USS (rname)) /= RESULT_OK then
-               all_ok := RESULT_FATAL;
-            end if;
-         end if;
-      end open_active_db;
-   begin
-      if active.Is_Empty then
-         Event.emit_error ("No active remote repositories configured");
-         return RESULT_FATAL;
-      end if;
-
-      active.Iterate (open_active_db'Access);
-      return all_ok;
-   end rdb_open_all;
-
-
-   --------------------------------------------------------------------
-   --  rdb_open
-   --------------------------------------------------------------------
-   function rdb_open (db : in out RDB_Connection;
-                      dbtype : RDB_Source;
-                      reponame : String)
-                      return Action_Result
-   is
-      func   : constant String := "rdb_open()";
-      result : Action_Result;
+      func : constant String := "rdb_open_localdb()";
    begin
       if establish_connection (db) = RESULT_OK then
          if Schema.local_prstmt_initialize (db) /= RESULT_OK then
@@ -79,32 +42,15 @@ package body Core.Database.Operations is
       else
          return RESULT_FATAL;
       end if;
-
-      result := rdb_open_remote (db, dbtype, reponame);
-      if result /= RESULT_OK then
-         rdb_close (db);
-         return result;
-      end if;
-
       return RESULT_OK;
-   end rdb_open;
+   end rdb_open_localdb;
 
 
    --------------------------------------------------------------------
-   --  rdb_open_remote
+   --  rdb_open_active_remote
    --------------------------------------------------------------------
-   function rdb_open_remote (db       : in out RDB_Connection;
-                             dbtype   : RDB_Source;
-                             reponame : String)
-                             return Action_Result
-   is
+   function rdb_open_active_remote (reponame : String) return Action_Result is
    begin
-      case dbtype is
-         when RDB_REMOTE       => null;
-         when RDB_MAYBE_REMOTE => null;
-         when RDB_DEFAULT      => return RESULT_OK;
-      end case;
-
       --  The calling procedure will close db upon error
       Event.emit_debug (3, "rdb_open_remote: open " & reponame);
       if Repo.repository_is_active (reponame) then
@@ -112,12 +58,44 @@ package body Core.Database.Operations is
             Event.emit_error ("Failed to open repository " & reponame);
             return RESULT_FATAL;
          end if;
-         return RESULT_OK;
       else
          Event.emit_error ("Repository " & reponame & " is not active or does not exist");
          return RESULT_FATAL;
       end if;
-   end rdb_open_remote;
+
+      return RESULT_OK;
+   end rdb_open_active_remote;
+
+
+   --------------------------------------------------------------------
+   --  rdb_open_all_active_remote
+   --------------------------------------------------------------------
+   function rdb_open_all_active_remote return Action_Result
+   is
+      procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor);
+
+      active : constant Repo.Active_Repository_Name_Set.Vector := Repo.ordered_active_repositories;
+      all_ok : Action_Result := RESULT_OK;
+
+      procedure open_active_db (Position : Repo.Active_Repository_Name_Set.Cursor)
+      is
+         rname : Text renames Repo.Active_Repository_Name_Set.Element (Position);
+      begin
+         if all_ok = RESULT_OK then
+            if rdb_open_active_remote (USS (rname)) /= RESULT_OK then
+               all_ok := RESULT_FATAL;
+            end if;
+         end if;
+      end open_active_db;
+   begin
+      if active.Is_Empty then
+         Event.emit_error ("No active remote repositories configured");
+         return RESULT_FATAL;
+      end if;
+
+      active.Iterate (open_active_db'Access);
+      return all_ok;
+   end rdb_open_all_active_remote;
 
 
    --------------------------------------------------------------------

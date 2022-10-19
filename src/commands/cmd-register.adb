@@ -27,9 +27,7 @@ package body Cmd.Register is
       --  Todo: pkg_load_metadata
 
       if not comline.register_skipreg then
-         null;
-         --  Todo: check rdb_open_all vs rdb_open.  This doesn't look right
-         if DBO.rdb_open_all (db, Database.RDB_DEFAULT) /= RESULT_OK then
+         if DBO.rdb_open_localdb (db) /= RESULT_OK then
             Event.emit_notice ("database failed to open, exiting.");
             return False;
          end if;

@@ -16,20 +16,17 @@ package Core.Database.Operations is
      (Element_Type => Stmt_Argument,
       Index_Type   => Natural);
 
-   --  rdb_open with a blank reponame opens all active repositories
-   --  rdb_open_all is equivalent to above
-   --  rdb_open with non-blank reponame open identified repository, if active
+   --  rdb_open_localdb opens the local.sqlite database
+   --  rdb_open_active_remote opens a repository database identified by name (if active)
+   --  rdb_open_all_active_remote opens all active repositories
 
-   function rdb_open
-     (db       : in out RDB_Connection;
-      dbtype   : RDB_Source;
-      reponame : String)
-      return Action_Result;
+   function rdb_open_localdb
+     (db : in out RDB_Connection) return Action_Result;
 
-   function rdb_open_all
-     (db       : in out RDB_Connection;
-      dbtype   : RDB_Source)
-      return Action_Result;
+   function rdb_open_active_remote
+     (reponame : String) return Action_Result;
+
+   function rdb_open_all_active_remote return Action_Result;
 
    procedure rdb_close
      (db       : in out RDB_Connection);
@@ -44,8 +41,7 @@ package Core.Database.Operations is
 
    function database_access
      (mode  : RDB_Mode_Flags;
-      dtype : RDB_Type)
-      return Action_Result;
+      dtype : RDB_Type) return Action_Result;
 
    function rdb_connected (db : RDB_Connection_Access) return Boolean;
 
@@ -64,11 +60,6 @@ private
    package IC  renames Interfaces.C;
 
    internal_srcfile : constant String := "core-database-operations.adb";
-
-   function rdb_open_remote (db       : in out RDB_Connection;
-                             dbtype   : RDB_Source;
-                             reponame : String)
-                             return Action_Result;
 
    function rdb_profile_callback
      (trace_type : IC.unsigned;
