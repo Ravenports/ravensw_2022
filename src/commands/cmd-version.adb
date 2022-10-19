@@ -390,6 +390,11 @@ package body Cmd.Version is
          end if;
       end if;
 
+      if DBO.rdb_open_localdb (db) /= RESULT_OK then
+         Event.emit_notice ("The local database failed to open, exiting.");
+         return False;
+      end if;
+
       if DBO.rdb_open_all_active_remote /= RESULT_OK then
          Event.emit_notice ("At least one database failed to open, exiting.");
          return False;
