@@ -47,10 +47,10 @@ private
 
    --  Commands in pkg(8) not supported (intentionally)
    --  cv_audit
+   --  cv_backup (removed from FreeBSD's pkg)
    --  cv_bootstrap
    --  cv_convert
    --  cv_updating
-   --  cv_register
    --  cv_plugins
 
    --  Currently 31 commands.  When new commands are added, uncomment section at
@@ -61,7 +61,6 @@ private
       cv_alias,
       cv_annotate,
       cv_autoremove,
-      cv_backup,
       cv_check,
       cv_clean,
       cv_config,
@@ -73,6 +72,7 @@ private
       cv_install,
       cv_lock,
       cv_query,
+      cv_register,
       cv_remove,
       cv_repo,
       cv_rquery,
@@ -263,6 +263,12 @@ private
          query_eval_condition : Text;
          query_file_archive   : Text;
          query_format         : Text;
+
+         register_metafile    : Text;
+         register_root        : Text;
+         register_skipreg     : Boolean := False;
+         register_test        : Boolean := False;
+         register_automatic   : Boolean := False;
 
          repo_list            : Boolean := False;
          repo_output_dir      : Text;

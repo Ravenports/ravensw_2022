@@ -86,7 +86,6 @@ package body Cmd.Help is
                when cv_unset   => null;
                when cv_add     => PL (C, "Compatibility interface to install a package");
                when cv_alias   => PL (C, "List the command line aliases");
-               when cv_backup  => PL (C, "Backs-up and restores the local package database");
                when cv_clean   => PL (C, "Cleans old packages from the cache");
                when cv_config  => PL (C, "Display the value of the configuration options");
                when cv_create  => PL (C, "Creates software package distributions");
@@ -120,6 +119,8 @@ package body Cmd.Help is
                   PL (C, "Checks for missing dependencies and database consistency");
                when cv_annotate =>
                   PL (C, "Add, modify or delete tag-value style annotations on packages");
+               when cv_register =>
+                  PL (C, "Registers a package into the local package database");
             end case;
          end;
       end loop;

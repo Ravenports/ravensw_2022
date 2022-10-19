@@ -11,6 +11,7 @@ build_objects/*.deps
 build_objects/ravensw
 build_objects/clang_ref_cache.db
 build_objects/gpsauto.cgpr
+build_objects/ravensw-loc.xml
 
 # ignore c-based object files
 

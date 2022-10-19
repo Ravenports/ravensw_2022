@@ -28,8 +28,6 @@ package body Cmd.Line is
          generic_repo_name,
          generic_raw_format,
          annotate_tag,
-         backup_destination,
-         backup_source,
          create_metadatadir,
          create_manifest,
          create_outdir,
@@ -41,6 +39,8 @@ package body Cmd.Line is
          lock_pkgname,
          query_condition,
          query_filename,
+         register_metadata,
+         register_dataroot,
          repo_meta_File,
          repo_outdir,
          repo_signing_cmd,
@@ -387,7 +387,6 @@ package body Cmd.Line is
             ("alias     ", cv_alias),
             ("annotate  ", cv_annotate),
             ("autoremove", cv_autoremove),
-            ("backup    ", cv_backup),
             ("check     ", cv_check),
             ("clean     ", cv_clean),
             ("config    ", cv_config),
@@ -399,6 +398,7 @@ package body Cmd.Line is
             ("install   ", cv_install),
             ("lock      ", cv_lock),
             ("query     ", cv_query),
+            ("register  ", cv_register),
             ("remove    ", cv_remove),
             ("repo      ", cv_repo),
             ("rquery    ", cv_rquery),
@@ -606,25 +606,6 @@ package body Cmd.Line is
                      result.verb_assume_yes := True;
                   elsif datum = sws_dryrun or else datum = swl_dryrun then
                      result.verb_dry_run := True;
-                  else
-                     set_error (error_rec & datum);
-                  end if;
-
-               when cv_backup =>
-                  if datum = sws_quiet or else datum = swl_quiet then
-                     result.verb_quiet := True;
-                  elsif datum = "-d" or else datum = "--dump" then
-                     if IsBlank (result.backup_restore) then
-                        last_cmd := backup_destination;
-                     else
-                        set_error ("dump dest_file already defined, extra: " & datum);
-                     end if;
-                  elsif datum = "-r" or else datum = "--restore" then
-                     if IsBlank (result.backup_dump) then
-                        last_cmd := backup_source;
-                     else
-                        set_error ("restore src_file already defined, extra: " & datum);
-                     end if;
                   else
                      set_error (error_rec & datum);
                   end if;
@@ -873,6 +854,21 @@ package body Cmd.Line is
                      else
                         set_error (error_exp & datum);
                      end if;
+                  end if;
+
+               when cv_register =>
+                  if datum = "-M" or else datum = "--manifest" then
+                     last_cmd := register_metadata;
+                  elsif datum = "-i" or else datum = "--root" then
+                     last_cmd := register_dataroot;
+                  elsif datum = "-t" or else datum = "--test" then
+                     result.register_test := True;
+                  elsif datum = "-N" or else datum = "--no-registration" then
+                     result.register_skipreg := True;
+                  elsif datum = "-A" or else datum = "--automatic" then
+                     result.register_automatic := True;
+                  else
+                     set_error (error_rec & datum);
                   end if;
 
                when cv_repo =>
@@ -1241,8 +1237,6 @@ package body Cmd.Line is
                when generic_repo_name  => result.verb_repo_name       := datumtxt;
                when which_filename     => result.which_filename       := datumtxt;
                when lock_pkgname       => result.verb_name_pattern    := datumtxt;
-               when backup_source      => result.backup_restore       := datumtxt;
-               when backup_destination => result.backup_dump          := datumtxt;
                when annotate_tag       => result.annot_tag_name       := datumtxt;
                when create_metadatadir => result.create_metadata_dir  := datumtxt;
                when create_manifest    => result.create_manifest_file := datumtxt;
@@ -1253,6 +1247,8 @@ package body Cmd.Line is
                when info_archive_file  => result.info_file_archive    := datumtxt;
                when query_filename     => result.query_file_archive   := datumtxt;
                when query_condition    => result.query_eval_condition := datumtxt;
+               when register_metadata  => result.register_metafile    := datumtxt;
+               when register_dataroot  => result.register_root        := datumtxt;
                when repo_signing_cmd   => result.repo_signing_cmd     := datumtxt;
                when repo_outdir        => result.repo_output_dir      := datumtxt;
                when repo_meta_File     => result.repo_meta_file       := datumtxt;

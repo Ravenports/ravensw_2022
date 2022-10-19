@@ -17,7 +17,6 @@ package body Cmd.Usage is
          when cv_alias =>      return verb_alias (comline);
          when cv_annotate =>   return verb_annotate (comline);
          when cv_autoremove => return verb_autoremove (comline);
-         when cv_backup =>     return verb_backup (comline);
          when cv_check =>      return verb_check (comline);
          when cv_clean =>      return verb_clean (comline);
          when cv_config =>     return verb_config (comline);
@@ -29,6 +28,7 @@ package body Cmd.Usage is
          when cv_install =>    return verb_install (comline);
          when cv_lock =>       return verb_lock (comline);
          when cv_query =>      return verb_query (comline);
+         when cv_register =>   return verb_register (comline);
          when cv_remove =>     return verb_delete (comline);
          when cv_repo =>       return verb_repo (comline);
          when cv_rquery =>     return verb_rquery (comline);
@@ -284,39 +284,6 @@ package body Cmd.Usage is
          return True;
       end if;
    end verb_autoremove;
-
-
-   --------------------------------------------------------------------
-   --  verb_backup
-   --------------------------------------------------------------------
-   function verb_backup (comline : Cldata) return Boolean
-   is
-      function alert (error_msg : String) return Boolean;
-      function alert (error_msg : String) return Boolean
-      is
-         msg1 : constant String := "backup [-q] -d <dest_file>";
-         msg2 : constant String := "backup [-q] -r <src_file>";
-      begin
-         display_error (error_msg);
-         display_usage (msg1, True);
-         display_usage (msg2, False);
-         display_help_suggestion (cv_backup);
-         return False;
-      end alert;
-   begin
-      if comline.parse_error then
-         return alert (USS (comline.error_message));
-      else
-         if not IsBlank (comline.backup_dump) and then not IsBlank (comline.backup_restore) then
-            return alert ("The -d and -r switches are mutually exclusive");
-         end if;
-         if IsBlank (comline.backup_dump) and then IsBlank (comline.backup_restore) then
-            return alert ("Either a backup or a restore operation must be requested");
-         end if;
-
-         return True;
-      end if;
-   end verb_backup;
 
 
    --------------------------------------------------------------------
@@ -1131,4 +1098,37 @@ package body Cmd.Usage is
       end if;
    end verb_rquery;
 
+
+   --------------------------------------------------------------------
+   --  verb_register
+   --------------------------------------------------------------------
+   function verb_register (comline : Cldata) return Boolean
+   is
+      function alert (error_msg : String) return Boolean;
+      function alert (error_msg : String) return Boolean
+      is
+         msg1 : constant String := "register [-AtN] -M metadatafile [-i input-path]";
+      begin
+         display_error (error_msg);
+         display_usage (msg1, True);
+         display_help_suggestion (cv_register);
+         return False;
+      end alert;
+   begin
+      if comline.parse_error then
+         return alert (USS (comline.error_message));
+      else
+         if IsBlank (comline.register_metafile) then
+            return alert ("-M metadatafile is required");
+         end if;
+
+         if comline.register_test and then
+           not IsBlank (comline.register_root)
+         then
+            return alert ("Do not specify -i input-root with --test option");
+         end if;
+
+         return True;
+      end if;
+   end verb_register;
 end Cmd.Usage;

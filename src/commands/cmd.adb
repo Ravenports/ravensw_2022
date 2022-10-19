@@ -15,7 +15,6 @@ package body Cmd is
          when cv_alias      => return "alias";
          when cv_annotate   => return "annotate";
          when cv_autoremove => return "autoremove";
-         when cv_backup     => return "backup";
          when cv_check      => return "check";
          when cv_clean      => return "clean";
          when cv_config     => return "config";
@@ -27,6 +26,7 @@ package body Cmd is
          when cv_install    => return "install";
          when cv_lock       => return "lock";
          when cv_query      => return "query";
+         when cv_register   => return "register";
          when cv_remove     => return "remove";
          when cv_repo       => return "repo";
          when cv_rquery     => return "rquery";

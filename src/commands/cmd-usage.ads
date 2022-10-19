@@ -31,7 +31,6 @@ private
    function verb_alias (comline : Cldata) return Boolean;
    function verb_annotate (comline : Cldata) return Boolean;
    function verb_autoremove (comline : Cldata) return Boolean;
-   function verb_backup (comline : Cldata) return Boolean;
    function verb_check (comline : Cldata) return Boolean;
    function verb_clean (comline : Cldata) return Boolean;
    function verb_config (comline : Cldata) return Boolean;
@@ -44,6 +43,7 @@ private
    function verb_lock (comline : Cldata) return Boolean;
    function verb_unlock (comline : Cldata) return Boolean;
    function verb_query (comline : Cldata) return Boolean;
+   function verb_register (comline : Cldata) return Boolean;
    function verb_repo (comline : Cldata) return Boolean;
    function verb_rquery (comline : Cldata) return Boolean;
    function verb_search (comline : Cldata) return Boolean;
