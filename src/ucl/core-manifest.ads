@@ -11,6 +11,10 @@ package Core.Manifest is
      (pkg_access : Pkgtypes.A_Package_Access;
       manifest   : String) return Action_Result;
 
+   function parse_metadata_file
+     (pkg_access : Pkgtypes.A_Package_Access;
+      metadatafile : String) return Action_Result;
+
 private
 
    type pkg_field is

@@ -116,7 +116,15 @@ package Ucl is
       obj_to_validate : access constant libucl.ucl_object_t;
       error_message   : out Text) return Boolean;
 
-   function ucl_parser_add_chunk (parser : T_parser; data : String) return Boolean;
+   --  Returns True if parsing of data string to UCL object is successful
+   function ucl_parser_add_chunk
+     (parser : T_parser;
+      data : String) return Boolean;
+
+   --  Returns True if given file was successfully parsed to UCL object.
+   function ucl_parser_add_file
+     (parser : T_parser;
+      filename : String) return Boolean;
 
 private
 

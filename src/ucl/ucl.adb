@@ -515,7 +515,7 @@ package body Ucl is
 
 
    --------------------------------------------------------------------
-   --  ucl_object_valid_per_schema
+   --  ucl_parser_add_chunk
    --------------------------------------------------------------------
    function ucl_parser_add_chunk (parser : T_parser; data : String) return Boolean
    is
@@ -530,5 +530,22 @@ package body Ucl is
       res := libucl.ucl_parser_add_chunk (parser, c_data (c_data'First)'Access, data'Length);
       return (res = ICX.bool'Val (1));
    end ucl_parser_add_chunk;
+
+
+   --------------------------------------------------------------------
+   --  ucl_parser_add_file
+   --------------------------------------------------------------------
+   function ucl_parser_add_file
+     (parser : T_parser;
+      filename : String) return Boolean
+   is
+      use type ICX.bool;
+
+      cfilename : constant ICS.chars_ptr := ICS.New_String (filename);
+      res : ICX.bool;
+   begin
+      res := libucl.ucl_parser_add_file (parser, cfilename);
+      return (res = ICX.bool'Val (1));
+   end ucl_parser_add_file;
 
 end Ucl;

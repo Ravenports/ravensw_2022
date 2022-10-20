@@ -866,7 +866,7 @@ package body Core.Manifest is
       libucl.ucl_parser_free (parser);
 
       if obj = null then
-         Event.emit_error ("parse_manifest: failed ucl_parser_get_object");
+         Event.emit_error ("parse_manifest_line: failed ucl_parser_get_object");
          Event.emit_debug (1, manifest);
          return RESULT_FATAL;
       end if;
@@ -877,10 +877,53 @@ package body Core.Manifest is
       return rc;
    exception
       when oops : others =>
-         Event.emit_error ("Unexpected exception caught at parse_manifest");
+         Event.emit_error ("Unexpected exception caught at parse_manifest_line");
          Event.emit_error (Ada.Exceptions.Exception_Information (oops));
          return RESULT_FATAL;
    end parse_manifest_line;
+
+
+   --------------------------------------------------------------------
+   --  parse_metadata_file
+   --------------------------------------------------------------------
+   function parse_metadata_file
+     (pkg_access : Pkgtypes.A_Package_Access;
+      metadatafile : String) return Action_Result
+   is
+      parser : Ucl.T_parser;
+      obj    : access libucl.ucl_object_t;
+      rc     : Action_Result;
+   begin
+      Event.emit_debug (2, "Parsing metadata file : " & metadatafile);
+
+      parser := Ucl.ucl_parser_new_nofilevars;
+
+      if not Ucl.ucl_parser_add_file (parser, metadatafile) then
+         Event.emit_error ("Error parsing metadata file: " & Ucl.ucl_parser_get_error (parser));
+         libucl.ucl_parser_free (parser);
+         return RESULT_FATAL;
+      end if;
+
+      obj := Ucl.ucl_parser_get_object (parser);
+      libucl.ucl_parser_free (parser);
+
+      if obj = null then
+         Event.emit_error ("parse_metadata_file: failed ucl_parser_get_object");
+         Event.emit_debug (1, metadatafile);
+         return RESULT_FATAL;
+      end if;
+
+      rc := pkg_parse_manifest_ucl (pkg_access, obj);
+      libucl.ucl_object_unref (obj);
+
+      return rc;
+
+   exception
+      when oops : others =>
+         Event.emit_error ("Unexpected exception caught at parse_metadata_file");
+         Event.emit_error (Ada.Exceptions.Exception_Information (oops));
+         return RESULT_FATAL;
+   end parse_metadata_file;
 
 
    --------------------------------------------------------------------
