@@ -7,7 +7,7 @@ private with Ucl;
 
 package Core.Manifest is
 
-   function parse_manifest
+   function parse_manifest_line
      (pkg_access : Pkgtypes.A_Package_Access;
       manifest   : String) return Action_Result;
 

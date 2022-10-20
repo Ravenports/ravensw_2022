@@ -902,7 +902,7 @@ package body Core.Repo.Operations is
       abi    : Text;
    begin
       my_pkg.package_type := Pkgtypes.PKG_REMOTE;
-      if Core.Manifest.parse_manifest (my_pkg'Unchecked_Access, manifest) /= RESULT_OK then
+      if Core.Manifest.parse_manifest_line (my_pkg'Unchecked_Access, manifest) /= RESULT_OK then
          return RESULT_FATAL;
       end if;
 

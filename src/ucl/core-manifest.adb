@@ -842,9 +842,9 @@ package body Core.Manifest is
 
 
    --------------------------------------------------------------------
-   --  parse_manifest
+   --  parse_manifest_line
    --------------------------------------------------------------------
-   function parse_manifest
+   function parse_manifest_line
      (pkg_access : Pkgtypes.A_Package_Access;
       manifest   : String) return Action_Result
    is
@@ -880,7 +880,7 @@ package body Core.Manifest is
          Event.emit_error ("Unexpected exception caught at parse_manifest");
          Event.emit_error (Ada.Exceptions.Exception_Information (oops));
          return RESULT_FATAL;
-   end parse_manifest;
+   end parse_manifest_line;
 
 
    --------------------------------------------------------------------
