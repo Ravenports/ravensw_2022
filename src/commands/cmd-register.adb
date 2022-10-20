@@ -5,6 +5,7 @@ with Core.Database.Operations;
 with Core.Event;
 with Core.Config;
 with Core.Context;
+with Core.Manifest;
 
 with Core.Strings;  use Core.Strings;
 
@@ -101,12 +102,18 @@ package body Cmd.Register is
       root_directory : String;
       testing        : Boolean) return Action_Result
    is
+      rc : Action_Result;
    begin
-      --  TODO: implement load_manifest (pkg_create.c), actually pkg_parse_manifest_file
-      -- pkg_manifest.c
-      --  pkg_parse_manifest_fileat(AT_FDCWD, pkg, file, keys);
-      --  aready exists and core.manifest as function parse_manifest
-      return RESULT_FATAL;
+
+      rc := Manifest.parse_metadata_file (pkg_access   => pkg_access,
+                                          metadatafile => metadatafile);
+      if rc = RESULT_OK then
+         fix_up_abi (pkg_access     => pkg_access,
+                     root_directory => root_directory,
+                     testing        => testing);
+      end if;
+
+      return rc;
    end command_load_metadata;
 
 
