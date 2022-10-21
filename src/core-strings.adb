@@ -622,4 +622,19 @@ package body Core.Strings is
       return "{ " & content & " }";
    end json_object;
 
+
+   --------------------------------------------------------------------------------------------
+   --  IsNumeric
+   --------------------------------------------------------------------------------------------
+   function IsNumeric (S : String) return Boolean
+   is
+      Dummy : Float;
+   begin
+      Dummy := Float'Value (S);
+      return True;
+   exception
+      when others =>
+         return False;
+   end IsNumeric;
+
 end Core.Strings;

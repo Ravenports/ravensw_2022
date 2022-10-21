@@ -713,8 +713,8 @@ package body Core.Elf_Operations is
          return retcode;
       end if;
 
-      If Context.reveal_developer_mode then
-         pkg_access.cont_flags := 0
+      if Context.reveal_developer_mode then
+         pkg_access.cont_flags := 0;
       end if;
 
 

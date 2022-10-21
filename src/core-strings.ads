@@ -40,6 +40,9 @@ package Core.Strings is
    function int2str  (A : Integer) return String;
    function int2text (A : Integer) return Text;
 
+   --  Returns true if every character of string is a digit
+   function IsNumeric (S : String) return Boolean;
+
    --  Replace substring with another string
    function replace_substring (US : Text;
                                old_string : String;
