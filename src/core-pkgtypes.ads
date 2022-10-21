@@ -15,6 +15,7 @@ package Core.Pkgtypes is
    type Package_Timestamp  is mod 2**64;
    type Package_Open_Flags is mod 2**3;
    type Package_Dir_Flags  is mod 2**8;
+   type Containment_Flags  is mod 2**3;
 
    type mode_t is new Natural range 0 .. 16#FFFF#;
    ACCESS_F_OK : constant mode_t := 0;
@@ -195,6 +196,11 @@ package Core.Pkgtypes is
       Equivalent_Keys => Strings.equivalent,
       "="             => SU."=");
 
+   PKG_CONTAINS_ELF_OBJECTS : constant Containment_Flags := 2 ** 1;
+   PKG_CONTAINS_STATIC_LIBS : constant Containment_Flags := 2 ** 2;
+   PKG_CONTAINS_LA          : constant Containment_Flags := 2 ** 3;
+
+
    type A_Package is
       record
          direct       : Boolean;
@@ -245,6 +251,7 @@ package Core.Pkgtypes is
          dirs         : Directory_Crate.Map;
          files        : File_Crate.Vector;
          config_files : Config_File_Crate.Map;
+         cont_flags   : Containment_Flags;
          rootpath     : Text;
          rootfd       : Unix.File_Descriptor := Unix.not_connected;
          package_type : Package_Location     := PKG_FILE;

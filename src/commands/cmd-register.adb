@@ -137,7 +137,7 @@ package body Cmd.Register is
          end;
       end if;
 
-      if testing then
+      if not testing then
          null;
          --  TODO: analyze files
       end if;

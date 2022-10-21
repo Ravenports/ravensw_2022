@@ -8,6 +8,9 @@ with Ada.Unchecked_Conversion;
 with Libelf;
 with Core.Unix;
 with Core.Event;
+with Core.Config;
+with Core.Context;
+with Core.Shared_Libraries;
 with Core.Strings; use Core.Strings;
 
 with elfdefinitions_h;
@@ -679,6 +682,46 @@ package body Core.Elf_Operations is
 
       return found;
    end elf_note_analyze;
+
+
+   --------------------------------------------------------------------
+   --  analyze_packaged_files
+   --------------------------------------------------------------------
+   function analyze_packaged_files
+     (pkg_access : Pkgtypes.A_Package_Access;
+      stage_directory : String) return Action_Result
+   is
+      libraries : Shared_Libraries.Library_Set;
+      retcode : Action_Result;
+   begin
+      pkg_access.shlibs_reqd.Clear;
+      pkg_access.shlibs_prov.Clear;
+
+      if not Libelf.initialize_libelf then
+         EV.emit_debug (2, "Failed to initialize ELF library");
+         return RESULT_FATAL;
+      end if;
+
+      if not IsBlank (stage_directory) and then
+        Config.configuration_value (config.base_shlibs)
+      then
+         libraries.add_shlib_list_from_stage (stage_directory);
+      end if;
+
+      retcode := libraries.add_shlib_from_elf_hints;
+      if retcode /= RESULT_OK then
+         return retcode;
+      end if;
+
+      If Context.reveal_developer_mode then
+         pkg_access.cont_flags := 0
+      end if;
+
+
+
+      return RESULT_FATAL;
+
+   end analyze_packaged_files;
 
 
 end Core.Elf_Operations;

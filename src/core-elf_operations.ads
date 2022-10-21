@@ -1,6 +1,8 @@
 --  This file is covered by the Internet Software Consortium (ISC) License
 --  Reference: ../License.txt
 
+with Core.Pkgtypes;
+
 private with libelf_h;
 private with gelf_h;
 
@@ -13,6 +15,10 @@ package Core.Elf_Operations is
       end record;
 
    function calculate_abi return abi_result;
+
+   function analyze_packaged_files
+     (pkg_access : Pkgtypes.A_Package_Access;
+      stage_directory : String) return Action_Result;
 
 private
 
