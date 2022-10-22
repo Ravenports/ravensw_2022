@@ -692,7 +692,6 @@ package body Core.Elf_Operations is
       stage_directory : String) return Action_Result
    is
       libraries : Shared_Libraries.Library_Set;
-      retcode : Action_Result;
    begin
       pkg_access.shlibs_reqd.Clear;
       pkg_access.shlibs_prov.Clear;
@@ -708,18 +707,13 @@ package body Core.Elf_Operations is
          libraries.add_shlib_list_from_stage (stage_directory);
       end if;
 
-      retcode := libraries.add_shlib_from_elf_hints;
-      if retcode /= RESULT_OK then
-         return retcode;
-      end if;
+      libraries.add_shlib_from_elf_hints;
 
       if Context.reveal_developer_mode then
          pkg_access.cont_flags := 0;
       end if;
 
-
-
-      return RESULT_FATAL;
+      return RESULT_OK;
 
    end analyze_packaged_files;
 

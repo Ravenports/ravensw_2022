@@ -2,6 +2,7 @@
 --  Reference: ../License.txt
 
 with Ada.Directories;
+with Ada.Direct_IO;
 with Core.Event;
 
 package body Core.Shared_Libraries is
@@ -32,10 +33,34 @@ package body Core.Shared_Libraries is
    --------------------------------------------------------------------
    --  add_shlib_from_elf_hints
    --------------------------------------------------------------------
-   function add_shlib_from_elf_hints (LS : Library_Set) return Action_Result
+   procedure add_shlib_from_elf_hints (LS : in out Library_Set)
    is
+      function determine_hints_file return String;
+
+      --  This function makes sense for FreeBSD ports system because it uses ldconfig
+      --  extensively.   Ravenports does NOT use ldconfig, instead mandating the use of RUNPATH
+      --  or RPATH.  Only the BSDs have the hints file anyway, and other than the system
+      --  libraries, the hints files only point to /usr/local, the ports installation.
+      --  The procedures are left in place, but they are commented out because they are useless
+      --  on Ravenports.
+
+      function determine_hints_file return String is
+      begin
+         case platform is
+            when netbsd | openbsd => return "/var/run/ld.so.hints";
+            when others => return "/var/run/ld-elf.so.hints";
+         end case;
+      end determine_hints_file;
+
+      hintsfile : constant String := determine_hints_file;
    begin
-      return RESULT_FATAL;
+      --  case platform is
+      --     when netbsd | openbsd | freebsd | dragonfly =>
+      --        LS.read_elf_hints (hintsfile  => hintsfile,
+      --                           must_exist => True);
+      --     when others => null;
+      --  end case;
+      null;
    end add_shlib_from_elf_hints;
 
 
@@ -152,5 +177,93 @@ package body Core.Shared_Libraries is
          LS.shlibs.Insert (key, value);
       end;
    end shlib_list_add;
+
+
+   --------------------------------------------------------------------
+   --  read_elf_hints
+   --------------------------------------------------------------------
+   procedure read_elf_hints (LS : in out Library_Set;
+                             hintsfile : String;
+                             must_exist : Boolean)
+   is
+   begin
+      if not DIR.Exists (hintsfile) then
+         if must_exist then
+            EV.emit_error ("Cannot open " & hintsfile);
+         end if;
+         return;
+      end if;
+      declare
+         hints_size : constant Natural := Natural (DIR.Size (hintsfile));
+      begin
+         if hints_size > 16 * 1024 then
+            EV.emit_error (hintsfile & " is unreasonable large");
+            return;
+         end if;
+         declare
+            subtype File_String    is String (1 .. hints_size);
+            package File_String_IO is new Ada.Direct_IO (File_String);
+
+            function read_32_uint (hints : File_String; index : Natural) return Natural;
+            procedure handle_hints (delimited_hints : String);
+
+            File       : File_String_IO.File_Type;
+            Contents   : File_String;
+            elfmagic   : constant Natural := 16#746e6845#;
+            magic      : Natural;
+            version    : Natural;
+            strtab     : Natural;
+            dirlist    : Natural;
+            dirlistlen : Natural;
+            indexf     : Natural;
+            indexl     : Natural;
+
+            function read_32_uint (hints : File_String; index : Natural) return Natural
+            is
+               A : Natural := Character'Pos (Contents (Contents'First + index));
+               B : Natural := Character'Pos (Contents (Contents'First + index + 1));
+               C : Natural := Character'Pos (Contents (Contents'First + index + 2));
+               D : Natural := Character'Pos (Contents (Contents'First + index + 3));
+            begin
+               --  Little Endian
+               return (D * 16777216) + (C * 65536) + (B * 256) + A;
+            end read_32_uint;
+
+            procedure handle_hints (delimited_hints : String)
+            is
+               number_paths : constant Natural := Strings.count_char (delimited_hints, ':') + 1;
+            begin
+               if number_paths > 0 then
+                  for field in 1 .. number_paths loop
+                     LS.scan_directory_for_shlibs
+                       (directory_path => Strings.specific_field (delimited_hints, field, ":"),
+                        strict_names   => True);
+                  end loop;
+               end if;
+            end handle_hints;
+         begin
+            File_String_IO.Open  (File, Mode => File_String_IO.In_File,
+                                  Name => hintsfile);
+            File_String_IO.Read  (File, Item => Contents);
+            File_String_IO.Close (File);
+
+            --  Check magic string
+            magic := read_32_uint (Contents, 0);
+            if magic /= elfmagic then
+               EV.emit_error (hintsfile & " invalid file format");
+               return;
+            end if;
+
+            version    := read_32_uint (Contents, 4);
+            strtab     := read_32_uint (Contents, 8);
+            dirlist    := read_32_uint (Contents, 16);
+            dirlistlen := read_32_uint (Contents, 20);
+            indexf     := Contents'First + strtab + dirlist;
+            indexl     := indexf + dirlistlen - 1;
+
+            handle_hints (Contents (indexf .. indexl));
+         end;
+      end;
+   end read_elf_hints;
 
 end Core.Shared_Libraries;

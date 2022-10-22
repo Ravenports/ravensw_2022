@@ -50,7 +50,7 @@ stat_ops.o: ../src/unix/stat_ops.c
 
 sql3int.o: ../src/sqlite/sqlite3_interface.c
 	${CC} -c ${CFLAGS} -I../../external/sqlite ${.ALLSRC} -o ${.TARGET}
-	
+
 retrieve_int64: retrieve_int64.adb ${unix_objs} sql3int.o
 	env PATH=${PATH}:/raven/toolchain/ravensys-gcc/bin \
 	gnatmake -g -fstack-check ${.TARGET} -aI../src/resolv \
@@ -84,6 +84,10 @@ check_blake3: check_blake3.adb
 	gnatmake -g -fstack-check ${.TARGET} \
 		-aI../src/blake3 -aI../src \
 		-largs /raven/lib/libblake3_pic.a
+
+read_elf_hints: read_elf_hints.adb
+	env PATH=${PATH}:/raven/toolchain/ravensys-gcc/bin \
+		gnatmake -g -fstack-check -aI../../src ${.TARGET}
 
 # load_pubkey_c: load_pubkey.c
 #	${CC} ${CFLAGS} ${SSLCFLAGS} -o ${.TARGET} ${.ALLSRC} \

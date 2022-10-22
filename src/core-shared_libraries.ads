@@ -14,7 +14,7 @@ package Core.Shared_Libraries is
 
    --  For BSD, add shared libraries from Elf Hints
    --  How do we handle Linux?
-   function add_shlib_from_elf_hints (LS : Library_Set) return Action_Result;
+   procedure add_shlib_from_elf_hints (LS : in out Library_Set);
 
 
 
@@ -47,5 +47,10 @@ private
      (LS : in out Library_Set;
       directory_path : String;
       library_filename : String);
+
+   procedure read_elf_hints
+     (LS : in out Library_Set;
+      hintsfile : String;
+      must_exist : Boolean);
 
 end Core.Shared_Libraries;
