@@ -27,6 +27,9 @@ package body Core.Shared_Libraries is
    begin
       scan_dir ("/lib");
       scan_dir ("/usr/lib");
+      if platform = linux then
+         scan_dir ("/usr/lib/x86_64-linux-gnu");
+      end if;
    end add_shlib_list_from_stage;
 
 
@@ -265,5 +268,47 @@ package body Core.Shared_Libraries is
          end;
       end;
    end read_elf_hints;
+
+
+   --------------------------------------------------------------------
+      --  find_shlib_path_by_name
+   --------------------------------------------------------------------
+   function find_shlib_path_by_name (LS : Library_Set; library_filename : String) return String
+   is
+      key : constant Text := Strings.SUS (library_filename);
+   begin
+      if LS.rpaths.Contains (key) then
+         return Strings.USS (LS.rpaths.Element (key));
+      end if;
+      if LS.shlibs.Contains (key) then
+         return Strings.USS (LS.shlibs.Element (key));
+      end if;
+      return "";
+   end find_shlib_path_by_name;
+
+
+   --------------------------------------------------------------------
+      --  filter_system_shlibs
+   --------------------------------------------------------------------
+   function filter_system_shlibs (LS : Library_Set; library_filename : String)
+   is
+      shlib_path : constant String := find_shlib_path_by_name (LS, library_filename);
+      allow_base_libraries : constant Boolean := Config.configuration_value (Config.base_shlibs);
+   begin
+      if Strings.IsBlank (shlib_path) then
+         return RESULT_FATAL;
+      end if;
+      if allow_base_libraries then
+         return RESULT_END;
+      else
+         --  Matches /lib, /usr/lib, /usr/lib/x86_64-linux-gnu
+         if Strings.leads ("/lib/") or else
+           Strings.leads ("/usr/lib/")
+         then
+            return RESULT_END;
+         end if;
+      end if;
+      return RESULT_OK;
+   end filter_system_shlibs;
 
 end Core.Shared_Libraries;

@@ -5,6 +5,7 @@ with Core.Pkgtypes;
 
 private with libelf_h;
 private with gelf_h;
+private with Core.Shared_Libraries;
 
 package Core.Elf_Operations is
 
@@ -106,5 +107,12 @@ private
 
    --  Decode 4-character string into word (littler endian)
    function le32dec (wordstr : T_Wordstr) return T_Word;
+
+   function add_shlibs_to_package
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String;
+      library_filename : String;
+      is_shlib : Boolean;
+      LS : Shared_Libraries.Library_Set) return Action_Result;
 
 end Core.Elf_Operations;

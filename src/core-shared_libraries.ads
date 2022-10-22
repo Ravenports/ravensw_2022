@@ -16,7 +16,13 @@ package Core.Shared_Libraries is
    --  How do we handle Linux?
    procedure add_shlib_from_elf_hints (LS : in out Library_Set);
 
-
+   --  filter library based on its filename
+   --  returns RESULT_FATAL if filename not registered
+   --  returns RESULT_END if ALLOW_BASE_LIBRARY set (basically disabled the filter)
+   --  returns RESULT_END if ALLOW_BASE_LIBRARY unset, but it's a base library
+   function filter_system_shlibs
+     (LS : Library_Set;
+      library_filename : String) return Action_Result;
 
 private
 
@@ -52,5 +58,9 @@ private
      (LS : in out Library_Set;
       hintsfile : String;
       must_exist : Boolean);
+
+   function find_shlib_path_by_name
+     (LS : Library_Set;
+      library_filename : String) return String;
 
 end Core.Shared_Libraries;

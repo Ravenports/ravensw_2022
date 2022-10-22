@@ -10,7 +10,7 @@ with Core.Unix;
 with Core.Event;
 with Core.Config;
 with Core.Context;
-with Core.Shared_Libraries;
+with Core.Pkg_Operations;
 with Core.Strings; use Core.Strings;
 
 with elfdefinitions_h;
@@ -691,7 +691,29 @@ package body Core.Elf_Operations is
      (pkg_access : Pkgtypes.A_Package_Access;
       stage_directory : String) return Action_Result
    is
+      procedure scan (position : Pkgtypes.File_Crate.Cursor);
+      function filepath (relative_path : String) return String;
+
       libraries : Shared_Libraries.Library_Set;
+      failures  : Boolean := False;
+
+      function filepath (relative_path : String) return String is
+      begin
+         if IsBlank (stage_directory) then
+            return relative_path;
+         else
+            return stage_directory & "/" & relative_path;
+         end if;
+      end filepath;
+
+      procedure scan (position : Pkgtypes.File_Crate.Cursor)
+      is
+         item : Pkgtypes.Package_File renames Pkgtypes.File_Crate.Element (position);
+         fpath : constant String := filepath (USS (item.path));
+         retcode : Action_Result;
+      begin
+         retcode
+      end scan;
    begin
       pkg_access.shlibs_reqd.Clear;
       pkg_access.shlibs_prov.Clear;
@@ -713,9 +735,71 @@ package body Core.Elf_Operations is
          pkg_access.cont_flags := 0;
       end if;
 
+      pkg_access.files.Iterate (scan'Access);
+
+
       return RESULT_OK;
 
    end analyze_packaged_files;
 
+
+   --------------------------------------------------------------------
+   --  add_shlibs_to_package
+   --------------------------------------------------------------------
+   function add_shlibs_to_package
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String;
+      library_filename : String;
+      is_shlib : Boolean;
+      LS : Shared_Libraries.Library_Set) return Action_Result
+   is
+      procedure scan (position : Pkgtypes.File_Crate.Cursor);
+
+      scan_hit : Action_Result := RESULT_WARN;
+
+      procedure scan (position : Pkgtypes.File_Crate.Cursor)
+      is
+         item : Pkgtypes.Package_File renames Pkgtypes.File_Crate.Element (position);
+         item_filepath : constant String := USS (item.path);
+      begin
+         if scan_hit = RESULT_WARN then
+            if Strings.trails (library_filename, item_filepath) then
+               --  Sets scan_hit to RESULT_OK
+               scan_hit :=  Pkg_Operations.pkg_addshlib_required (pkg_access, library_filename);
+            end if;
+         end if;
+      end scan;
+   begin
+      case LS.filter_system_shlibs (library_filename) is
+         when RESULT_END =>
+            --  This is a system library
+            return RESULT_OK;
+         when RESULT_OK =>
+            --  This is NOT a system library
+            return Pkg_Operations.pkg_addshlib_required (pkg_access, library_filename);
+         when RESULT_FATAL =>
+            --  This means library_filename was blank
+            EV.emit_notice
+              ("Developer bug? (" & USS (pkg_access.name) & "-" & USS (pkg_access.version) &
+                 ") " & fpath & ", add_shlibs_to_package() library_filename is blank");
+            return RESULT_FATAL;
+         when others =>
+            --  Ignore link resolution errors if we're analyzing a shared library.
+            if is_shlib then
+               return RESULT_OK;
+            end if;
+            pkg_access.files.Iterate (scan'Access);
+            if scan_hit = RESULT_OK then
+               return RESULT_OK;
+            end if;
+
+            --  If iteration completes, we didn't find the library in the package list
+            EV.emit_notice
+              ("(" & USS (pkg_access.name) & "-" & USS (pkg_access.version) &
+                 ") " & fpath & " - required shared library " & library_filename &
+                 " not found in this package");
+            return RESULT_FATAL;
+      end case;
+   end add_shlibs_to_package;
 
 end Core.Elf_Operations;
