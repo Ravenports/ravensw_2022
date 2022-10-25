@@ -64,7 +64,6 @@ package body Core.Elf_Operations is
       fd          : Unix.File_Descriptor := Unix.not_connected;
       elf_obj     : access libelf_h.Elf;
       elf_header  : aliased gelf_h.GElf_Ehdr;
-      elf_section : access libelf_h.Elf_Scn := null;
       info        : T_elf_info;
       clean_now   : Boolean := False;
       success     : Boolean;
@@ -121,6 +120,7 @@ package body Core.Elf_Operations is
 
       declare
          section_header : aliased gelf_h.GElf_Shdr;
+         elf_section : access libelf_h.Elf_Scn := null;
       begin
          if not clean_now then
             loop
@@ -712,7 +712,15 @@ package body Core.Elf_Operations is
          fpath : constant String := filepath (USS (item.path));
          retcode : Action_Result;
       begin
-         retcode
+         retcode := analyze_elf (pkg_access, fpath);
+         if Context.reveal_developer_mode then
+            case retcode is
+               when RESULT_OK | RESULT_END =>
+                  analyze_fpath (pkg_access, fpath);
+               when others =>
+                  failures := True;
+            end case;
+         end if;
       end scan;
    begin
       pkg_access.shlibs_reqd.Clear;
@@ -736,7 +744,13 @@ package body Core.Elf_Operations is
       end if;
 
       pkg_access.files.Iterate (scan'Access);
+      --  TODO: Do not depend on libraries that a package provides itself
+      --  TODO: if the package is not supposed to provide share libraries then
+      --        drop the provided one
 
+      if failures then
+         return RESULT_FATAL;
+      end if;
 
       return RESULT_OK;
 
@@ -801,5 +815,207 @@ package body Core.Elf_Operations is
             return RESULT_FATAL;
       end case;
    end add_shlibs_to_package;
+
+
+   --------------------------------------------------------------------
+   --  analyze_fpath
+   --------------------------------------------------------------------
+   procedure analyze_fpath
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String)
+   is
+      use type Pkgtypes.Containment_Flags;
+   begin
+      if trails (fpath, ".a") then
+         pkg_access.cont_flags := (pkg_access.cont_flags or Pkgtypes.PKG_CONTAINS_STATIC_LIBS);
+      elsif trails (fpath, ".la") then
+         pkg_access.cont_flags := (pkg_access.cont_flags or Pkgtypes.PKG_CONTAINS_LA);
+      end if;
+   end analyze_fpath;
+
+
+   --------------------------------------------------------------------
+   --  shlib_valid_abi
+   --------------------------------------------------------------------
+   function shlib_valid_abi (fpath : String;
+                             abi : String;
+                             elfhdr : gelf_h.GElf_Ehdr) return Boolean
+   is
+      --  ABI string is in format:
+      --  <osname>:<osversion>:<arch>:<wordsize>[.other]
+      --  We need here arch and wordsize only
+      number_colon : constant Natural := Strings.count_char (abi, ':');
+   begin
+      if number_colon < 3 then
+         --  ABI string is invalid
+         return True;
+      end if;
+
+      declare
+         arch : constant String := Strings.specific_field (abi, 3, ":");
+         wordsize : constant String := Strings.specific_field (abi, 4, ":");
+         hdr_wordsize : constant T_wordsize := determine_word_size (elfhdr);
+         hdr_arch : constant T_arch := determine_architecture (elfhdr);
+         arch_matches : Boolean := False;
+      begin
+         --  Compare wordsize first as the arch for amd64/i386 is an ambiguous 'x86'
+         case hdr_wordsize is
+            when size_unknown => return True;
+            when BITS_32 =>
+               if wordsize /= "32" then
+                  EV.emit_debug
+                    (1, "Not a valid elf class for shlib, word size = 32 bits for abi " & abi);
+                  return False;
+               end if;
+            when BITS_64 =>
+               if wordsize /= "64" then
+                  EV.emit_debug
+                    (1, "Not a valid elf class for shlib, word size = 64 bits for abi " & abi);
+                  return False;
+               end if;
+         end case;
+
+         case hdr_arch is
+            when unknown => return True;
+            when x86     => arch_matches := arch = "x86";
+            when x86_64  => arch_matches := arch = "x86_64";
+            when mips    => arch_matches := arch = "mips";
+            when powerpc => arch_matches := arch = "powerpc";
+            when arm     => arch_matches := arch = "arm";
+            when aarch64 => arch_matches := arch = "aarch64";
+            when sparc64 => arch_matches := arch = "sparc64";
+            when ia64    => arch_matches := arch = "ia64";
+         end case;
+
+         if arch_matches then
+            return True;
+         else
+            EV.emit_debug (1, "Not a valid elf class; arch = " & arch & " but abi = " & abi);
+            return False;
+         end if;
+      end;
+   end shlib_valid_abi;
+
+
+   --------------------------------------------------------------------
+   --  analyze_elf
+   --------------------------------------------------------------------
+   function analyze_elf
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String) return Action_Result
+   is
+      use type Pkgtypes.Containment_Flags;
+      is_shlib : Boolean := False;
+      myarch : constant String := Config.configuration_value (Config.abi);
+
+      fd         : Unix.File_Descriptor := Unix.not_connected;
+      elf_obj    : access libelf_h.Elf;
+      elf_header : aliased gelf_h.GElf_Ehdr;
+      success    : Boolean;
+      found_dyn  : Boolean := False;
+      dynamic    : access libelf_h.Elf_Scn := null;
+   begin
+      EV.emit_debug (1, "analyzing elf " & fpath);
+
+      --  Ignore empty files and non-regular files
+      if Natural (DIR.Size (fpath)) = 0 then
+         return RESULT_END;
+      end if;
+      case DIR.Kind (fpath) is
+         when DIR.Ordinary_File => null;
+         when others => return RESULT_END;
+      end case;
+
+      declare
+         readonly_flags : constant Unix.T_Open_Flags := (RDONLY => True, others => False);
+      begin
+         fd := Unix.open_file (fpath, readonly_flags);
+         if not Unix.file_connected (fd) then
+            EV.emit_debug (1, "Unable to open " & fpath);
+            return RESULT_FATAL;
+         end if;
+      end;
+
+      elf_obj := Libelf.elf_begin_read (fd);
+      if Libelf.elf_object_is_null (elf_obj) then
+         EV.emit_error ("elf_begin() failed: " & Libelf.elf_errmsg);
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_FATAL;
+      end if;
+
+      if not Libelf.is_elf_file (elf_obj) then
+         EV.emit_debug (1, fpath & " is not an elf file");
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_END;
+      end if;
+
+      if Context.reveal_developer_mode then
+         pkg_access.cont_flags := (pkg_access.cont_flags or Pkgtypes.PKG_CONTAINS_ELF_OBJECTS);
+      end if;
+
+      if not Libelf.get_elf_header (elf_obj, elf_header'Access) then
+         EV.emit_error ("elfparse/getehdr() failed: " & Libelf.elf_errmsg);
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_FATAL;
+      end if;
+
+      if not shlib_valid_abi (fpath => fpath, abi => myarch, elfhdr => elf_header)
+      then
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_END;
+      end if;
+
+      if not Libelf.is_relexecso_type (elf_header) then
+         EV.emit_debug (1, fpath & " is not an relocatable/executable/shared object file");
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_END;
+      end if;
+
+      --  ELF file has a sections header
+      declare
+         section_header : aliased gelf_h.GElf_Shdr;
+         elf_section : access libelf_h.Elf_Scn := null;
+      begin
+         loop
+            elf_section := Libelf.elf_next_section (elf_obj, elf_section);
+            exit when elf_section = null;
+
+            if not Libelf.elf_get_section_header (section => elf_section,
+                                                  sheader => section_header'Access)
+            then
+               EV.emit_error ("elfparse/getshdr() failed: " & Libelf.elf_errmsg);
+               Libelf.elf_end (elf_obj);
+               success := Unix.close_file (fd);
+               return RESULT_FATAL;
+            end if;
+
+            if Libelf.section_header_is_dynlink_info (section_header'Access) then
+               --  TODO: more
+               --  section_header.sh_link;
+               found_dyn := True;
+               dynamic := elf_section;
+            end if;
+         end loop;
+      end;
+
+      if not found_dyn then
+         --  not a dynamically linked elf: no results
+         Libelf.elf_end (elf_obj);
+         success := Unix.close_file (fd);
+         return RESULT_END;
+      end if;
+
+      --  TODO: more to finish
+
+      Libelf.elf_end (elf_obj);
+      success := Unix.close_file (fd);
+      return RESULT_OK;
+   end analyze_elf;
+
 
 end Core.Elf_Operations;

@@ -108,17 +108,27 @@ package body Libelf is
 
 
    --------------------------------------------------------------------
-   --  elf_get_section_header
+   --  section_header_is_elf_note
    --------------------------------------------------------------------
-   function section_header_is_elf_note (section : access gelf_h.GElf_Shdr) return Boolean
-   is
-      --  should have been in elfdefinitions.h
-      SHT_NOTE : constant elfdefinitions_h.Elf64_Word := elfdefinitions_h.Elf64_Word (7);
-
-      use type elfdefinitions_h.Elf64_Word;
+   function section_header_is_elf_note (section : access gelf_h.GElf_Shdr) return Boolean is
    begin
-      return section.sh_type = SHT_NOTE;
+      case section.sh_type is
+         when elfdefinitions_h.SHT_NOTE => return True;
+         when others => return False;
+      end case;
    end section_header_is_elf_note;
+
+
+   --------------------------------------------------------------------
+   --  section_header_is_dynlink_info
+   --------------------------------------------------------------------
+   function section_header_is_dynlink_info (section : access gelf_h.GElf_Shdr) return Boolean is
+   begin
+      case section.sh_type is
+         when elfdefinitions_h.SHT_DYNAMIC => return True;
+         when others => return False;
+      end case;
+   end section_header_is_dynlink_info;
 
 
    --------------------------------------------------------------------
@@ -128,6 +138,15 @@ package body Libelf is
    begin
       return libelf_h.elf_getdata (section, null);
    end elf_getdata;
+
+
+   --------------------------------------------------------------------
+   --  valid_elf_data
+   --------------------------------------------------------------------
+   function valid_elf_data (data : access libelf_h.Elf_Data) return Boolean is
+   begin
+      return data /= null;
+   end valid_elf_data;
 
 
    --------------------------------------------------------------------
@@ -162,5 +181,30 @@ package body Libelf is
    begin
       return (3 * IC.unsigned'Size) / 8;
    end elf_note_size;
+
+
+   --------------------------------------------------------------------
+   --  is_elf_file
+   --------------------------------------------------------------------
+   function is_elf_file (elf_object : access libelf_h.Elf) return Boolean
+   is
+      use type libelf_h.Elf_Kind;
+   begin
+      return libelf_h.F_elf_kind (elf_object) = libelf_h.ELF_K_ELF;
+   end is_elf_file;
+
+
+   --------------------------------------------------------------------
+   --  is_relexecso_type
+   --------------------------------------------------------------------
+   function is_relexecso_type (header : gelf_h.GElf_Ehdr) return Boolean is
+   begin
+      case header.e_type is
+         when elfdefinitions_h.ET_DYN |
+              elfdefinitions_h.ET_EXEC |
+              elfdefinitions_h.ET_REL => return True;
+         when others => return False;
+      end case;
+   end is_relexecso_type;
 
 end Libelf;

@@ -851,4 +851,23 @@ package elfdefinitions_h is
    end record;
    pragma Convention (C_Pass_By_Copy, Elf_GNU_Hash_Header);  -- /raven/include/elfdefinitions.h:2698
 
+   ET_NONE   : constant Elf32_Half := 0;         --  No file type
+   ET_REL    : constant Elf32_Half := 1;         --  Relocatable object
+   ET_EXEC   : constant Elf32_Half := 2;         --  Executable
+   ET_DYN    : constant Elf32_Half := 3;         --  Shared object
+   ET_CORE   : constant Elf32_Half := 4;         --  Core file
+   ET_LOOS   : constant Elf32_Half := 16#FE00#;  --  Begin OS-specific range
+   ET_HIOS   : constant Elf32_Half := 16#FEFF#;  --  End OS-specific range
+   ET_LOPROC : constant Elf32_Half := 16#FF00#;  --  Begin processor-specific range
+   ET_HIPROC : constant Elf32_Half := 16#FFFF#;  --  End processor-specific range
+
+   SHT_NULL     : constant Elf64_Word := 0;      --  inactive header
+   SHT_PROGBITS : constant Elf64_Word := 1;      --  program defined information
+   SHT_SYMTAB   : constant Elf64_Word := 2;      --  symbol table
+   SHT_STRTAB   : constant Elf64_Word := 3;      --  string table
+   SHT_RELA     : constant Elf64_Word := 4;      --  relocation entries with addends
+   SHT_HASH     : constant Elf64_Word := 5;      --  symbol hash table
+   SHT_DYNAMIC  : constant Elf64_Word := 6;      --  information for dynamic linking
+   SHT_NOTE     : constant Elf64_Word := 7;      --  additional notes
+
 end elfdefinitions_h;

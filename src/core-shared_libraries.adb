@@ -4,6 +4,7 @@
 with Ada.Directories;
 with Ada.Direct_IO;
 with Core.Event;
+with Core.Config;
 
 package body Core.Shared_Libraries is
 
@@ -290,7 +291,8 @@ package body Core.Shared_Libraries is
    --------------------------------------------------------------------
       --  filter_system_shlibs
    --------------------------------------------------------------------
-   function filter_system_shlibs (LS : Library_Set; library_filename : String)
+   function filter_system_shlibs
+     (LS : Library_Set; library_filename : String) return Action_Result
    is
       shlib_path : constant String := find_shlib_path_by_name (LS, library_filename);
       allow_base_libraries : constant Boolean := Config.configuration_value (Config.base_shlibs);
@@ -302,8 +304,8 @@ package body Core.Shared_Libraries is
          return RESULT_END;
       else
          --  Matches /lib, /usr/lib, /usr/lib/x86_64-linux-gnu
-         if Strings.leads ("/lib/") or else
-           Strings.leads ("/usr/lib/")
+         if Strings.leads (shlib_path, "/lib/") or else
+           Strings.leads (shlib_path, "/usr/lib/")
          then
             return RESULT_END;
          end if;

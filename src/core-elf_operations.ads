@@ -115,4 +115,17 @@ private
       is_shlib : Boolean;
       LS : Shared_Libraries.Library_Set) return Action_Result;
 
+   procedure analyze_fpath
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String);
+
+   function analyze_elf
+     (pkg_access : Pkgtypes.A_Package_Access;
+      fpath : String) return Action_Result;
+
+   function shlib_valid_abi
+     (fpath : String;
+      abi : String;
+      elfhdr : gelf_h.GElf_Ehdr) return Boolean;
+
 end Core.Elf_Operations;

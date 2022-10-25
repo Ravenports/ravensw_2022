@@ -42,8 +42,14 @@ package Libelf is
    --  Return true if given section header defines an elf note.
    function section_header_is_elf_note (section : access gelf_h.GElf_Shdr) return Boolean;
 
+   --  Return true if given section header defines dynamic linking information
+   function section_header_is_dynlink_info (section : access gelf_h.GElf_Shdr) return Boolean;
+
    --  Return data from given section
    function elf_getdata (section : access libelf_h.Elf_Scn) return access libelf_h.Elf_Data;
+
+   --  Returns True when elf data is non-null
+   function valid_elf_data (data : access libelf_h.Elf_Data) return Boolean;
 
    --  Return byte indicated at offset of the e_ident field
    function get_ident_byte (header : gelf_h.GElf_Ehdr; offset : EI_OFFSETS) return EI_Byte;
@@ -53,5 +59,11 @@ package Libelf is
 
    --  Return size of elf note to help unchecked conversion
    function elf_note_size return Natural;
+
+   --  Returns True if object is an elf file
+   function is_elf_file (elf_object : access libelf_h.Elf) return Boolean;
+
+   --  Returns true if elf type indicated Relocable object, shared object, or executable
+   function is_relexecso_type (header : gelf_h.GElf_Ehdr) return Boolean;
 
 end Libelf;
