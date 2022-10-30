@@ -712,7 +712,7 @@ package body Core.Elf_Operations is
          fpath : constant String := filepath (USS (item.path));
          retcode : Action_Result;
       begin
-         retcode := analyze_elf (pkg_access, fpath);
+         retcode := analyze_elf (pkg_access, fpath, libraries);
          if Context.reveal_developer_mode then
             case retcode is
                when RESULT_OK | RESULT_END =>
@@ -902,18 +902,15 @@ package body Core.Elf_Operations is
    --------------------------------------------------------------------
    function analyze_elf
      (pkg_access : Pkgtypes.A_Package_Access;
-      fpath : String) return Action_Result
+      fpath : String;
+      LS : in out Shared_Libraries.Library_Set) return Action_Result
    is
       use type Pkgtypes.Containment_Flags;
-      is_shlib : Boolean := False;
       myarch : constant String := Config.configuration_value (Config.abi);
 
       fd         : Unix.File_Descriptor := Unix.not_connected;
       elf_obj    : access libelf_h.Elf;
       elf_header : aliased gelf_h.GElf_Ehdr;
-      success    : Boolean;
-      found_dyn  : Boolean := False;
-      dynamic    : access libelf_h.Elf_Scn := null;
    begin
       EV.emit_debug (1, "analyzing elf " & fpath);
 
@@ -939,16 +936,12 @@ package body Core.Elf_Operations is
       elf_obj := Libelf.elf_begin_read (fd);
       if Libelf.elf_object_is_null (elf_obj) then
          EV.emit_error ("elf_begin() failed: " & Libelf.elf_errmsg);
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_FATAL;
+         goto Elf_Failure;
       end if;
 
       if not Libelf.is_elf_file (elf_obj) then
          EV.emit_debug (1, fpath & " is not an elf file");
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_END;
+         goto Skip_File;
       end if;
 
       if Context.reveal_developer_mode then
@@ -957,29 +950,27 @@ package body Core.Elf_Operations is
 
       if not Libelf.get_elf_header (elf_obj, elf_header'Access) then
          EV.emit_error ("elfparse/getehdr() failed: " & Libelf.elf_errmsg);
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_FATAL;
+         goto Elf_Failure;
       end if;
 
       if not shlib_valid_abi (fpath => fpath, abi => myarch, elfhdr => elf_header)
       then
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_END;
+         goto Skip_File;
       end if;
 
       if not Libelf.is_relexecso_type (elf_header) then
          EV.emit_debug (1, fpath & " is not an relocatable/executable/shared object file");
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_END;
+         goto Skip_File;
       end if;
 
       --  ELF file has a sections header
       declare
          section_header : aliased gelf_h.GElf_Shdr;
          elf_section : access libelf_h.Elf_Scn := null;
+         data : access libelf_h.Elf_Data;
+         found_dyn : Boolean := False;
+         num_dyn_sections : Natural;
+         is_shlib : Boolean := False;
       begin
          loop
             elf_section := Libelf.elf_next_section (elf_obj, elf_section);
@@ -989,32 +980,95 @@ package body Core.Elf_Operations is
                                                   sheader => section_header'Access)
             then
                EV.emit_error ("elfparse/getshdr() failed: " & Libelf.elf_errmsg);
-               Libelf.elf_end (elf_obj);
-               success := Unix.close_file (fd);
-               return RESULT_FATAL;
+               goto Elf_Failure;
             end if;
 
             if Libelf.section_header_is_dynlink_info (section_header'Access) then
                --  TODO: more
                --  section_header.sh_link;
                found_dyn := True;
-               dynamic := elf_section;
+               declare
+                  entsize : constant Natural := Natural (section_header.sh_entsize);
+               begin
+                  if entsize = 0 then
+                     --  dynamic section is empty, continue
+                     goto Skip_File;
+                  end if;
+                  num_dyn_sections := Natural (section_header.sh_size) / entsize;
+               end;
+               data := Libelf.elf_getdata (elf_section);
+               if not Libelf.valid_elf_data (data) then
+                  --  Some error occurred, ignore this file
+                  goto Skip_File;
+               end if;
+               --  First, scan through the data from the .dynamic section to
+               --  find any RPATH or RUNPATH settings.  These are colon
+               --  separated paths to prepend to the ld.so search paths from
+               --  the ELF hints file.  These always seem to come right after
+               --  the NEEDED shared library entries.
+               --
+               --  NEEDED entries should resolve to a filename for installed
+               --  executables, but need not resolve for installed shared
+               --  libraries -- additional info from the apps that link
+               --  against them would be required.  Shared libraries are
+               --  distinguished by a DT_SONAME tag
+
+               for dynidx in 0 .. num_dyn_sections - 1 loop
+                  declare
+                     dstype : Libelf.dynamic_section_type;
+                     payload : constant String := Libelf.dynamic_payload
+                       (elf_object => elf_obj,
+                        section    => section_header'Access,
+                        data       => data,
+                        index      => dynidx,
+                        dstype     => dstype);
+                  begin
+                     case dstype is
+                        when Libelf.failed_to_determine =>
+                           EV.emit_error
+                             ("getdyn() failed for " & fpath & ":" & Libelf.elf_errmsg);
+                           goto Elf_Failure;
+                        when Libelf.soname =>
+                           is_shlib := True;
+                           if not IsBlank (payload) then
+                              --  TODO: pkg_addshlib_provided(pkg, shlib);
+                              null;
+                           end if;
+                        when Libelf.runpath | Libelf.rpath =>
+                           --  TODO: handle rpath/runpath
+                           null;
+                        when Libelf.needed | Libelf.dont_care =>
+                           null;
+                     end case;
+                  end;
+               end loop;
+
+               exit;
             end if;
          end loop;
+         if not found_dyn then
+            --  not a dynamically linked elf: no results
+            goto Skip_File;
+         end if;
       end;
 
-      if not found_dyn then
-         --  not a dynamically linked elf: no results
-         Libelf.elf_end (elf_obj);
-         success := Unix.close_file (fd);
-         return RESULT_END;
-      end if;
+
 
       --  TODO: more to finish
 
       Libelf.elf_end (elf_obj);
-      success := Unix.close_file (fd);
+      Unix.close_file_blind (fd);
       return RESULT_OK;
+
+      <<Skip_File>>
+      Libelf.elf_end (elf_obj);
+      Unix.close_file_blind (fd);
+      return RESULT_END;
+
+      <<Elf_Failure>>
+      Libelf.elf_end (elf_obj);
+      Unix.close_file_blind (fd);
+      return RESULT_FATAL;
    end analyze_elf;
 
 

@@ -121,7 +121,8 @@ private
 
    function analyze_elf
      (pkg_access : Pkgtypes.A_Package_Access;
-      fpath : String) return Action_Result;
+      fpath : String;
+      LS : in out Shared_Libraries.Library_Set) return Action_Result;
 
    function shlib_valid_abi
      (fpath : String;

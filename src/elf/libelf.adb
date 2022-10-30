@@ -207,4 +207,60 @@ package body Libelf is
       end case;
    end is_relexecso_type;
 
+
+   --------------------------------------------------------------------
+   --  dynamic_payload
+   --------------------------------------------------------------------
+   function dynamic_payload
+     (elf_object : access libelf_h.Elf;
+      section : access gelf_h.GElf_Shdr;
+      data : access libelf_h.Elf_Data;
+      index : Natural;
+      dstype : out dynamic_section_type) return String
+   is
+      use type elfdefinitions_h.Elf64_Sxword;
+
+      dyn : access gelf_h.GElf_Dyn;
+      dyn_mem : aliased gelf_h.GElf_Dyn;
+
+   begin
+      dyn := gelf_h.gelf_getdyn (arg1 => data,
+                                 arg2 => IC.int (index),
+                                 arg3 => dyn_mem'Access);
+      if dyn = null then
+         dstype := failed_to_determine;
+         return "error";
+      end if;
+
+      if dyn.d_tag = elfdefinitions_h.DT_SONAME then
+         dstype := soname;
+      elsif dyn.d_tag = elfdefinitions_h.DT_NEEDED then
+         dstype := needed;
+      elsif dyn.d_tag = elfdefinitions_h.DT_RPATH then
+         dstype := rpath;
+      elsif dyn.d_tag = elfdefinitions_h.DT_RUNPATH then
+         dstype := runpath;
+      else
+         dstype := dont_care;
+         return "uninteresting";
+      end if;
+
+      declare
+         use type ICS.chars_ptr;
+         payload : ICS.chars_ptr;
+      begin
+         payload := Libelf_h.elf_strptr (arg1 => elf_object,
+                                         arg2 => IC.unsigned_long (section.sh_link),
+                                         arg3 => dyn.d_un.d_val);
+
+         if payload = ICS.Null_Ptr then
+            return "";
+         end if;
+
+         --  Don't free payload
+         return ICS.Value (payload);
+      end;
+
+   end dynamic_payload;
+
 end Libelf;

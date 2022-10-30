@@ -92,6 +92,21 @@ package body Core.Unix is
 
 
    --------------------------------------------------------------------
+   --  close_file_blind
+   --------------------------------------------------------------------
+   procedure close_file_blind (fd : File_Descriptor)
+   is
+      result : IC.int;
+      pragma Unreferenced (result);
+   begin
+      if fd = not_connected then
+         return;
+      end if;
+      result := C_Close (IC.int (fd));
+   end close_file_blind;
+
+
+   --------------------------------------------------------------------
    --  open_file #1
    --------------------------------------------------------------------
    function open_file (filename : String; flags : T_Open_Flags) return File_Descriptor

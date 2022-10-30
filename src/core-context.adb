@@ -120,13 +120,7 @@ package body Core.Context is
    --------------------------------------------------------------------
    procedure close_eventpipe is
    begin
-      pragma Warnings (Off, "*success*");
-      declare
-         success : Boolean;
-      begin
-         success := Unix.close_file (context.eventpipe);
-      end;
-      pragma Warnings (On, "*success*");
+      Unix.close_file_blind (context.eventpipe);
    end close_eventpipe;
 
 
@@ -135,13 +129,7 @@ package body Core.Context is
    --------------------------------------------------------------------
    procedure close_root_fd is
    begin
-      pragma Warnings (Off, "*success*");
-      declare
-         success : Boolean;
-      begin
-         success := Unix.close_file (context.rootfd);
-      end;
-      pragma Warnings (On, "*success*");
+      Unix.close_file_blind (context.rootfd);
    end close_root_fd;
 
 
@@ -150,13 +138,7 @@ package body Core.Context is
    --------------------------------------------------------------------
    procedure close_cache_directory_fd is
    begin
-      pragma Warnings (Off, "*success*");
-      declare
-         success : Boolean;
-      begin
-         success := Unix.close_file (Context.cachedirfd);
-      end;
-      pragma Warnings (On, "*success*");
+      Unix.close_file_blind (Context.cachedirfd);
    end close_cache_directory_fd;
 
 
@@ -165,13 +147,7 @@ package body Core.Context is
    --------------------------------------------------------------------
    procedure close_db_directory_fd is
    begin
-      pragma Warnings (Off, "*success*");
-      declare
-         success : Boolean;
-      begin
-         success := Unix.close_file (context.dbdirfd);
-      end;
-      pragma Warnings (On, "*success*");
+      Unix.close_file_blind (context.dbdirfd);
    end close_db_directory_fd;
 
 

@@ -82,6 +82,9 @@ package Core.Unix is
    --  Return True if file was successfully closed
    function close_file (fd : File_Descriptor) return Boolean;
 
+   --  Closes file without checking if the attempt was successful or not
+   procedure close_file_blind (fd : File_Descriptor);
+
    --  Send log down file descriptor of event pipe
    procedure push_to_event_pipe (fd : File_Descriptor; message : String);
 

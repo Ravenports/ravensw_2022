@@ -10,6 +10,7 @@ package Libelf is
    type EI_OFFSETS is (EI_MAG0, EI_MAG1, EI_MAG2, EI_MAG3, EI_CLASS, EI_DATA, EI_VERSION,
                        EI_OSABI, EI_ABIVERSION, EI_PAD);
    subtype EI_Byte is Natural range 0 .. 255;
+   type dynamic_section_type is (soname, rpath, runpath, needed, dont_care, failed_to_determine);
 
    --  Return true if elf library successfully initialized
    function initialize_libelf return Boolean;
@@ -65,5 +66,13 @@ package Libelf is
 
    --  Returns true if elf type indicated Relocable object, shared object, or executable
    function is_relexecso_type (header : gelf_h.GElf_Ehdr) return Boolean;
+
+   --  Return dynamic type and the payload it contains if it's something we care about.
+   function dynamic_payload
+     (elf_object : access libelf_h.Elf;
+      section : access gelf_h.GElf_Shdr;
+      data : access libelf_h.Elf_Data;
+      index : Natural;
+      dstype : out dynamic_section_type) return String;
 
 end Libelf;

@@ -870,4 +870,9 @@ package elfdefinitions_h is
    SHT_DYNAMIC  : constant Elf64_Word := 6;      --  information for dynamic linking
    SHT_NOTE     : constant Elf64_Word := 7;      --  additional notes
 
+   DT_NEEDED    : constant Elf64_Sxword := 1;    --  String table offset of needed library.
+   DT_SONAME    : constant Elf64_Sxword := 14;   --  String table offset of a shared objects name.
+   DT_RPATH     : constant Elf64_Sxword := 15;   --  String table offset of library search path.
+   DT_RUNPATH   : constant Elf64_Sxword := 29;   --  String table offset of library search path.
+
 end elfdefinitions_h;
