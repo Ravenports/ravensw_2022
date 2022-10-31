@@ -965,12 +965,29 @@ package body Core.Elf_Operations is
 
       --  ELF file has a sections header
       declare
+         procedure add_shlib (position : Pkgtypes.Text_Crate.Cursor);
+
          section_header : aliased gelf_h.GElf_Shdr;
          elf_section : access libelf_h.Elf_Scn := null;
          data : access libelf_h.Elf_Data;
          found_dyn : Boolean := False;
          num_dyn_sections : Natural;
          is_shlib : Boolean := False;
+         libs_needed : Pkgtypes.Text_Crate.Vector;
+
+         procedure add_shlib (position : Pkgtypes.Text_Crate.Cursor)
+         is
+            filename : constant String := Strings.USS (Pkgtypes.Text_Crate.Element (position));
+            addres : Action_Result;
+            pragma Unreferenced (addres);
+         begin
+            --  silently ignore shlib add issues (should this be the case?)
+            addres := add_shlibs_to_package (pkg_access       => pkg_access,
+                                             fpath            => fpath,
+                                             library_filename => filename,
+                                             is_shlib         => is_shlib,
+                                             LS               => LS);
+         end add_shlib;
       begin
          loop
             elf_section := Libelf.elf_next_section (elf_obj, elf_section);
@@ -1038,48 +1055,22 @@ package body Core.Elf_Operations is
                            LS.add_shlib_list_from_rpath
                              (rpath  => payload,
                               origin => DIR.Containing_Directory (fpath));
-                        when Libelf.needed | Libelf.dont_care =>
+                        when Libelf.needed =>
+                           libs_needed.Append (Strings.SUS (payload));
+                        when Libelf.dont_care =>
                            null;
                      end case;
                   end;
                end loop;
 
-               exit;
+               exit;  --  Dynamic section found, no need to inspect additional sections
             end if;
          end loop;
 
          if found_dyn then
-            for dynidx in 0 .. num_dyn_sections - 1 loop
-               declare
-                  addres : Action_Result;
-                  dstype : Libelf.dynamic_section_type;
-                  payload : constant String := Libelf.dynamic_payload
-                    (elf_object => elf_obj,
-                     section    => section_header'Access,
-                     data       => data,
-                     index      => dynidx,
-                     dstype     => dstype);
-                  pragma Unreferenced (addres);
-               begin
-                  case dstype is
-                     when Libelf.failed_to_determine =>
-                        EV.emit_error
-                          ("getdyn() failed for " & fpath & ":" & Libelf.elf_errmsg);
-                        goto Elf_Failure;
-                     when Libelf.needed =>
-                        --  silently ignore shlib add issues (should this be the case?)
-                        addres := add_shlibs_to_package (pkg_access       => pkg_access,
-                                                         fpath            => fpath,
-                                                         library_filename => payload,
-                                                         is_shlib         => is_shlib,
-                                                         LS               => LS);
-                     when Libelf.soname | Libelf.rpath | Libelf.runpath | Libelf.dont_care =>
-                        null;
-                  end case;
-               end;
-            end loop;
+            libs_needed.Iterate (add_shlib'Access);
          else
-            --  not a dynamically linked elf: no results
+            EV.emit_debug (1, fpath & " is not a dynamically linked elf file");
             goto Skip_File;
          end if;
       end;
