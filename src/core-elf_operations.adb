@@ -692,10 +692,13 @@ package body Core.Elf_Operations is
       stage_directory : String) return Action_Result
    is
       procedure scan (position : Pkgtypes.File_Crate.Cursor);
+      procedure validate_required (position : Pkgtypes.Text_Crate.Cursor);
+      procedure remove_required_library (position : Pkgtypes.Text_Crate.Cursor);
       function filepath (relative_path : String) return String;
 
       libraries : Shared_Libraries.Library_Set;
       failures  : Boolean := False;
+      remove_list : Pkgtypes.Text_Crate.Vector;
 
       function filepath (relative_path : String) return String is
       begin
@@ -722,6 +725,46 @@ package body Core.Elf_Operations is
             end case;
          end if;
       end scan;
+
+      procedure validate_required (position : Pkgtypes.Text_Crate.Cursor)
+      is
+         procedure scan_for_library (position : Pkgtypes.File_Crate.Cursor);
+
+         library : Text renames Pkgtypes.Text_Crate.Element (position);
+         library_string : constant String := Strings.USS (library);
+         file_found : Boolean := False;
+
+         procedure scan_for_library (position : Pkgtypes.File_Crate.Cursor)
+         is
+            item : Pkgtypes.Package_File renames Pkgtypes.File_Crate.Element (position);
+            fpath : constant String := filepath (USS (item.path));
+         begin
+            if not file_found then
+               if Strings.trails (fpath, library_string) then
+                  file_found := True;
+                  remove_list.Append (library);
+               end if;
+            end if;
+         end scan_for_library;
+      begin
+         if pkg_access.shlibs_prov.Contains (library) then
+            remove_list.Append (library);
+         else
+            pkg_access.files.Iterate (scan_for_library'Access);
+         end if;
+      end validate_required;
+
+      procedure remove_required_library (position : Pkgtypes.Text_Crate.Cursor)
+      is
+         library : Text renames Pkgtypes.Text_Crate.Element (position);
+         library_string : constant String := Strings.USS (library);
+         sr_position : Pkgtypes.Text_Crate.Cursor := pkg_access.shlibs_reqd.Find (library);
+      begin
+         pkg_access.shlibs_reqd.Delete (sr_position);
+
+         EV.emit_debug (2, "remove " & library_string & " from required shlibs as the package " &
+                          Strings.USS (pkg_access.name) & " provides this library itself");
+      end remove_required_library;
    begin
       pkg_access.shlibs_reqd.Clear;
       pkg_access.shlibs_prov.Clear;
@@ -744,9 +787,11 @@ package body Core.Elf_Operations is
       end if;
 
       pkg_access.files.Iterate (scan'Access);
-      --  TODO: Do not depend on libraries that a package provides itself
-      --  TODO: if the package is not supposed to provide share libraries then
-      --        drop the provided one
+
+      --  Do not depend on libraries that a package provides itself
+      --  Remove libraries from required list that the package itself provides
+      pkg_access.shlibs_reqd.Iterate (validate_required'Access);
+      remove_list.Iterate (remove_required_library'Access);
 
       if failures then
          return RESULT_FATAL;
@@ -1001,8 +1046,6 @@ package body Core.Elf_Operations is
             end if;
 
             if Libelf.section_header_is_dynlink_info (section_header'Access) then
-               --  TODO: more
-               --  section_header.sh_link;
                found_dyn := True;
                declare
                   entsize : constant Natural := Natural (section_header.sh_entsize);
