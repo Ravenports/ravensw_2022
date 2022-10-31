@@ -1015,6 +1015,7 @@ package body Core.Elf_Operations is
 
                for dynidx in 0 .. num_dyn_sections - 1 loop
                   declare
+                     popres : Action_Result;
                      dstype : Libelf.dynamic_section_type;
                      payload : constant String := Libelf.dynamic_payload
                        (elf_object => elf_obj,
@@ -1022,6 +1023,7 @@ package body Core.Elf_Operations is
                         data       => data,
                         index      => dynidx,
                         dstype     => dstype);
+                     pragma Unreferenced (popres);
                   begin
                      case dstype is
                         when Libelf.failed_to_determine =>
@@ -1030,13 +1032,12 @@ package body Core.Elf_Operations is
                            goto Elf_Failure;
                         when Libelf.soname =>
                            is_shlib := True;
-                           if not IsBlank (payload) then
-                              --  TODO: pkg_addshlib_provided(pkg, shlib);
-                              null;
-                           end if;
+                           --  no need to check for blank payload
+                           popres := Pkg_Operations.pkg_addshlib_provided (pkg_access, payload);
                         when Libelf.runpath | Libelf.rpath =>
-                           --  TODO: handle rpath/runpath
-                           null;
+                           LS.add_shlib_list_from_rpath
+                             (rpath  => payload,
+                              origin => DIR.Containing_Directory (fpath));
                         when Libelf.needed | Libelf.dont_care =>
                            null;
                      end case;
@@ -1046,15 +1047,42 @@ package body Core.Elf_Operations is
                exit;
             end if;
          end loop;
-         if not found_dyn then
+
+         if found_dyn then
+            for dynidx in 0 .. num_dyn_sections - 1 loop
+               declare
+                  addres : Action_Result;
+                  dstype : Libelf.dynamic_section_type;
+                  payload : constant String := Libelf.dynamic_payload
+                    (elf_object => elf_obj,
+                     section    => section_header'Access,
+                     data       => data,
+                     index      => dynidx,
+                     dstype     => dstype);
+                  pragma Unreferenced (addres);
+               begin
+                  case dstype is
+                     when Libelf.failed_to_determine =>
+                        EV.emit_error
+                          ("getdyn() failed for " & fpath & ":" & Libelf.elf_errmsg);
+                        goto Elf_Failure;
+                     when Libelf.needed =>
+                        --  silently ignore shlib add issues (should this be the case?)
+                        addres := add_shlibs_to_package (pkg_access       => pkg_access,
+                                                         fpath            => fpath,
+                                                         library_filename => payload,
+                                                         is_shlib         => is_shlib,
+                                                         LS               => LS);
+                     when Libelf.soname | Libelf.rpath | Libelf.runpath | Libelf.dont_care =>
+                        null;
+                  end case;
+               end;
+            end loop;
+         else
             --  not a dynamically linked elf: no results
             goto Skip_File;
          end if;
       end;
-
-
-
-      --  TODO: more to finish
 
       Libelf.elf_end (elf_obj);
       Unix.close_file_blind (fd);

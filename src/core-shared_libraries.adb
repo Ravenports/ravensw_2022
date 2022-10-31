@@ -289,7 +289,7 @@ package body Core.Shared_Libraries is
 
 
    --------------------------------------------------------------------
-      --  filter_system_shlibs
+   --  filter_system_shlibs
    --------------------------------------------------------------------
    function filter_system_shlibs
      (LS : Library_Set; library_filename : String) return Action_Result
@@ -312,5 +312,36 @@ package body Core.Shared_Libraries is
       end if;
       return RESULT_OK;
    end filter_system_shlibs;
+
+
+   --------------------------------------------------------------------
+   --  add_shlib_list_from_rpath
+   --------------------------------------------------------------------
+   procedure add_shlib_list_from_rpath
+     (LS : in out Library_Set;
+      rpath : String;
+      origin : String)
+   is
+      num_dirs : constant Natural := Strings.count_char (rpath, ':') + 1;
+   begin
+      if not Strings.IsBlank (rpath) then
+         for dir_index in 1 .. num_dirs loop
+            declare
+               dir : constant String := Strings.USS
+                 (Strings.replace_substring
+                    (US         => Strings.SUS (Strings.specific_field (rpath, dir_index, ":")),
+                     old_string => "$ORIGIN",
+                     new_string => origin));
+            begin
+               if not (dir = "/lib" or else
+                       dir = "/usr/lib" or else
+                       dir = "/usr/lib/x86_64-linux-gnu")
+               then
+                  LS.scan_directory_for_shlibs (directory_path => dir, strict_names => False);
+               end if;
+            end;
+         end loop;
+      end if;
+   end add_shlib_list_from_rpath;
 
 end Core.Shared_Libraries;

@@ -13,7 +13,7 @@ package Core.Shared_Libraries is
    procedure add_shlib_list_from_stage (LS : in out Library_Set; stage_directory : String);
 
    --  For BSD, add shared libraries from Elf Hints
-   --  How do we handle Linux?
+   --  This procedure has been effectively disabled; ldconfig is not used on Ravenports
    procedure add_shlib_from_elf_hints (LS : in out Library_Set);
 
    --  filter library based on its filename
@@ -23,6 +23,12 @@ package Core.Shared_Libraries is
    function filter_system_shlibs
      (LS : Library_Set;
       library_filename : String) return Action_Result;
+
+   --  Scans rpath directories for shared libraries
+   procedure add_shlib_list_from_rpath
+     (LS : in out Library_Set;
+      rpath : String;
+      origin : String);
 
 private
 
