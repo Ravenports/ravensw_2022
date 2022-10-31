@@ -333,12 +333,7 @@ package body Core.Shared_Libraries is
                      old_string => "$ORIGIN",
                      new_string => origin));
             begin
-               if not (dir = "/lib" or else
-                       dir = "/usr/lib" or else
-                       dir = "/usr/lib/x86_64-linux-gnu")
-               then
-                  LS.scan_directory_for_shlibs (directory_path => dir, strict_names => False);
-               end if;
+               LS.scan_directory_for_shlibs (directory_path => dir, strict_names => False);
             end;
          end loop;
       end if;
