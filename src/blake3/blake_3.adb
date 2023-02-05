@@ -4,6 +4,8 @@
 
 package body blake_3 is
 
+   package INT renames Interfaces;
+
    --------------------------------------------------------------------
    --  b3_update
    --------------------------------------------------------------------
@@ -50,5 +52,70 @@ package body blake_3 is
    begin
       return blake3_hash'Length;
    end b3_hashsize;
+
+
+   --------------------------------------------------------------------
+   --  char2hex
+   --------------------------------------------------------------------
+   function char2hex (quattro : Character) return hexrep
+   is
+      type halfbyte is mod 2 ** 4;
+      type fullbyte is mod 2 ** 8;
+      function halfbyte_to_hex (value : halfbyte) return Character;
+
+      std_byte  : INT.Unsigned_8;
+      work_4bit : halfbyte;
+      result    : hexrep;
+
+      function halfbyte_to_hex (value : halfbyte) return Character
+      is
+         zero     : constant Natural := Character'Pos ('0');
+         alpham10 : constant Natural := Character'Pos ('a') - 10;
+      begin
+         case value is
+            when 0 .. 9 => return Character'Val (zero + Natural (value));
+            when others => return Character'Val (alpham10 + Natural (value));
+         end case;
+      end halfbyte_to_hex;
+
+   begin
+      std_byte   := INT.Unsigned_8 (Character'Pos (quattro));
+      work_4bit  := halfbyte (INT.Shift_Right (std_byte, 4));
+      result (1) := halfbyte_to_hex (work_4bit);
+
+      work_4bit  := halfbyte (fullbyte (Character'Pos (quattro)) and 2#1111#);
+      result (2) := halfbyte_to_hex (work_4bit);
+
+      return result;
+   end char2hex;
+
+
+   --------------------------------------------------------------------
+   --  hex
+   --------------------------------------------------------------------
+   function hex (hash : blake3_hash) return blake3_hash_hex
+   is
+     result : blake3_hash_hex;
+     index  : Positive := 1;
+   begin
+      for x in hash'Range loop
+         result (index .. index + 1) := char2hex (hash (x));
+         index := index + 2;
+      end loop;
+      return result;
+   end hex;
+
+
+   --------------------------------------------------------------------
+   --  digest
+   --------------------------------------------------------------------
+   function digest (input_string : String) return blake3_hash
+   is
+      hasher : aliased blake_3.blake3_hasher;
+   begin
+      blake_3.b3_init (hasher'Unchecked_Access);
+      blake_3.b3_update (hasher'Unchecked_Access, input_string);
+      return blake_3.b3_finalize (hasher'Unchecked_Access);
+   end digest;
 
 end blake_3;

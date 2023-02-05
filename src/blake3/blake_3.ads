@@ -5,17 +5,11 @@ private with Interfaces.C.Extensions;
 
 package blake_3 is
 
-   type blake3_hasher is private;
-   type blake3_hasher_Access is access all blake3_hasher;
-   pragma Convention (C, blake3_hasher_Access);
-
    subtype blake3_hash is String (1 .. 32);
+   subtype blake3_hash_hex is String (1 .. 64);
 
-   procedure b3_init (self : blake3_hasher_Access);
-   pragma Import (C, b3_init, "blake3_hasher_init");
-
-   procedure b3_update  (self : blake3_hasher_Access; plain : String);
-   function b3_finalize (self : blake3_hasher_Access) return blake3_hash;
+   function digest (input_string : String) return blake3_hash;
+   function hex (hash : blake3_hash) return blake3_hash_hex;
 
    function b3_hashsize return Natural;
 
@@ -34,6 +28,7 @@ private
    type b3_key is array (1 .. 8) of uint32;
    type b3_buf is array (1 .. BLAKE3_BLOCK_LEN) of IC.unsigned_char;
    type b3_cvs is array (1 .. (BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN) of IC.unsigned_char;
+   subtype hexrep is String (1 .. 2);
 
    type blake3_chunk_state is
       record
@@ -53,6 +48,15 @@ private
          cv_stack     : b3_cvs;
       end record;
 
+   type blake3_hasher_Access is access all blake3_hasher;
+   pragma Convention (C, blake3_hasher_Access);
+
+   procedure b3_init (self : blake3_hasher_Access);
+   pragma Import (C, b3_init, "blake3_hasher_init");
+
+   procedure b3_update  (self : blake3_hasher_Access; plain : String);
+   function b3_finalize (self : blake3_hasher_Access) return blake3_hash;
+
    procedure C_b3hasher_update
      (self : blake3_hasher_Access;
       data : access IC.unsigned_char;
@@ -64,5 +68,7 @@ private
       hash : access IC.unsigned_char;
       len  : IC.size_t);
    pragma Import (C, C_b3hasher_finalize, "blake3_hasher_finalize");
+
+   function char2hex (quattro : Character) return hexrep;
 
 end blake_3;
