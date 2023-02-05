@@ -82,7 +82,7 @@ fetch_meta: fetch_meta.adb ${unix_objs}
 check_blake3: check_blake3.adb
 	env PATH=${PATH}:/raven/toolchain/ravensys-gcc/bin \
 	gnatmake -g -fstack-check ${.TARGET} \
-		-aI../src/blake3 -aI../src \
+		-aI../../src/blake3 -aI../../src \
 		-largs /raven/lib/libblake3_pic.a
 
 read_elf_hints: read_elf_hints.adb
