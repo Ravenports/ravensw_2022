@@ -5,10 +5,11 @@ usage:
 	@echo "make dns_srv"
 	@echo "make retrieve_int64"
 	@echo "make check bind"
-	@echo "make fetch_meta_c";
-	@echo "make fetch_meta";
-	@echo "make check_blake3";
-#	@echo "make load_pubkey_c";
+	@echo "make fetch_meta_c"
+	@echo "make fetch_meta"
+	@echo "make check_blake3"
+#	@echo "make load_pubkey_c"
+	@echo "make file_digest"
 
 clean:
 	rm -f dns_srv retrieve_int64 check_bind fetch_meta_c fetch_meta check_blake3
@@ -93,3 +94,9 @@ read_elf_hints: read_elf_hints.adb
 #	${CC} ${CFLAGS} ${SSLCFLAGS} -o ${.TARGET} ${.ALLSRC} \
 #		/raven/libressl/lib/libssl_pic.a \
 #		/raven/libressl/lib/libcrypto_pic.a
+
+file_digest: file_digest.adb
+	env PATH=${PATH}:/raven/toolchain/ravensys-gcc/bin \
+	gnatmake -g -fstack-check ${.TARGET} \
+		-aI../../src/blake3 -aI../../src \
+		-largs /raven/lib/libblake3_pic.a
