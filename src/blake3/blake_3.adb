@@ -2,6 +2,8 @@
 --  Reference: ../../License.txt
 
 
+with Ada.Streams.Stream_IO;
+
 package body blake_3 is
 
    package INT renames Interfaces;
@@ -117,5 +119,49 @@ package body blake_3 is
       blake_3.b3_update (hasher'Unchecked_Access, input_string);
       return blake_3.b3_finalize (hasher'Unchecked_Access);
    end digest;
+
+
+   --------------------------------------------------------------------
+   --  file_digest
+   --------------------------------------------------------------------
+   function file_digest (path : String; power : Positive := 16) return blake3_hash
+   is
+      chunk_size : constant Ada.Streams.Stream_Element_Offset := 2 ** power;
+      subtype Buffer_Type is Ada.Streams.Stream_Element_Array (1 .. chunk_size);
+
+      hasher : aliased blake_3.blake3_hasher;
+      Buffer : Buffer_Type;
+      File   : Ada.Streams.Stream_IO.File_Type;
+      LastSE : Ada.Streams.Stream_Element_Offset;
+
+      use type Ada.Streams.Stream_Element_Offset;
+
+      function buffer_to_string (Buffer : Buffer_Type;
+                                 LastSE : Ada.Streams.Stream_Element_Offset) return String;
+
+      function buffer_to_string
+        (Buffer : Buffer_Type;
+         LastSE : Ada.Streams.Stream_Element_Offset) return String
+      is
+         result : String (Integer (Buffer'First) .. Integer (LastSE));
+      begin
+         for x in Buffer'First .. LastSE loop
+            result (Integer (x)) := Character'Val (Buffer (x));
+         end loop;
+         return result;
+      end buffer_to_string;
+   begin
+      blake_3.b3_init (hasher'Unchecked_Access);
+      Ada.Streams.Stream_IO.Open (File,
+                                  Mode => Ada.Streams.Stream_IO.In_File,
+                                  Name => path);
+      loop
+         Ada.Streams.Stream_IO.Read (File, Item => Buffer, Last => LastSE);
+         blake_3.b3_update (hasher'Unchecked_Access, buffer_to_string (Buffer, LastSE));
+         exit when LastSE < Buffer'Last;
+      end loop;
+      Ada.Streams.Stream_IO.Close (File);
+      return blake_3.b3_finalize (hasher'Unchecked_Access);
+   end file_digest;
 
 end blake_3;
