@@ -2,10 +2,8 @@
 --  Reference: ../License.txt
 
 with Core.Database.Operations;
+with Core.Create;
 with Core.Event;
-with Core.Config;
-with Core.Context;
-with Core.Manifest;
 
 with Core.Strings;  use Core.Strings;
 
@@ -28,10 +26,10 @@ package body Cmd.Register is
       my_pkg.package_type := Pkgtypes.PKG_INSTALLED;
       my_pkg.automatic := comline.register_automatic;
 
-      if command_load_metadata (pkg_access     => my_pkg'Unchecked_Access,
-                                metadatafile   => USS (comline.register_metafile),
-                                root_directory => USS (comline.register_root),
-                                testing        => comline.register_test) /= RESULT_OK
+      if Create.command_load_metadata (pkg_access     => my_pkg'Unchecked_Access,
+                                       metadatafile   => USS (comline.register_metafile),
+                                       root_directory => USS (comline.register_root),
+                                       testing        => comline.register_test) /= RESULT_OK
       then
          return False;
       end if;
@@ -92,60 +90,5 @@ package body Cmd.Register is
       end case;
    end access_is_sufficient;
 
-
-   --------------------------------------------------------------------
-   --  command_load_metadata
-   --------------------------------------------------------------------
-   function command_load_metadata
-     (pkg_access     : Pkgtypes.A_Package_Access;
-      metadatafile   : String;
-      root_directory : String;
-      testing        : Boolean) return Action_Result
-   is
-      rc : Action_Result;
-   begin
-
-      rc := Manifest.parse_metadata_file (pkg_access   => pkg_access,
-                                          metadatafile => metadatafile);
-      if rc = RESULT_OK then
-         fix_up_abi (pkg_access     => pkg_access,
-                     root_directory => root_directory,
-                     testing        => testing);
-      end if;
-
-      return rc;
-   end command_load_metadata;
-
-
-   --------------------------------------------------------------------
-   --  fix_up_abi
-   --------------------------------------------------------------------
-   procedure fix_up_abi
-     (pkg_access     : Pkgtypes.A_Package_Access;
-      root_directory : String;
-      testing        : Boolean)
-   is
-      defaultarch : Boolean := False;
-   begin
-      --  If not defined architecture, autodetermine it
-      if IsBlank (pkg_access.abi) then
-         declare
-            arch : String := Config.get_ci_key (Config.abi);
-         begin
-            pkg_access.abi := SUS (arch);
-            defaultarch := True;
-         end;
-      end if;
-
-      if not testing then
-         null;
-         --  TODO: analyze files
-      end if;
-
-      if Context.reveal_developer_mode then
-         null;
-         --  TODO: suggest arch
-      end if;
-   end fix_up_abi;
 
 end Cmd.Register;
