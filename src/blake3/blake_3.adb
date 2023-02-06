@@ -3,6 +3,7 @@
 
 
 with Ada.Streams.Stream_IO;
+with Ada.Unchecked_Conversion;
 
 package body blake_3 is
 
@@ -13,18 +14,17 @@ package body blake_3 is
    --------------------------------------------------------------------
    procedure b3_update (self : blake3_hasher_Access; plain : String)
    is
+      type data_type is array (plain'Range) of aliased IC.unsigned_char;
+      function string_to_data is new Ada.Unchecked_Conversion (Source => String,
+                                                               Target => data_type);
    begin
       if plain'Length = 0 then
          C_b3hasher_update (self, null, 0);
       else
          declare
-            buffer : array (plain'Range) of aliased IC.unsigned_char;
+            data : data_type := string_to_data (plain);
          begin
-            for x in plain'Range loop
-               buffer (x) := IC.unsigned_char (Character'Pos (plain (x)));
-            end loop;
-
-            C_b3hasher_update (self, buffer (buffer'First)'Access, plain'Length);
+            C_b3hasher_update (self, data (data'First)'Access, plain'Length);
          end;
       end if;
    end b3_update;
@@ -128,6 +128,7 @@ package body blake_3 is
    is
       chunk_size : constant Ada.Streams.Stream_Element_Offset := 2 ** power;
       subtype Buffer_Type is Ada.Streams.Stream_Element_Array (1 .. chunk_size);
+      type data_type is array (Buffer_Type'Range) of aliased IC.unsigned_char;
 
       hasher : aliased blake_3.blake3_hasher;
       Buffer : Buffer_Type;
@@ -136,20 +137,9 @@ package body blake_3 is
 
       use type Ada.Streams.Stream_Element_Offset;
 
-      function buffer_to_string (Buffer : Buffer_Type;
-                                 LastSE : Ada.Streams.Stream_Element_Offset) return String;
+      function buffer_to_data is new Ada.Unchecked_Conversion (Source => Buffer_Type,
+                                                               Target => data_type);
 
-      function buffer_to_string
-        (Buffer : Buffer_Type;
-         LastSE : Ada.Streams.Stream_Element_Offset) return String
-      is
-         result : String (Integer (Buffer'First) .. Integer (LastSE));
-      begin
-         for x in Buffer'First .. LastSE loop
-            result (Integer (x)) := Character'Val (Buffer (x));
-         end loop;
-         return result;
-      end buffer_to_string;
    begin
       blake_3.b3_init (hasher'Unchecked_Access);
       Ada.Streams.Stream_IO.Open (File,
@@ -157,7 +147,17 @@ package body blake_3 is
                                   Name => path);
       loop
          Ada.Streams.Stream_IO.Read (File, Item => Buffer, Last => LastSE);
-         blake_3.b3_update (hasher'Unchecked_Access, buffer_to_string (Buffer, LastSE));
+         declare
+            data : data_type := buffer_to_data (Buffer);
+         begin
+            if LastSE = 0 then
+               C_b3hasher_update (hasher'Unchecked_Access, null, 0);
+            else
+               C_b3hasher_update (self => hasher'Unchecked_Access,
+                                  data => data (data'First)'Access,
+                                  len  => IC.size_t (LastSE));
+            end if;
+         end;
          exit when LastSE < Buffer'Last;
       end loop;
       Ada.Streams.Stream_IO.Close (File);
